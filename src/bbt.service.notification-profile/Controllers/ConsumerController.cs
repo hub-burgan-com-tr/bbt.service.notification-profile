@@ -17,32 +17,118 @@ public class ConsumerController : ControllerBase
     }
 
     [SwaggerOperation(
-              Summary = "Returns consumers",
+              Summary = "Returns users of client. For individual clients genarally has one user -himself. ",
               Tags = new[] { "Consumer" }
           )]
-    [HttpGet("/consumers/{handle}")]
-    [SwaggerResponse(200, "Success, consumers are returned successfully", typeof(GetConsumersResponse))]
+    [HttpGet("/consumers/clients/{client}/users")]
+    [SwaggerResponse(200, "Success, users are returned successfully", typeof(GetClientUsersResponse))]
 
-    public IActionResult Get(
-        [FromRoute] long handle,
-        [FromQuery] long user,
-        [FromQuery(Name = "page-index")][Range(0, 100)] int pageIndex = 0,
-        [FromQuery(Name = "page-size")][Range(1, 100)] int pageSize = 20
+    public IActionResult GetUsers(
+        [FromRoute] long client
     )
     {
-        throw new NotImplementedException();
+        return Ok(new GetClientUsersResponse
+        {
+            Users = new List<long>
+            {
+                38552069001,
+                38552069002,
+                38552069003
+            }
+        });
     }
 
     [SwaggerOperation(
               Summary = "Add new consumer configuration",
               Tags = new[] { "Consumer" }
           )]
-    [HttpPost("/consumers/{handle-id}")]
+    [HttpPost("/consumers/clients/{client}")]
     [SwaggerResponse(201, "Success, consumer is crated successfully", typeof(PostConsumerResponse))]
 
     public IActionResult Post(
-        [FromRoute] long handle,
+        [FromRoute] long client,
         [FromBody] PostConsumerRequest data
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    [SwaggerOperation(
+           Summary = "Returns specific consumer",
+           Tags = new[] { "Consumer" }
+       )]
+    [HttpGet("/consumers/clients/{client}/users/{user}/paths")]
+    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetUserPathsResponse))]
+
+    public IActionResult GetUserPaths(
+      [FromRoute] long client,
+      [FromRoute] long user
+ )
+    {
+        return Ok(new GetUserPathsResponse
+        {
+            Paths = new List<GetUserPathsResponse.PathInfo> {
+                new GetUserPathsResponse.PathInfo {
+                    Path = "Transfers/",
+                    Source = "",
+                    Filter = "",
+                    IsPushEnabled = true,
+                    DeviceKey = "",
+                    IsSmsEnabled = true,
+                    Phone = new Phone { },
+                    IsMailEnabled = true,
+                    Email =""
+                }
+            }
+        });
+    }
+
+
+
+
+    [SwaggerOperation(
+             Summary = "Returns specific consumer",
+             Tags = new[] { "Consumer" }
+         )]
+    [HttpGet("/consumers/clients/{client}/users/{user}/paths/{path}")]
+    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetConsumerByPathResponse))]
+
+    public IActionResult GetByPath(
+        [FromRoute] long client,
+        [FromRoute] long user,
+        [FromRoute] long path
+   )
+    {
+        throw new NotImplementedException();
+    }
+
+    [SwaggerOperation(
+             Summary = "Returns specific consumer",
+             Tags = new[] { "Consumer" }
+         )]
+    [HttpPatch("/consumers/users/{user}/update-email")]
+    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetConsumerByPathResponse))]
+
+    public IActionResult UpdateEmail(
+        [FromRoute] long client,
+        [FromRoute] long user,
+        [FromRoute] long path
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    [SwaggerOperation(
+             Summary = "Returns specific consumer",
+             Tags = new[] { "Consumer" }
+         )]
+    [HttpPatch("/consumers/users/{user}/update-phone")]
+    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetConsumerByPathResponse))]
+
+    public IActionResult UpdatePhone(
+        [FromRoute] long client,
+        [FromRoute] long user,
+        [FromRoute] long path
     )
     {
         throw new NotImplementedException();
@@ -50,17 +136,17 @@ public class ConsumerController : ControllerBase
 
 
     [SwaggerOperation(
-             Summary = "Returns specific consumer",
-             Tags = new[] { "Consumer" }
-         )]
-    [HttpGet("/consumers/{handle}/{user}/{path}")]
+           Summary = "Returns specific consumer",
+           Tags = new[] { "Consumer" }
+       )]
+    [HttpPatch("/consumers/users/{user}/update-device")]
     [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetConsumerByPathResponse))]
 
-    public IActionResult GetByPath(
-        [FromRoute] long handle,
-        [FromRoute] long user,
-        [FromRoute] long path
-   )
+    public IActionResult UpdateDevice(
+      [FromRoute] long client,
+      [FromRoute] long user,
+      [FromRoute] long path
+    )
     {
         throw new NotImplementedException();
     }
