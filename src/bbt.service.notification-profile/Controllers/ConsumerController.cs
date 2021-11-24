@@ -39,96 +39,95 @@ public class ConsumerController : ControllerBase
     }
 
     [SwaggerOperation(
-              Summary = "Add new consumer configuration",
-              Tags = new[] { "Consumer" }
-          )]
-    [HttpPost("/consumers/clients/{client}")]
-    [SwaggerResponse(201, "Success, consumer is crated successfully", typeof(PostConsumerResponse))]
-
-    public IActionResult Post(
-        [FromRoute] long client,
-        [FromBody] PostConsumerRequest data
-    )
-    {
-        throw new NotImplementedException();
-    }
-
-    [SwaggerOperation(
-           Summary = "Returns specific consumer",
+           Summary = "Returns returns consumer configurations of user for specific customer",
            Tags = new[] { "Consumer" }
        )]
-    [HttpGet("/consumers/clients/{client}/users/{user}/paths")]
-    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetUserPathsResponse))]
+    [HttpGet("/consumers/clients/{client}/users/{user}/topics")]
+    [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetUserTopicsResponse))]
 
-    public IActionResult GetUserPaths(
+    public IActionResult GetUserTopics(
       [FromRoute] long client,
-      [FromRoute] long user
+      [FromRoute] long user,
+      [FromQuery] string source
  )
     {
-        return Ok(new GetUserPathsResponse
+        return Ok(new GetUserTopicsResponse
         {
-            Paths = new List<GetUserPathsResponse.PathInfo> {
-                new GetUserPathsResponse.PathInfo {
-                    Path = "Transfers/",
-                    Source = "",
-                    Filter = "",
+            Topics = new List<GetUserTopicsResponse.TopicInfo> {
+                new GetUserTopicsResponse.TopicInfo {
+                    Source = "Incoming-EFT",
                     IsPushEnabled = true,
-                    DeviceKey = "",
+                    DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
+                    IsSmsEnabled = false,
+                    IsMailEnabled = false,
+                },
+                 new GetUserTopicsResponse.TopicInfo {
+                    Variants = new List<KeyValuePair<string, string>> {
+                        new KeyValuePair<string, string> ("IBAN", "TR330006100519786457841326")
+                        },
+                    Source = "Incoming-EFT",
+                    Filter = "Amount >= 500",
+                    IsPushEnabled = true,
+                    DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
                     IsSmsEnabled = true,
-                    Phone = new Phone { },
-                    IsMailEnabled = true,
-                    Email =""
+                    Phone = new Phone { CountryCode = 90, Prefix = 530, Number = 2896073   },
+                    IsMailEnabled = false,
+                },
+                 new GetUserTopicsResponse.TopicInfo {
+                    Source = "Incoming-QR",
+                    IsPushEnabled = true,
+                    DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
+                    IsSmsEnabled = false,
+                    IsMailEnabled = false,
                 }
             }
         });
     }
 
-
-
-
     [SwaggerOperation(
-             Summary = "Returns specific consumer",
-             Tags = new[] { "Consumer" }
-         )]
-    [HttpGet("/consumers/clients/{client}/users/{user}/paths/{path}")]
-    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetConsumerByPathResponse))]
+                Summary = "Add new consumer configuration to user",
+                Tags = new[] { "Consumer" }
+            )]
+    [HttpPost("/consumers/clients/{client}/users/{user}/topics")]
+    [SwaggerResponse(201, "Success, consumer is crated successfully", typeof(PostConsumerResponse))]
 
-    public IActionResult GetByPath(
-        [FromRoute] long client,
-        [FromRoute] long user,
-        [FromRoute] long path
-   )
+    public IActionResult Post(
+          [FromRoute] long client,
+          [FromRoute] long user,
+          [FromBody] PostConsumerRequest data
+      )
     {
         throw new NotImplementedException();
     }
 
+
     [SwaggerOperation(
-             Summary = "Returns specific consumer",
+                Summary = "Updates user email address in all topics",
              Tags = new[] { "Consumer" }
          )]
     [HttpPatch("/consumers/users/{user}/update-email")]
-    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetConsumerByPathResponse))]
+    [SwaggerResponse(200, "Success, email addresses are updated successfully", typeof(PostUpdateResponse))]
 
     public IActionResult UpdateEmail(
-        [FromRoute] long client,
         [FromRoute] long user,
-        [FromRoute] long path
+        [FromBody] PostUpdateEmailRequest data
+
     )
     {
         throw new NotImplementedException();
     }
 
     [SwaggerOperation(
-             Summary = "Returns specific consumer",
+               Summary = "Updates user phone in all topics",
              Tags = new[] { "Consumer" }
          )]
     [HttpPatch("/consumers/users/{user}/update-phone")]
-    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetConsumerByPathResponse))]
+    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(PostUpdateResponse))]
 
     public IActionResult UpdatePhone(
-        [FromRoute] long client,
         [FromRoute] long user,
-        [FromRoute] long path
+        [FromBody] PostUpdatePhoneRequest data
+
     )
     {
         throw new NotImplementedException();
@@ -136,19 +135,61 @@ public class ConsumerController : ControllerBase
 
 
     [SwaggerOperation(
-           Summary = "Returns specific consumer",
+              Summary = "Updates user device in all topics",
            Tags = new[] { "Consumer" }
        )]
     [HttpPatch("/consumers/users/{user}/update-device")]
-    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(GetConsumerByPathResponse))]
+    [SwaggerResponse(200, "Success, consumer is returned successfully", typeof(PostUpdateResponse))]
 
     public IActionResult UpdateDevice(
-      [FromRoute] long client,
       [FromRoute] long user,
-      [FromRoute] long path
+        [FromBody] PostUpdateDeviceRequest data
+
     )
     {
         throw new NotImplementedException();
+    }
+
+
+    [SwaggerOperation(
+         Summary = "Returns all consumers with checking fields values (After variant check and filtering ). ",
+         Tags = new[] { "Consumer" }
+     )]
+    [HttpGet("/consumers/source/{source}")]
+    [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetSourceConsumersResponse))]
+
+    public IActionResult GetSourceTopics(
+    [FromRoute] string source,
+    [FromQuery] KeyValuePair<string, string>[] fields
+)
+    {
+        return Ok(new GetSourceConsumersResponse
+        {
+            Consumers = new List<GetSourceConsumersResponse.Consumer> {
+                new GetSourceConsumersResponse.Consumer
+                {
+                    IsPushEnabled = true,
+                    DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
+                    IsSmsEnabled = false,
+                    IsMailEnabled = false,
+                },
+            new GetSourceConsumersResponse.Consumer
+            {
+                IsPushEnabled = true,
+                DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
+                IsSmsEnabled = true,
+                Phone = new Phone { CountryCode = 90, Prefix = 530, Number = 2896073 },
+                IsMailEnabled = false,
+            },
+            new GetSourceConsumersResponse.Consumer
+            {
+                IsPushEnabled = true,
+                DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
+                IsSmsEnabled = false,
+                IsMailEnabled = false,
+            }
+        }
+        });
     }
 
 }

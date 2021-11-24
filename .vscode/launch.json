@@ -12,7 +12,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
+            // If you have changed target frameworks, make sure to update the program Topic.
             "program": "${workspaceFolder}/src/bbt.service.notification-profile/bin/Debug/net6.0/bbt.service.notification-profile.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/bbt.service.notification-profile",

@@ -1,12 +1,12 @@
 
 
-public class GetUserPathsResponse
+public class GetUserTopicsResponse
 {
-    public List<PathInfo> Paths { get; set; }
+    public List<TopicInfo> Topics { get; set; }
 
-    public class PathInfo
+    public class TopicInfo
     {
-        public string Path { get; set; }
+        public List<KeyValuePair<string,string>> Variants { get; set; }
         public string Source { get; set; }
         public string Filter { get; set; }
         public bool IsPushEnabled { get; set; }

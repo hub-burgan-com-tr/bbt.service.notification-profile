@@ -2,9 +2,9 @@
 
 public class PostConsumerRequest
 {
-    public Guid SourceId { get; set; }
+    public string Source { get; set; }
     public long User { get; set; }
-    public string Path { get; set; }
+    public string Topic { get; set; }
     public string Filter { get; set; }
     public bool IsPushEnabled { get; set; }
     public string DeviceKey { get; set; }
