@@ -160,6 +160,7 @@ public class ConsumerController : ControllerBase
 
     public IActionResult GetSourceTopics(
     [FromRoute] string source,
+      [FromRoute] long client,  
     [FromQuery] KeyValuePair<string, string>[] fields
 )
     {
