@@ -123,7 +123,7 @@ public class SourceController : ControllerBase
 
 
     [SwaggerOperation(
-            Summary = "Deletes existing data sources if only there is no referenced consumer",
+            Summary = "Deletes existing data source if only there is no referenced consumer",
             Tags = new[] { "Source" }
         )]
     [HttpDelete("/sources/{id}")]

@@ -5,6 +5,7 @@ public class DatabaseContext : DbContext
 {
     public DbSet<Source> Sources { get; set; }
     public DbSet<Consumer> Consumers { get; set; }
+    public DbSet<ConsumerVariant> ConsumerVariants { get; set; }
 
     public string DbPath { get; private set; }
     public DatabaseContext()
@@ -26,6 +27,8 @@ public class DatabaseContext : DbContext
             .HasIndex(c => c.Id)
             .IsClustered(false);
 
+        /*    
+
         builder.Entity<Consumer>()
            .Property<long>("$id")
            .ValueGeneratedOnAdd();
@@ -34,6 +37,8 @@ public class DatabaseContext : DbContext
           .HasIndex("$id")
           .IsUnique()
           .IsClustered(true);
+
+        */
 
         builder.Entity<Consumer>().OwnsOne(p => p.Phone);
 
@@ -72,5 +77,62 @@ public class DatabaseContext : DbContext
                    EmailServiceReference = "notify_email_incoming_qr"
                }
              );
+
+        builder.Entity<Consumer>(c =>
+        {
+            c.HasData(
+            new
+            {
+                Id = new Guid("1e15d57c-26e3-4e78-94f9-8649b3302555"),
+                Client = (long)123456,
+                User = (long)123456,
+                SourceId = "[SAMPLE]Incoming-EFT",
+                Filter = "data.amount >= 500",
+                IsPushEnabled = false,
+                IsSmsEnabled = true,
+                IsMailEnabled = false
+            });
+            c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("1e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
+
+        });
+
+        builder.Entity<Consumer>(c =>
+       {
+           c.HasData(
+           new
+           {
+               Id = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"),
+               Client = (long)123456,
+               User = (long)123456,
+               SourceId = "[SAMPLE]Incoming-EFT",
+               IsPushEnabled = false,
+               IsSmsEnabled = true,
+               IsMailEnabled = false
+           });
+           c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
+       });
+
+        builder.Entity<ConsumerVariant>().HasData(
+            new ConsumerVariant { Id = Guid.NewGuid(),  ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), Key = "IBAN", Value = "TR58552069008" } 
+        );
+
+        builder.Entity<Consumer>(c =>
+       {
+           c.HasData(
+           new
+           {
+               Id = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"),
+               Client = (long)0,
+               User = (long)123456,
+               SourceId = "[SAMPLE]Incoming-EFT",
+               Filter = "data.amount >= 500000",
+               IsPushEnabled = false,
+               IsSmsEnabled = true,
+               IsMailEnabled = false
+           });
+           c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
+       });
+
+
     }
 }

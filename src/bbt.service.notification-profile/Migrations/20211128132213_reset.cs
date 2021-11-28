@@ -56,23 +56,59 @@ namespace Notification.Profile.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ConsumerVariant",
+                name: "ConsumerVariants",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ConsumerId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ConsumerId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Key = table.Column<string>(type: "TEXT", nullable: true),
                     Value = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ConsumerVariant", x => x.Id);
+                    table.PrimaryKey("PK_ConsumerVariants", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ConsumerVariant_Consumers_ConsumerId",
+                        name: "FK_ConsumerVariants_Consumers_ConsumerId",
                         column: x => x.ConsumerId,
                         principalTable: "Consumers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Sources",
+                columns: new[] { "Id", "ApiKey", "EmailServiceReference", "PushServiceReference", "Secret", "SmsServiceReference", "Title", "Topic" },
+                values: new object[] { "[SAMPLE]Incoming-EFT", "a1b2c33d4e5f6g7h8i9jakblc", "notify_email_incoming_eft", "notify_push_incoming_eft", "11561681-8ba5-4b46-bed0-905ae1769bc6", "notify_sms_incoming_eft", "Gelen EFT", "http://localhost:8082/topics/cdc_eft/incoming_eft" });
+
+            migrationBuilder.InsertData(
+                table: "Sources",
+                columns: new[] { "Id", "ApiKey", "EmailServiceReference", "PushServiceReference", "Secret", "SmsServiceReference", "Title", "Topic" },
+                values: new object[] { "[SAMPLE]Incoming-FAST", "a1b2c33d4e5f6g7h8i9jakblc", "notify_email_incoming_fast", "notify_push_incoming_fast", "11561681-8ba5-4b46-bed0-905ae1769bc6", "notify_sms_incoming_fast", "Gelen Fast", "http://localhost:8082/topics/cdc_eft/incoming_fast" });
+
+            migrationBuilder.InsertData(
+                table: "Sources",
+                columns: new[] { "Id", "ApiKey", "EmailServiceReference", "PushServiceReference", "Secret", "SmsServiceReference", "Title", "Topic" },
+                values: new object[] { "[SAMPLE]Incoming-QR", "a1b2c33d4e5f6g7h8i9jakblc", "notify_email_incoming_qr", "notify_push_incoming_qr", "11561681-8ba5-4b46-bed0-905ae1769bc6", "notify_sms_incoming_qr", "Gelen EFT", "http://localhost:8082/topics/cdc_eft/incoming_qr" });
+
+            migrationBuilder.InsertData(
+                table: "Consumers",
+                columns: new[] { "Id", "Client", "DeviceKey", "Email", "Filter", "IsMailEnabled", "IsPushEnabled", "IsSmsEnabled", "SourceId", "User", "Phone_CountryCode", "Phone_Number", "Phone_Prefix" },
+                values: new object[] { new Guid("1e15d57c-26e3-4e78-94f9-8649b3302555"), 123456L, null, null, "data.amount >= 500", false, false, true, "[SAMPLE]Incoming-EFT", 123456L, 90, 3855206, 530 });
+
+            migrationBuilder.InsertData(
+                table: "Consumers",
+                columns: new[] { "Id", "Client", "DeviceKey", "Email", "Filter", "IsMailEnabled", "IsPushEnabled", "IsSmsEnabled", "SourceId", "User", "Phone_CountryCode", "Phone_Number", "Phone_Prefix" },
+                values: new object[] { new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), 123456L, null, null, null, false, false, true, "[SAMPLE]Incoming-EFT", 123456L, 90, 3855206, 530 });
+
+            migrationBuilder.InsertData(
+                table: "Consumers",
+                columns: new[] { "Id", "Client", "DeviceKey", "Email", "Filter", "IsMailEnabled", "IsPushEnabled", "IsSmsEnabled", "SourceId", "User", "Phone_CountryCode", "Phone_Number", "Phone_Prefix" },
+                values: new object[] { new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"), 0L, null, null, "data.amount >= 500000", false, false, true, "[SAMPLE]Incoming-EFT", 123456L, 90, 3855206, 530 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Consumers_Id",
+                table: "Consumers",
+                column: "Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Consumers_SourceId",
@@ -80,15 +116,15 @@ namespace Notification.Profile.Migrations
                 column: "SourceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConsumerVariant_ConsumerId",
-                table: "ConsumerVariant",
+                name: "IX_ConsumerVariants_ConsumerId",
+                table: "ConsumerVariants",
                 column: "ConsumerId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ConsumerVariant");
+                name: "ConsumerVariants");
 
             migrationBuilder.DropTable(
                 name: "Consumers");

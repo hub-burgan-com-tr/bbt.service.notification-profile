@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Notification.Profile.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20211128071218_reset2")]
-    partial class reset2
+    [Migration("20211128132213_reset")]
+    partial class reset
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -53,11 +53,48 @@ namespace Notification.Profile.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id")
+                        .HasAnnotation("SqlServer:Clustered", false);
+
                     b.HasIndex("SourceId");
 
                     b.ToTable("Consumers");
 
                     b.HasAnnotation("SqlServer:MemoryOptimized", true);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("1e15d57c-26e3-4e78-94f9-8649b3302555"),
+                            Client = 123456L,
+                            Filter = "data.amount >= 500",
+                            IsMailEnabled = false,
+                            IsPushEnabled = false,
+                            IsSmsEnabled = true,
+                            SourceId = "[SAMPLE]Incoming-EFT",
+                            User = 123456L
+                        },
+                        new
+                        {
+                            Id = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"),
+                            Client = 123456L,
+                            IsMailEnabled = false,
+                            IsPushEnabled = false,
+                            IsSmsEnabled = true,
+                            SourceId = "[SAMPLE]Incoming-EFT",
+                            User = 123456L
+                        },
+                        new
+                        {
+                            Id = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"),
+                            Client = 0L,
+                            Filter = "data.amount >= 500000",
+                            IsMailEnabled = false,
+                            IsPushEnabled = false,
+                            IsSmsEnabled = true,
+                            SourceId = "[SAMPLE]Incoming-EFT",
+                            User = 123456L
+                        });
                 });
 
             modelBuilder.Entity("ConsumerVariant", b =>
@@ -66,7 +103,7 @@ namespace Notification.Profile.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("ConsumerId")
+                    b.Property<Guid>("ConsumerId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Key")
@@ -79,7 +116,7 @@ namespace Notification.Profile.Migrations
 
                     b.HasIndex("ConsumerId");
 
-                    b.ToTable("ConsumerVariant");
+                    b.ToTable("ConsumerVariants");
                 });
 
             modelBuilder.Entity("Source", b =>
@@ -174,6 +211,29 @@ namespace Notification.Profile.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("ConsumerId");
+
+                            b1.HasData(
+                                new
+                                {
+                                    ConsumerId = new Guid("1e15d57c-26e3-4e78-94f9-8649b3302555"),
+                                    CountryCode = 90,
+                                    Number = 3855206,
+                                    Prefix = 530
+                                },
+                                new
+                                {
+                                    ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"),
+                                    CountryCode = 90,
+                                    Number = 3855206,
+                                    Prefix = 530
+                                },
+                                new
+                                {
+                                    ConsumerId = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"),
+                                    CountryCode = 90,
+                                    Number = 3855206,
+                                    Prefix = 530
+                                });
                         });
 
                     b.Navigation("Phone");
@@ -185,7 +245,9 @@ namespace Notification.Profile.Migrations
                 {
                     b.HasOne("Consumer", "Consumer")
                         .WithMany("Variants")
-                        .HasForeignKey("ConsumerId");
+                        .HasForeignKey("ConsumerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Consumer");
                 });
