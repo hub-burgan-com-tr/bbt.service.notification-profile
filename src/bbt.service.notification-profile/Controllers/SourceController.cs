@@ -28,45 +28,127 @@ public class SourceController : ControllerBase
       [FromQuery(Name = "page-size")][Range(1, 100)] int pageSize = 20
     )
     {
+        List<Source> sources;
+
+        using (var db = new DatabaseContext())
+        {
+            sources = db.Sources
+                .Take(pageSize)
+                .Skip(pageSize * pageIndex)
+                .ToList();
+        }
+
+
         return Ok(new GetSourcesResponse
         {
-            Sources = new List<GetSourcesResponse.SourceItem> {
-             new GetSourcesResponse.SourceItem {
-                 Source = "Incoming-EFT",
-                 Title = "Gelen EFT",
-                 Topic = "http://localhost:8082/topics/cdc_eft/incoming_eft",
-                 ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
-                 Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
-                 PushServiceReference = "notify_push_incoming_eft",
-                 SmsServiceReference = "notify_sms_incoming_eft",
-                 EmailServiceReference = "notify_email_incoming_eft"
-             },
-              new GetSourcesResponse.SourceItem {
-                Source = "Incoming-FAST",
-                 Title = "Gelen EFT",
-                 Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast",
-                 ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
-                 Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
-                 PushServiceReference = "notify_push_incoming_fast",
-                 SmsServiceReference = "notify_sms_incoming_fast",
-                 EmailServiceReference = "notify_email_incoming_fast"
-             },
-             new GetSourcesResponse.SourceItem {
-                 Source = "Incoming-QR",
-                 Title = "Gelen EFT",
-                 Topic = "http://localhost:8082/topics/cdc_eft/incoming_qr",
-                 ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
-                 Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
-                 PushServiceReference = "notify_push_incoming_qr",
-                 SmsServiceReference = "notify_sms_incoming_qr",
-                 EmailServiceReference = "notify_email_incoming_qr"
-             }
+            Sources = sources.Select(s => new GetSourcesResponse.SourceItem
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Topic = s.Topic,
+                ApiKey = s.ApiKey,
+                Secret = s.Secret,
+                PushServiceReference = s.PushServiceReference,
+                SmsServiceReference = s.SmsServiceReference,
+                EmailServiceReference = s.EmailServiceReference
+            }).ToList()
+        }
+        );
+    }
+
+    [SwaggerOperation(
+             Summary = "Adds new data sources",
+             Tags = new[] { "Source" }
+         )]
+    [HttpPost("/sources")]
+    [SwaggerResponse(200, "Success, sources is created successfully", typeof(void))]
+    public IActionResult Post(
+     [FromBody] PostSourceRequest data)
+    {
+        using (var db = new DatabaseContext())
+        {
+            db.Add(new Source
+            {
+                Id = data.Id,
+                Title = data.Title,
+                Topic = data.Topic,
+                ApiKey = data.ApiKey,
+                Secret = data.Secret,
+                PushServiceReference = data.PushServiceReference,
+                SmsServiceReference = data.SmsServiceReference,
+                EmailServiceReference = data.EmailServiceReference
+            });
+
+            db.SaveChanges();
+        }
 
 
+        return Ok();
+    }
 
 
+    [SwaggerOperation(
+             Summary = "Updates existing data sources. Only not null values are going be to uptated",
+             Tags = new[] { "Source" }
+         )]
+    [HttpPatch("/sources/{id}")]
+    [SwaggerResponse(200, "Success, source is updated successfully", typeof(void))]
+    [SwaggerResponse(460, "Source is not found.", typeof(Guid))]
+    public IActionResult Patch(
+        [FromRoute] string id,
+        [FromBody] PatchSourceRequest data)
+    {
 
-              }
-        });
+        using (var db = new DatabaseContext())
+        {
+            var source = db.Sources.FirstOrDefault(s => s.Id == id);
+
+            if (source == null)
+                return new ObjectResult(id) { StatusCode = 460 };
+
+            if (data.Title != null) source.Title = data.Title;
+            if (data.Topic != null) source.Topic = data.Topic;
+            if (data.ApiKey != null) source.ApiKey = data.ApiKey;
+            if (data.Secret != null) source.Secret = data.Secret;
+            if (data.PushServiceReference != null) source.PushServiceReference = data.PushServiceReference;
+            if (data.SmsServiceReference != null) source.SmsServiceReference = data.SmsServiceReference;
+            if (data.EmailServiceReference != null) source.EmailServiceReference = data.EmailServiceReference;
+
+            db.SaveChanges();
+        }
+
+
+        return Ok();
+    }
+
+
+    [SwaggerOperation(
+            Summary = "Deletes existing data sources if only there is no referenced consumer",
+            Tags = new[] { "Source" }
+        )]
+    [HttpDelete("/sources/{id}")]
+    [SwaggerResponse(200, "Success, source is deleted successfully", typeof(void))]
+    [SwaggerResponse(460, "Source is not found", typeof(Guid))]
+    [SwaggerResponse(461, "Source has consumer(s)", typeof(Guid))]
+    public IActionResult Delete([FromRoute] string id)
+    {
+
+        using (var db = new DatabaseContext())
+        {
+            var source = db.Sources.FirstOrDefault(s => s.Id == id);
+
+            if (source == null)
+                return new ObjectResult(id) { StatusCode = 460 };
+
+            var references = db.Consumers.FirstOrDefault(c => c.SourceId == id);
+
+            if (references != null)
+                return new ObjectResult(id) { StatusCode = 461 };
+
+            db.Remove(source);
+            db.SaveChanges();
+        }
+
+        return Ok();
     }
 }

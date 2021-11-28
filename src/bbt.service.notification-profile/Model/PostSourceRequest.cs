@@ -1,10 +1,7 @@
 
 
-public class GetSourcesResponse
+public class PostSourceRequest
 {
-    public List<SourceItem> Sources { get; set; }
-    public class SourceItem
-    {
         public string Id { get; set; }
         public string Title { get; set; }
         public string Topic { get; set; }
@@ -13,5 +10,4 @@ public class GetSourcesResponse
         public string PushServiceReference { get; set; }
         public string SmsServiceReference { get; set; }
         public string EmailServiceReference { get; set; }
-    }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Notification.Profile.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20211128070842_reset1")]
+    partial class reset1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.0");
@@ -21,10 +23,6 @@ namespace Notification.Profile.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
-
-                    b.Property<long>("$id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
 
                     b.Property<long>("Client")
                         .HasColumnType("INTEGER");
@@ -55,18 +53,9 @@ namespace Notification.Profile.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("$id")
-                        .IsUnique()
-                        .HasAnnotation("SqlServer:Clustered", true);
-
-                    b.HasIndex("Id")
-                        .HasAnnotation("SqlServer:Clustered", false);
-
                     b.HasIndex("SourceId");
 
                     b.ToTable("Consumers");
-
-                    b.HasAnnotation("SqlServer:MemoryOptimized", true);
                 });
 
             modelBuilder.Entity("ConsumerVariant", b =>
