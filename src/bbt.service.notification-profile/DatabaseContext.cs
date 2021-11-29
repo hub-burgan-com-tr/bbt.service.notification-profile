@@ -15,32 +15,32 @@ public class DatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseSqlite($"Data Source={DbPath}");
+        //options.UseSqlite($"Data Source={DbPath}");
+        options.UseSqlServer(@"Data Source=localhost;Initial Catalog=Notification;User Id=SA;Password=@Qwert12;");
         options.EnableSensitiveDataLogging();
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<Consumer>().IsMemoryOptimized();
+        builder.Entity<Consumer>().OwnsOne(p => p.Phone);
 
-        builder.Entity<Consumer>()
-            .HasIndex(c => c.Id)
-            .IsClustered(false);
-
-        /*    
+        //builder.Entity<Phone>().IsMemoryOptimized();
+        //builder.Entity<Consumer>().IsMemoryOptimized();
 
         builder.Entity<Consumer>()
            .Property<long>("$id")
            .ValueGeneratedOnAdd();
 
         builder.Entity<Consumer>()
+            .HasKey(c => c.Id)
+            .IsClustered(false);
+
+        builder.Entity<Consumer>()
           .HasIndex("$id")
           .IsUnique()
           .IsClustered(true);
 
-        */
 
-        builder.Entity<Consumer>().OwnsOne(p => p.Phone);
 
         builder.Entity<Source>().HasData(
              new Source
@@ -113,7 +113,7 @@ public class DatabaseContext : DbContext
        });
 
         builder.Entity<ConsumerVariant>().HasData(
-            new ConsumerVariant { Id = Guid.NewGuid(),  ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), Key = "IBAN", Value = "TR58552069008" } 
+            new ConsumerVariant { Id = Guid.NewGuid(), ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), Key = "IBAN", Value = "TR58552069008" }
         );
 
         builder.Entity<Consumer>(c =>

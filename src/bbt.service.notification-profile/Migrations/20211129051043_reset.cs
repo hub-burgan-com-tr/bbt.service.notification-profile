@@ -13,14 +13,14 @@ namespace Notification.Profile.Migrations
                 name: "Sources",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Title = table.Column<string>(type: "TEXT", nullable: true),
-                    Topic = table.Column<string>(type: "TEXT", nullable: true),
-                    ApiKey = table.Column<string>(type: "TEXT", nullable: true),
-                    Secret = table.Column<string>(type: "TEXT", nullable: true),
-                    PushServiceReference = table.Column<string>(type: "TEXT", nullable: true),
-                    SmsServiceReference = table.Column<string>(type: "TEXT", nullable: true),
-                    EmailServiceReference = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Topic = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ApiKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Secret = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PushServiceReference = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmsServiceReference = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmailServiceReference = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -31,23 +31,26 @@ namespace Notification.Profile.Migrations
                 name: "Consumers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SourceId = table.Column<string>(type: "TEXT", nullable: true),
-                    Client = table.Column<long>(type: "INTEGER", nullable: false),
-                    User = table.Column<long>(type: "INTEGER", nullable: false),
-                    Filter = table.Column<string>(type: "TEXT", nullable: true),
-                    IsPushEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DeviceKey = table.Column<string>(type: "TEXT", nullable: true),
-                    IsSmsEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Phone_CountryCode = table.Column<int>(type: "INTEGER", nullable: true),
-                    Phone_Prefix = table.Column<int>(type: "INTEGER", nullable: true),
-                    Phone_Number = table.Column<int>(type: "INTEGER", nullable: true),
-                    IsMailEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SourceId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Client = table.Column<long>(type: "bigint", nullable: false),
+                    User = table.Column<long>(type: "bigint", nullable: false),
+                    Filter = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsPushEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    DeviceKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsSmsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    Phone_CountryCode = table.Column<int>(type: "int", nullable: true),
+                    Phone_Prefix = table.Column<int>(type: "int", nullable: true),
+                    Phone_Number = table.Column<int>(type: "int", nullable: true),
+                    IsMailEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    id = table.Column<long>(name: "$id", type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Consumers", x => x.Id);
+                    table.PrimaryKey("PK_Consumers", x => x.Id)
+                        .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
                         name: "FK_Consumers_Sources_SourceId",
                         column: x => x.SourceId,
@@ -59,10 +62,10 @@ namespace Notification.Profile.Migrations
                 name: "ConsumerVariants",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ConsumerId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Key = table.Column<string>(type: "TEXT", nullable: true),
-                    Value = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ConsumerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -105,10 +108,17 @@ namespace Notification.Profile.Migrations
                 columns: new[] { "Id", "Client", "DeviceKey", "Email", "Filter", "IsMailEnabled", "IsPushEnabled", "IsSmsEnabled", "SourceId", "User", "Phone_CountryCode", "Phone_Number", "Phone_Prefix" },
                 values: new object[] { new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"), 0L, null, null, "data.amount >= 500000", false, false, true, "[SAMPLE]Incoming-EFT", 123456L, 90, 3855206, 530 });
 
+            migrationBuilder.InsertData(
+                table: "ConsumerVariants",
+                columns: new[] { "Id", "ConsumerId", "Key", "Value" },
+                values: new object[] { new Guid("ef0275b8-3f85-4f48-be9a-21d7bf9bf6bd"), new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), "IBAN", "TR58552069008" });
+
             migrationBuilder.CreateIndex(
-                name: "IX_Consumers_Id",
+                name: "IX_Consumers_$id",
                 table: "Consumers",
-                column: "Id");
+                column: "$id",
+                unique: true)
+                .Annotation("SqlServer:Clustered", true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Consumers_SourceId",
