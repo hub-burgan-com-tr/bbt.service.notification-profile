@@ -111,7 +111,7 @@ namespace Notification.Profile.Migrations
             migrationBuilder.InsertData(
                 table: "ConsumerVariants",
                 columns: new[] { "Id", "ConsumerId", "Key", "Value" },
-                values: new object[] { new Guid("ef0275b8-3f85-4f48-be9a-21d7bf9bf6bd"), new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), "IBAN", "TR58552069008" });
+                values: new object[] { new Guid("c1685b57-41d6-4f45-9593-5ec8075b8a20"), new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), "IBAN", "TR58552069008" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Consumers_$id",

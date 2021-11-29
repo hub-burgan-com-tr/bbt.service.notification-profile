@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Notification.Profile.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20211129051043_reset")]
+    [Migration("20211129052810_reset")]
     partial class reset
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -134,7 +134,7 @@ namespace Notification.Profile.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ef0275b8-3f85-4f48-be9a-21d7bf9bf6bd"),
+                            Id = new Guid("c1685b57-41d6-4f45-9593-5ec8075b8a20"),
                             ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"),
                             Key = "IBAN",
                             Value = "TR58552069008"

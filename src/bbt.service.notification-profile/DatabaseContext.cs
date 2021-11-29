@@ -22,10 +22,17 @@ public class DatabaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<Consumer>().OwnsOne(p => p.Phone);
 
-        //builder.Entity<Phone>().IsMemoryOptimized();
-        //builder.Entity<Consumer>().IsMemoryOptimized();
+        builder.Entity<Consumer>().OwnsOne(e => e.Phone);
+
+        /* SQL Edge not supporting memory optimized tables
+        builder.Entity<Consumer>(c =>
+        {
+            c.OwnsOne(e => e.Phone).IsMemoryOptimized();
+            c.IsMemoryOptimized();
+        });
+        */
+        
 
         builder.Entity<Consumer>()
            .Property<long>("$id")
