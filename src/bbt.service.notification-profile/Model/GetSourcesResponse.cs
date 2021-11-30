@@ -2,8 +2,8 @@
 
 public class GetSourcesResponse
 {
-    public List<SourceItem> Sources { get; set; }
-    public class SourceItem
+    public List<Source> Sources { get; set; }
+    public class Source
     {
         public string Id { get; set; }
         public string Title { get; set; }

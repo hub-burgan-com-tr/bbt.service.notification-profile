@@ -8,7 +8,6 @@ public class Consumer
     public string SourceId { get; set; }
     public long Client { get; set; }
     public long User { get; set; }
-    public List<ConsumerVariant> Variants { get; set; }
     public string Filter { get; set; }
     public bool IsPushEnabled { get; set; }
     public string DeviceKey { get; set; }

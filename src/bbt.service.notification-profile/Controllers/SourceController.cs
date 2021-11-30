@@ -41,7 +41,7 @@ public class SourceController : ControllerBase
 
         return Ok(new GetSourcesResponse
         {
-            Sources = sources.Select(s => new GetSourcesResponse.SourceItem
+            Sources = sources.Select(s => new GetSourcesResponse.Source
             {
                 Id = s.Id,
                 Title = s.Title,

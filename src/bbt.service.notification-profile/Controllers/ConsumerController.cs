@@ -1,6 +1,13 @@
+using System.Collections;
+using System.ComponentModel;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 
 [ApiController]
@@ -49,7 +56,7 @@ public class ConsumerController : ControllerBase
     [HttpGet("/consumers/clients/{client}/users/{user}")]
     [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetUserConsumersResponse))]
 
-    public IActionResult GetUserTopics(
+    public IActionResult GetUserConsumers(
       [FromRoute] long client,
       [FromRoute] long user,
       [FromQuery] string source
@@ -63,7 +70,6 @@ public class ConsumerController : ControllerBase
                 s.Client == client &&
                 s.User == user &&
                 (source == null || s.SourceId == source))
-            .Include(s => s.Variants)
             .AsNoTracking();
 
             returnValue.Consumers = consumers.Select(c =>
@@ -71,7 +77,6 @@ public class ConsumerController : ControllerBase
                 {
                     Source = c.SourceId,
                     Filter = c.Filter,
-                    Variants = c.Variants.Select(v => new GetUserConsumersResponse.Consumer.Variant { Key = v.Key, Value = v.Value }).ToList(),
                     IsPushEnabled = c.IsPushEnabled,
                     DeviceKey = c.DeviceKey,
                     IsSmsEnabled = c.IsSmsEnabled,
@@ -103,68 +108,54 @@ public class ConsumerController : ControllerBase
         // ilgili configurasyon var mi, kontrol edelim.
         using (var db = new DatabaseContext())
         {
-            var consumers = db.Consumers.Where(s =>
+            var consumer = db.Consumers.Where(s =>
                 s.Client == client &&
                 s.User == user &&
                 (data.Source == null || s.SourceId == data.Source) &&
                 (data.Filter == null || s.Filter == data.Filter)
                 )
-            .Include(s => s.Variants)
-            .ToList();
+            .FirstOrDefault();
 
-            // variant kontrolude yapmak lazim
-            if (consumers != null)
+            if (consumer != null)
             {
-                if (data.Variants == null) data.Variants = new List<PostConsumerRequest.Variant>();
-                foreach (var c in consumers)
-                {
+                consumer.IsPushEnabled = data.IsPushEnabled;
+                consumer.DeviceKey = data.DeviceKey;
+                consumer.IsSmsEnabled = data.IsSmsEnabled;
+                consumer.Phone = data.Phone;
+                consumer.IsEmailEnabled = data.IsEmailEnabled;
+                consumer.Email = data.Email;
+                db.SaveChanges();
 
-                    var firstNotSecond = data.Variants.Except(c.Variants.Select(v => new PostConsumerRequest.Variant { Key = v.Key, Value = v.Value }).ToList()).ToList();
-                    var secondNotFirst = c.Variants.Select(v => new PostConsumerRequest.Variant { Key = v.Key, Value = v.Value }).ToList().Except(data.Variants).ToList();
-
-                    if (!firstNotSecond.Any() && !secondNotFirst.Any())
-                    {
-                        // ee artik variant da esit olduguna gore, guncelle
-                        c.IsPushEnabled = data.IsPushEnabled;
-                        c.DeviceKey = data.DeviceKey;
-                        c.IsSmsEnabled = data.IsSmsEnabled;
-                        c.Phone = data.Phone;
-                        c.IsEmailEnabled = data.IsEmailEnabled;
-                        c.Email = data.Email;
-                        db.SaveChanges();
-
-                        return Ok(new PostConsumerResponse { Consumer = c });
-                    }
-                }
+                return Ok(new PostConsumerResponse { Consumer = consumer });
             }
-
-            // Buraya kadar geldigine gore yeni kayit ekle gitsin :)
-
-            var newConsumer = new Consumer
+            else
             {
-                Id = Guid.NewGuid(),
-                Client = client,
-                User = user,
-                SourceId = data.Source,
-                Filter = data.Filter,
-                IsPushEnabled = data.IsPushEnabled,
-                DeviceKey = data.DeviceKey,
-                IsSmsEnabled = data.IsSmsEnabled,
-                Phone = data.Phone,
-                IsEmailEnabled = data.IsEmailEnabled,
-                Email = data.Email
-            };
+                var newConsumer = new Consumer
+                {
+                    Id = Guid.NewGuid(),
+                    Client = client,
+                    User = user,
+                    SourceId = data.Source,
+                    Filter = data.Filter,
+                    IsPushEnabled = data.IsPushEnabled,
+                    DeviceKey = data.DeviceKey,
+                    IsSmsEnabled = data.IsSmsEnabled,
+                    Phone = data.Phone,
+                    IsEmailEnabled = data.IsEmailEnabled,
+                    Email = data.Email
+                };
 
-            db.Add(newConsumer);
-            db.SaveChanges();
+                db.Add(newConsumer);
+                db.SaveChanges();
 
-            return Created("", new PostConsumerResponse { Consumer = newConsumer });
+                return Created("", new PostConsumerResponse { Consumer = newConsumer });
+            }
         }
 
     }
 
     [SwaggerOperation(
-                Summary = "Updates user email address in all topics",
+                Summary = "Updates user email address in all consumers",
              Tags = new[] { "Consumer" }
          )]
     [HttpPatch("/consumers/users/{user}/update-email")]
@@ -185,7 +176,7 @@ public class ConsumerController : ControllerBase
     }
 
     [SwaggerOperation(
-               Summary = "Updates user phone in all topics",
+               Summary = "Updates user phone in all consumers",
              Tags = new[] { "Consumer" }
          )]
     [HttpPatch("/consumers/users/{user}/update-phone")]
@@ -215,7 +206,7 @@ public class ConsumerController : ControllerBase
 
 
     [SwaggerOperation(
-              Summary = "Updates user device in all topics",
+              Summary = "Updates user device in all consumers",
            Tags = new[] { "Consumer" }
        )]
     [HttpPatch("/consumers/users/{user}/update-device")]
@@ -235,53 +226,62 @@ public class ConsumerController : ControllerBase
         }
     }
 
-
     [SwaggerOperation(
-         Summary = "Returns all consumers with checking fields values (After variant check and filtering ). ",
+         Summary = "Returns all consumers with filtering (if available)",
          Tags = new[] { "Consumer" }
      )]
     [HttpGet("/consumers/source/{source}/{client}")]
     [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetSourceConsumersResponse))]
 
-    public IActionResult GetSourceTopics(
+    public IActionResult GetSourceConsumers(
     [FromRoute] string source,
     [FromRoute] long client,
+    [DefaultValue("{   \"data\": {     \"amount\": 600,     \"iban\":\"TR1234567\",     \"name\": {       \"first\": \"ugur\",       \"last\": \"karatas\"     }   } }")]
     [FromQuery] string jsonData
 )
     {
+        GetSourceConsumersResponse returnValue = new GetSourceConsumersResponse { Consumers = new List<GetSourceConsumersResponse.Consumer>() };
 
-        JsonDocument data = JsonDocument.Parse(jsonData);
+        dynamic message = null;
 
-        //data.RootElement.
-
-
-        return Ok(new GetSourceConsumersResponse
+        using (var db = new DatabaseContext())
         {
-            Consumers = new List<GetSourceConsumersResponse.Consumer> {
-                new GetSourceConsumersResponse.Consumer
-                {
-                    IsPushEnabled = true,
-                    DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
-                    IsSmsEnabled = false,
-                    IsMailEnabled = false,
-                },
-            new GetSourceConsumersResponse.Consumer
+            var consumers = db.Consumers.Where(s => s.Client == client && s.SourceId == source).ToList();
+
+            // Eger filtre yoksa bosu bosuna deserialize etme
+            if (consumers.Any(c => c.Filter != null))
             {
-                IsPushEnabled = true,
-                DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
-                IsSmsEnabled = true,
-                Phone = new Phone { CountryCode = 90, Prefix = 530, Number = 2896073 },
-                IsMailEnabled = false,
-            },
-            new GetSourceConsumersResponse.Consumer
-            {
-                IsPushEnabled = true,
-                DeviceKey = "eadd523b0fdc40b5984c6326f1bc9232",
-                IsSmsEnabled = false,
-                IsMailEnabled = false,
+                message = JsonConvert.DeserializeObject(jsonData);
             }
+
+            consumers.ForEach(c =>
+            {
+                bool canSend = true; // eger filtre yoksa gonderim sekteye ugramasin.
+
+                if (c.Filter != null)
+                {
+                    canSend = Extensions.Evaluate(c.Filter, message);
+                }
+
+                if (canSend)
+
+                    returnValue.Consumers.Add(new GetSourceConsumersResponse.Consumer
+                    {
+                        Id = c.Id,
+                        Client = c.Client,
+                        User = c.User,
+                        IsPushEnabled = c.IsPushEnabled,
+                        DeviceKey = c.DeviceKey,
+                        Filter = c.Filter,
+                        IsSmsEnabled = c.IsSmsEnabled,
+                        Phone = c.Phone,
+                        IsEmailEnabled = c.IsEmailEnabled,
+                        Email = c.Email
+                    });
+            });
         }
-        });
+
+        return Ok(returnValue);
     }
 
 }
