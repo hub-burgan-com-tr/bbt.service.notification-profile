@@ -246,7 +246,8 @@ public class ConsumerController : ControllerBase
 
         using (var db = new DatabaseContext())
         {
-            var consumers = db.Consumers.Where(s => s.Client == client && s.SourceId == source).ToList();
+            // 0 nolu musteri generic musteri olarak kabul ediliyor. Banka kullanicilarin ozel durumlarda subscription olusturmalari icin kullanilacak.
+            var consumers = db.Consumers.Where(s => (s.Client == client || s.Client == 0) && s.SourceId == source).ToList();
 
             // Eger filtre yoksa bosu bosuna deserialize etme
             if (consumers.Any(c => c.Filter != null))
