@@ -2,6 +2,6 @@
 
 public class PostConsumerResponse
 {
-    public Guid ConsumerId { get; set; }
+    public Consumer Consumer { get; set; }
   
 }

@@ -14,7 +14,7 @@ public class Consumer
     public string DeviceKey { get; set; }
     public bool IsSmsEnabled { get; set; }
     public Phone Phone { get; set; }
-    public bool IsMailEnabled { get; set; }
+    public bool IsEmailEnabled { get; set; }
     public string Email { get; set; }
 
 }
