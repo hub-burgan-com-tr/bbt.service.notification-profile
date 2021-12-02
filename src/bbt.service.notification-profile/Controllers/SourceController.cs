@@ -44,7 +44,7 @@ public class SourceController : ControllerBase
             Sources = sources.Select(s => new GetSourcesResponse.Source
             {
                 Id = s.Id,
-                Title = s.Title,
+                //Title = s.Title,
                 Topic = s.Topic,
                 ApiKey = s.ApiKey,
                 Secret = s.Secret,
@@ -70,7 +70,7 @@ public class SourceController : ControllerBase
             db.Add(new Source
             {
                 Id = data.Id,
-                Title = data.Title,
+                //Title = data.Title,
                 Topic = data.Topic,
                 ApiKey = data.ApiKey,
                 Secret = data.Secret,
@@ -106,7 +106,7 @@ public class SourceController : ControllerBase
             if (source == null)
                 return new ObjectResult(id) { StatusCode = 460 };
 
-            if (data.Title != null) source.Title = data.Title;
+            //if (data.Title != null) source.Title = data.Title;
             if (data.Topic != null) source.Topic = data.Topic;
             if (data.ApiKey != null) source.ApiKey = data.ApiKey;
             if (data.Secret != null) source.Secret = data.Secret;

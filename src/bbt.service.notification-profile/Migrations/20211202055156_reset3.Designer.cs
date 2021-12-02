@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Notification.Profile.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20211202055156_reset3")]
+    partial class reset3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,7 +94,7 @@ namespace Notification.Profile.Migrations
                             IsEmailEnabled = false,
                             IsPushEnabled = false,
                             IsSmsEnabled = true,
-                            SourceId = "[SAMPLE]Incoming-QR",
+                            SourceId = "[SAMPLE]Incoming-EFT",
                             User = 123456L
                         },
                         new
@@ -153,8 +155,6 @@ namespace Notification.Profile.Migrations
                             PushServiceReference = "notify_push_incoming_eft",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                             SmsServiceReference = "notify_sms_incoming_eft",
-                            Title_EN = "Incoming EFT",
-                            Title_TR = "Gelen EFT",
                             Topic = "http://localhost:8082/topics/cdc_eft/incoming_eft"
                         },
                         new
@@ -165,8 +165,6 @@ namespace Notification.Profile.Migrations
                             PushServiceReference = "notify_push_incoming_fast",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                             SmsServiceReference = "notify_sms_incoming_fast",
-                            Title_EN = "Incoming FAST",
-                            Title_TR = "Gelen FAST",
                             Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast"
                         },
                         new
@@ -177,8 +175,6 @@ namespace Notification.Profile.Migrations
                             PushServiceReference = "notify_push_incoming_qr",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                             SmsServiceReference = "notify_sms_incoming_qr",
-                            Title_EN = "Incoming QR",
-                            Title_TR = "Gelen QR",
                             Topic = "http://localhost:8082/topics/cdc_eft/incoming_qr"
                         });
                 });
@@ -200,41 +196,15 @@ namespace Notification.Profile.Migrations
                     b.Property<string>("Title_TR")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Topic")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("SourceId", "JsonPath");
 
                     b.ToTable("SourceParameter");
-
-                    b.HasData(
-                        new
-                        {
-                            SourceId = "[SAMPLE]Incoming-FAST",
-                            JsonPath = "Message.data.amount",
-                            AutoGenerate = true,
-                            Title_EN = "Amount",
-                            Title_TR = "Tutar",
-                            Type = 1
-                        },
-                        new
-                        {
-                            SourceId = "[SAMPLE]Incoming-EFT",
-                            JsonPath = "Message.data.amount",
-                            AutoGenerate = true,
-                            Title_EN = "Amount",
-                            Title_TR = "Tutar",
-                            Type = 1
-                        },
-                        new
-                        {
-                            SourceId = "[SAMPLE]Incoming-QR",
-                            JsonPath = "Message.data.amount",
-                            AutoGenerate = true,
-                            Title_EN = "Amount",
-                            Title_TR = "Tutar",
-                            Type = 1
-                        });
                 });
 
             modelBuilder.Entity("Consumer", b =>

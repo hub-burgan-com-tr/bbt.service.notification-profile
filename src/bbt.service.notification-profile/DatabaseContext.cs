@@ -45,13 +45,15 @@ public class DatabaseContext : DbContext
           .IsUnique()
           .IsClustered(true);
 
-
+        builder.Entity<SourceParameter>()
+            .HasKey(pc => new { pc.SourceId, pc.JsonPath });
 
         builder.Entity<Source>().HasData(
              new Source
              {
                  Id = "[SAMPLE]Incoming-EFT",
-                 Title = "Gelen EFT",
+                 Title_TR = "Gelen EFT",
+                 Title_EN = "Incoming EFT",
                  Topic = "http://localhost:8082/topics/cdc_eft/incoming_eft",
                  ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                  Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
@@ -62,7 +64,8 @@ public class DatabaseContext : DbContext
                new Source
                {
                    Id = "[SAMPLE]Incoming-FAST",
-                   Title = "Gelen Fast",
+                   Title_TR = "Gelen FAST",
+                   Title_EN = "Incoming FAST",
                    Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast",
                    ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                    Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
@@ -73,7 +76,8 @@ public class DatabaseContext : DbContext
                new Source
                {
                    Id = "[SAMPLE]Incoming-QR",
-                   Title = "Gelen EFT",
+                   Title_TR = "Gelen QR",
+                   Title_EN = "Incoming QR",
                    Topic = "http://localhost:8082/topics/cdc_eft/incoming_qr",
                    ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                    Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
@@ -101,26 +105,61 @@ public class DatabaseContext : DbContext
 
         });
 
+
+        builder.Entity<SourceParameter>().HasData(
+            new SourceParameter
+            {
+
+                SourceId = "[SAMPLE]Incoming-FAST",
+                JsonPath = "Message.data.amount",
+                Type = SourceParameterType.Number,
+                AutoGenerate = true,
+                Title_TR = "Tutar",
+                Title_EN = "Amount",
+            },
+             new SourceParameter
+            {
+
+                SourceId = "[SAMPLE]Incoming-EFT",
+                JsonPath = "Message.data.amount",
+                Type = SourceParameterType.Number,
+                AutoGenerate = true,
+                Title_TR = "Tutar",
+                Title_EN = "Amount",
+            },
+             new SourceParameter
+            {
+
+                SourceId = "[SAMPLE]Incoming-QR",
+                JsonPath = "Message.data.amount",
+                Type = SourceParameterType.Number,
+                AutoGenerate = true,
+                Title_TR = "Tutar",
+                Title_EN = "Amount",
+            }
+
+         );
+
         builder.Entity<Consumer>(c =>
         {
-           c.HasData(
-           new
-           {
-               Id = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"),
-               Client = (long)123456,
-               User = (long)123456,
-               SourceId = "[SAMPLE]Incoming-EFT",
-               IsPushEnabled = false,
-               IsSmsEnabled = true,
-               IsEmailEnabled = false
-           });
-           c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
+            c.HasData(
+            new
+            {
+                Id = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"),
+                Client = (long)123456,
+                User = (long)123456,
+                SourceId = "[SAMPLE]Incoming-QR",
+                IsPushEnabled = false,
+                IsSmsEnabled = true,
+                IsEmailEnabled = false
+            });
+            c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
         });
 
         builder.Entity<Consumer>(c =>
-       {
-           c.HasData(
-           new
+        {
+            c.HasData(
+    new
            {
                Id = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"),
                Client = (long)0,
@@ -131,8 +170,8 @@ public class DatabaseContext : DbContext
                IsSmsEnabled = true,
                IsEmailEnabled = false
            });
-           c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
-       });
+            c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
+        });
 
 
     }
