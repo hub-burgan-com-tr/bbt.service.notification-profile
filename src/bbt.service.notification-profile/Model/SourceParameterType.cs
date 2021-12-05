@@ -4,8 +4,10 @@ using System.ComponentModel.DataAnnotations;
 
 public enum SourceParameterType
 {
-   Text,
-   Number,
-   Boolean
-
+   TextContains,
+   TextMatch,
+   Boolean,
+   LessThan,
+   GreaterThan, 
+   Equal
 }

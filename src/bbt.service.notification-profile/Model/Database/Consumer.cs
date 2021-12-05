@@ -5,7 +5,7 @@ public class Consumer
     
     public Guid Id { get; set; }
     public Source Source { get; set; }
-    public string SourceId { get; set; }
+    public int SourceId { get; set; }
     public long Client { get; set; }
     public long User { get; set; }
     public string Filter { get; set; }

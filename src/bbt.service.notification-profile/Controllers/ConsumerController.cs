@@ -59,7 +59,7 @@ public class ConsumerController : ControllerBase
     public IActionResult GetUserConsumers(
       [FromRoute] long client,
       [FromRoute] long user,
-      [FromQuery] string source
+      [FromQuery] int? source
  )
     {
         GetUserConsumersResponse returnValue = new GetUserConsumersResponse();
@@ -69,7 +69,7 @@ public class ConsumerController : ControllerBase
             var consumers = db.Consumers.Where(s =>
                 s.Client == client &&
                 s.User == user &&
-                (source == null || s.SourceId == source))
+                (source.HasValue || s.SourceId == source.Value))
             .AsNoTracking();
 
             returnValue.Consumers = consumers.Select(c =>
@@ -111,7 +111,7 @@ public class ConsumerController : ControllerBase
             var consumer = db.Consumers.Where(s =>
                 s.Client == client &&
                 s.User == user &&
-                (data.Source == null || s.SourceId == data.Source) &&
+                (data.Source.HasValue || s.SourceId == data.Source.Value) &&
                 (data.Filter == null || s.Filter == data.Filter)
                 )
             .FirstOrDefault();
@@ -135,7 +135,7 @@ public class ConsumerController : ControllerBase
                     Id = Guid.NewGuid(),
                     Client = client,
                     User = user,
-                    SourceId = data.Source,
+                    SourceId = data.Source.Value,
                     Filter = data.Filter,
                     IsPushEnabled = data.IsPushEnabled,
                     DeviceKey = data.DeviceKey,
@@ -234,7 +234,7 @@ public class ConsumerController : ControllerBase
     [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetSourceConsumersResponse))]
 
     public IActionResult GetSourceConsumers(
-    [FromRoute] string source,
+    [FromRoute] int source,
     [FromRoute] long client,
     [DefaultValue("{   \"data\": {     \"amount\": 600,     \"iban\":\"TR1234567\",     \"name\": {       \"first\": \"ugur\",       \"last\": \"karatas\"     }   } }")]
     [FromQuery] string jsonData

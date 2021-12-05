@@ -2,7 +2,7 @@
 
 public class PostConsumerRequest
 {
-    public string Source { get; set; }
+    public int? Source { get; set; }
     public string Filter { get; set; }
     public bool IsPushEnabled { get; set; }
     public string DeviceKey { get; set; }

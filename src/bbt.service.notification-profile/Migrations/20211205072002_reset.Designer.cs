@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Notification.Profile.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20211202052833_reset2")]
-    partial class reset2
+    [Migration("20211205072002_reset")]
+    partial class reset
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -56,8 +56,8 @@ namespace Notification.Profile.Migrations
                     b.Property<bool>("IsSmsEnabled")
                         .HasColumnType("bit");
 
-                    b.Property<string>("SourceId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("SourceId")
+                        .HasColumnType("int");
 
                     b.Property<long>("User")
                         .HasColumnType("bigint");
@@ -84,7 +84,7 @@ namespace Notification.Profile.Migrations
                             IsEmailEnabled = false,
                             IsPushEnabled = false,
                             IsSmsEnabled = true,
-                            SourceId = "[SAMPLE]Incoming-EFT",
+                            SourceId = 1,
                             User = 123456L
                         },
                         new
@@ -94,7 +94,7 @@ namespace Notification.Profile.Migrations
                             IsEmailEnabled = false,
                             IsPushEnabled = false,
                             IsSmsEnabled = true,
-                            SourceId = "[SAMPLE]Incoming-EFT",
+                            SourceId = 102,
                             User = 123456L
                         },
                         new
@@ -105,24 +105,30 @@ namespace Notification.Profile.Migrations
                             IsEmailEnabled = false,
                             IsPushEnabled = false,
                             IsSmsEnabled = true,
-                            SourceId = "[SAMPLE]Incoming-EFT",
+                            SourceId = 1,
                             User = 123456L
                         });
                 });
 
             modelBuilder.Entity("Source", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ApiKey")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("DisplayType")
+                        .HasColumnType("int");
+
                     b.Property<string>("EmailServiceReference")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ParentId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
 
                     b.Property<string>("PushServiceReference")
                         .HasColumnType("nvarchar(max)");
@@ -144,38 +150,121 @@ namespace Notification.Profile.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentId");
+
                     b.ToTable("Sources");
 
                     b.HasData(
                         new
                         {
-                            Id = "[SAMPLE]Incoming-EFT",
+                            Id = 1,
                             ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
+                            DisplayType = 4,
                             EmailServiceReference = "notify_email_incoming_eft",
                             PushServiceReference = "notify_push_incoming_eft",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                             SmsServiceReference = "notify_sms_incoming_eft",
+                            Title_EN = "Incoming EFT",
+                            Title_TR = "Gelen EFT",
                             Topic = "http://localhost:8082/topics/cdc_eft/incoming_eft"
                         },
                         new
                         {
-                            Id = "[SAMPLE]Incoming-FAST",
+                            Id = 101,
                             ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
+                            DisplayType = 3,
                             EmailServiceReference = "notify_email_incoming_fast",
+                            ParentId = 1,
                             PushServiceReference = "notify_push_incoming_fast",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                             SmsServiceReference = "notify_sms_incoming_fast",
+                            Title_EN = "Incoming FAST",
+                            Title_TR = "Gelen FAST",
                             Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast"
                         },
                         new
                         {
-                            Id = "[SAMPLE]Incoming-QR",
+                            Id = 10101,
                             ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
+                            DisplayType = 1,
+                            EmailServiceReference = "notify_email_incoming_fast",
+                            ParentId = 101,
+                            PushServiceReference = "notify_push_incoming_fast",
+                            Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
+                            SmsServiceReference = "notify_sms_incoming_fast",
+                            Title_EN = "Not Delivered FAST Messages",
+                            Title_TR = "Ulasmayan FAST",
+                            Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast_not_delivered"
+                        },
+                        new
+                        {
+                            Id = 102,
+                            ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
+                            DisplayType = 3,
                             EmailServiceReference = "notify_email_incoming_qr",
+                            ParentId = 1,
                             PushServiceReference = "notify_push_incoming_qr",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                             SmsServiceReference = "notify_sms_incoming_qr",
+                            Title_EN = "Incoming QR",
+                            Title_TR = "Gelen QR",
                             Topic = "http://localhost:8082/topics/cdc_eft/incoming_qr"
+                        });
+                });
+
+            modelBuilder.Entity("SourceParameter", b =>
+                {
+                    b.Property<int>("SourceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("JsonPath")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title_EN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title_TR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SourceId", "JsonPath", "Type");
+
+                    b.ToTable("SourceParameter");
+
+                    b.HasData(
+                        new
+                        {
+                            SourceId = 101,
+                            JsonPath = "Message.data.amount",
+                            Type = 4,
+                            Title_EN = "Amount",
+                            Title_TR = "Tutar"
+                        },
+                        new
+                        {
+                            SourceId = 101,
+                            JsonPath = "Message.data.amount",
+                            Type = 3,
+                            Title_EN = "Amount",
+                            Title_TR = "Tutar"
+                        },
+                        new
+                        {
+                            SourceId = 1,
+                            JsonPath = "Message.data.amount",
+                            Type = 4,
+                            Title_EN = "Amount",
+                            Title_TR = "Tutar"
+                        },
+                        new
+                        {
+                            SourceId = 102,
+                            JsonPath = "Message.data.amount",
+                            Type = 4,
+                            Title_EN = "Amount",
+                            Title_TR = "Tutar"
                         });
                 });
 
@@ -183,7 +272,9 @@ namespace Notification.Profile.Migrations
                 {
                     b.HasOne("Source", "Source")
                         .WithMany()
-                        .HasForeignKey("SourceId");
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.OwnsOne("Phone", "Phone", b1 =>
                         {
@@ -233,6 +324,33 @@ namespace Notification.Profile.Migrations
                     b.Navigation("Phone");
 
                     b.Navigation("Source");
+                });
+
+            modelBuilder.Entity("Source", b =>
+                {
+                    b.HasOne("Source", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("SourceParameter", b =>
+                {
+                    b.HasOne("Source", "Source")
+                        .WithMany("Parameters")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Source");
+                });
+
+            modelBuilder.Entity("Source", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Parameters");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 //namespace Notification.Profile.Controllers;
@@ -33,8 +34,11 @@ public class SourceController : ControllerBase
         using (var db = new DatabaseContext())
         {
             sources = db.Sources
-                .Take(pageSize)
-                .Skip(pageSize * pageIndex)
+                //.Where(s => s.ParentId == null)
+                .Include(s => s.Parameters)
+                .Include(s => s.Children)               
+               // .Take(pageSize)
+               // .Skip(pageSize * pageIndex)
                 .ToList();
         }
 
@@ -44,8 +48,15 @@ public class SourceController : ControllerBase
             Sources = sources.Select(s => new GetSourcesResponse.Source
             {
                 Id = s.Id,
-                //Title = s.Title,
+                Title = new GetSourcesResponse.Source.TitleLabel { EN = s.Title_EN, TR = s.Title_TR },
+                Parameters = s.Parameters.Select(p => new GetSourcesResponse.Source.SourceParameter
+                {
+                    JsonPath = p.JsonPath,
+                    Type = p.Type,
+                    Title = new GetSourcesResponse.Source.TitleLabel { EN = p.Title_EN, TR = p.Title_TR },
+                }).ToList(),
                 Topic = s.Topic,
+                ParentSourceId = s.ParentId,
                 ApiKey = s.ApiKey,
                 Secret = s.Secret,
                 PushServiceReference = s.PushServiceReference,
@@ -95,7 +106,7 @@ public class SourceController : ControllerBase
     [SwaggerResponse(200, "Success, source is updated successfully", typeof(void))]
     [SwaggerResponse(460, "Source is not found.", typeof(Guid))]
     public IActionResult Patch(
-        [FromRoute] string id,
+        [FromRoute] int id,
         [FromBody] PatchSourceRequest data)
     {
 
@@ -130,7 +141,7 @@ public class SourceController : ControllerBase
     [SwaggerResponse(200, "Success, source is deleted successfully", typeof(void))]
     [SwaggerResponse(460, "Source is not found", typeof(Guid))]
     [SwaggerResponse(461, "Source has consumer(s)", typeof(Guid))]
-    public IActionResult Delete([FromRoute] string id)
+    public IActionResult Delete([FromRoute] int id)
     {
 
         using (var db = new DatabaseContext())

@@ -31,6 +31,12 @@ public class DatabaseContext : DbContext
         });
         */
 
+        builder.Entity<Source>()
+            .HasOne(s => s.Parent)
+            .WithMany(s=> s.Children)
+            .HasForeignKey(s=> s.ParentId);
+
+
 
         builder.Entity<Consumer>()
            .Property<long>("$id")
@@ -45,27 +51,31 @@ public class DatabaseContext : DbContext
           .IsUnique()
           .IsClustered(true);
 
-        builder.Entity<SourceParameter>()
-            .HasKey(pc => new { pc.SourceId, pc.JsonPath });
+        builder.Entity<SourceParameter>().HasKey(pc => new { pc.SourceId, pc.JsonPath, pc.Type });
 
         builder.Entity<Source>().HasData(
-             new Source
-             {
-                 Id = "[SAMPLE]Incoming-EFT",
-                 Title_TR = "Gelen EFT",
-                 Title_EN = "Incoming EFT",
-                 Topic = "http://localhost:8082/topics/cdc_eft/incoming_eft",
-                 ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
-                 Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
-                 PushServiceReference = "notify_push_incoming_eft",
-                 SmsServiceReference = "notify_sms_incoming_eft",
-                 EmailServiceReference = "notify_email_incoming_eft"
-             },
+          new Source
+          {
+              Id = 1,
+              Title_TR = "Gelen EFT",
+              Title_EN = "Incoming EFT",
+              DisplayType = SourceDisplayType.DisplayAndSetSwitchParametersChannelsInfo,
+              Topic = "http://localhost:8082/topics/cdc_eft/incoming_eft",
+              ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
+              Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
+              PushServiceReference = "notify_push_incoming_eft",
+              SmsServiceReference = "notify_sms_incoming_eft",
+              EmailServiceReference = "notify_email_incoming_eft"
+          });
+
+        builder.Entity<Source>().HasData(
                new Source
                {
-                   Id = "[SAMPLE]Incoming-FAST",
+                   Id = 101,
                    Title_TR = "Gelen FAST",
                    Title_EN = "Incoming FAST",
+                   ParentId = 1,
+                   DisplayType = SourceDisplayType.DisplayAndSetSwitchParameters,
                    Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast",
                    ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                    Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
@@ -75,9 +85,25 @@ public class DatabaseContext : DbContext
                },
                new Source
                {
-                   Id = "[SAMPLE]Incoming-QR",
+                   Id = 10101,
+                   Title_TR = "Ulasmayan FAST",
+                   Title_EN = "Not Delivered FAST Messages",
+                   ParentId = 101,
+                   DisplayType = SourceDisplayType.Display,
+                   Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast_not_delivered",
+                   ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
+                   Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
+                   PushServiceReference = "notify_push_incoming_fast",
+                   SmsServiceReference = "notify_sms_incoming_fast",
+                   EmailServiceReference = "notify_email_incoming_fast"
+               },
+               new Source
+               {
+                   Id = 102,
                    Title_TR = "Gelen QR",
                    Title_EN = "Incoming QR",
+                   ParentId = 1,
+                   DisplayType = SourceDisplayType.DisplayAndSetSwitchParameters,
                    Topic = "http://localhost:8082/topics/cdc_eft/incoming_qr",
                    ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                    Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
@@ -90,12 +116,12 @@ public class DatabaseContext : DbContext
         builder.Entity<Consumer>(c =>
         {
             c.HasData(
-            new
+            new Consumer
             {
                 Id = new Guid("1e15d57c-26e3-4e78-94f9-8649b3302555"),
                 Client = (long)123456,
                 User = (long)123456,
-                SourceId = "[SAMPLE]Incoming-EFT",
+                SourceId =1,
                 Filter = "Message.data.amount >= 500 && Message.data.iban ==\"TR1234567\"",
                 IsPushEnabled = false,
                 IsSmsEnabled = true,
@@ -110,33 +136,39 @@ public class DatabaseContext : DbContext
             new SourceParameter
             {
 
-                SourceId = "[SAMPLE]Incoming-FAST",
+                SourceId = 101,
                 JsonPath = "Message.data.amount",
-                Type = SourceParameterType.Number,
-                AutoGenerate = true,
+                Type = SourceParameterType.GreaterThan,
+                Title_TR = "Tutar",
+                Title_EN = "Amount",
+            },
+            new SourceParameter
+            {
+
+                SourceId = 101,
+                JsonPath = "Message.data.amount",
+                Type = SourceParameterType.LessThan,
                 Title_TR = "Tutar",
                 Title_EN = "Amount",
             },
              new SourceParameter
-            {
+             {
 
-                SourceId = "[SAMPLE]Incoming-EFT",
-                JsonPath = "Message.data.amount",
-                Type = SourceParameterType.Number,
-                AutoGenerate = true,
-                Title_TR = "Tutar",
-                Title_EN = "Amount",
-            },
+                 SourceId = 1,
+                 JsonPath = "Message.data.amount",
+                 Type = SourceParameterType.GreaterThan,
+                 Title_TR = "Tutar",
+                 Title_EN = "Amount",
+             },
              new SourceParameter
-            {
+             {
 
-                SourceId = "[SAMPLE]Incoming-QR",
-                JsonPath = "Message.data.amount",
-                Type = SourceParameterType.Number,
-                AutoGenerate = true,
-                Title_TR = "Tutar",
-                Title_EN = "Amount",
-            }
+                 SourceId = 102,
+                 JsonPath = "Message.data.amount",
+                 Type = SourceParameterType.GreaterThan,
+                 Title_TR = "Tutar",
+                 Title_EN = "Amount",
+             }
 
          );
 
@@ -148,7 +180,7 @@ public class DatabaseContext : DbContext
                 Id = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"),
                 Client = (long)123456,
                 User = (long)123456,
-                SourceId = "[SAMPLE]Incoming-QR",
+                SourceId = 102,
                 IsPushEnabled = false,
                 IsSmsEnabled = true,
                 IsEmailEnabled = false
@@ -159,17 +191,17 @@ public class DatabaseContext : DbContext
         builder.Entity<Consumer>(c =>
         {
             c.HasData(
-    new
-           {
-               Id = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"),
-               Client = (long)0,
-               User = (long)123456,
-               SourceId = "[SAMPLE]Incoming-EFT",
-               Filter = "Message.data.amount >= 500000",
-               IsPushEnabled = false,
-               IsSmsEnabled = true,
-               IsEmailEnabled = false
-           });
+    new Consumer
+    {
+        Id = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"),
+        Client = (long)0,
+        User = (long)123456,
+        SourceId = 1,
+        Filter = "Message.data.amount >= 500000",
+        IsPushEnabled = false,
+        IsSmsEnabled = true,
+        IsEmailEnabled = false
+    });
             c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
         });
 
