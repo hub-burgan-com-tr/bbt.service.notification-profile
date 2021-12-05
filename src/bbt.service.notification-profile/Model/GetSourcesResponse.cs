@@ -6,8 +6,7 @@ public class GetSourcesResponse
     public class Source
     {
         public int Id { get; set; }
-        public int? ParentSourceId { get; set; }
-
+        public List<Source> Children{ get; set; }
         public TitleLabel Title { get; set; }
         public List<SourceParameter> Parameters{ get; set; }
         public string Topic { get; set; }

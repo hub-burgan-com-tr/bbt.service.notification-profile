@@ -1,6 +1,8 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 
 //namespace Notification.Profile.Controllers;
@@ -24,31 +26,32 @@ public class SourceController : ControllerBase
     [HttpGet("/sources")]
     [SwaggerResponse(200, "Success, sources are returned successfully", typeof(GetSourcesResponse))]
 
-    public IActionResult Get(
-      [FromQuery(Name = "page-index")][Range(0, 100)] int pageIndex = 0,
-      [FromQuery(Name = "page-size")][Range(1, 100)] int pageSize = 20
-    )
+    public IActionResult Get()
     {
         List<Source> sources;
 
         using (var db = new DatabaseContext())
         {
             sources = db.Sources
-                //.Where(s => s.ParentId == null)
                 .Include(s => s.Parameters)
-                .Include(s => s.Children)               
-               // .Take(pageSize)
-               // .Skip(pageSize * pageIndex)
+                .Include(s => s.Children)
                 .ToList();
         }
 
 
         return Ok(new GetSourcesResponse
         {
-            Sources = sources.Select(s => new GetSourcesResponse.Source
+            Sources = sources.Where(s => s.ParentId == null).Select(s => BuildSource(s)).ToList()
+        }
+        );
+
+        GetSourcesResponse.Source BuildSource(Source s)
+        {
+            return new GetSourcesResponse.Source
             {
                 Id = s.Id,
                 Title = new GetSourcesResponse.Source.TitleLabel { EN = s.Title_EN, TR = s.Title_TR },
+                Children = s.Children.Select(c => BuildSource(c)).ToList(),
                 Parameters = s.Parameters.Select(p => new GetSourcesResponse.Source.SourceParameter
                 {
                     JsonPath = p.JsonPath,
@@ -56,15 +59,14 @@ public class SourceController : ControllerBase
                     Title = new GetSourcesResponse.Source.TitleLabel { EN = p.Title_EN, TR = p.Title_TR },
                 }).ToList(),
                 Topic = s.Topic,
-                ParentSourceId = s.ParentId,
                 ApiKey = s.ApiKey,
                 Secret = s.Secret,
                 PushServiceReference = s.PushServiceReference,
                 SmsServiceReference = s.SmsServiceReference,
                 EmailServiceReference = s.EmailServiceReference
-            }).ToList()
+            };
+
         }
-        );
     }
 
     [SwaggerOperation(
@@ -162,4 +164,66 @@ public class SourceController : ControllerBase
 
         return Ok();
     }
+
+
+    [SwaggerOperation(
+         Summary = "Returns all consumers with filtering (if available)",
+         Tags = new[] { "Source" }
+     )]
+    [HttpGet("/sources/{id}/consumers-by-client/{client}")]
+    [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetSourceConsumersResponse))]
+
+    public IActionResult GetSourceConsumers(
+    [FromRoute] int id,
+    [FromRoute] long client,
+    [DefaultValue("{   \"data\": {     \"amount\": 600,     \"iban\":\"TR1234567\",     \"name\": {       \"first\": \"ugur\",       \"last\": \"karatas\"     }   } }")]
+    [FromQuery] string jsonData
+)
+    {
+        GetSourceConsumersResponse returnValue = new GetSourceConsumersResponse { Consumers = new List<GetSourceConsumersResponse.Consumer>() };
+
+        dynamic message = null;
+
+        using (var db = new DatabaseContext())
+        {
+            // 0 nolu musteri generic musteri olarak kabul ediliyor. Banka kullanicilarin ozel durumlarda subscription olusturmalari icin kullanilacak.
+            var consumers = db.Consumers.Where(s => (s.Client == client || s.Client == 0) && s.SourceId == id).ToList();
+
+            // Eger filtre yoksa bosu bosuna deserialize etme
+            if (consumers.Any(c => c.Filter != null))
+            {
+                message = JsonConvert.DeserializeObject(jsonData);
+            }
+
+            consumers.ForEach(c =>
+            {
+                bool canSend = true; // eger filtre yoksa gonderim sekteye ugramasin.
+
+                if (c.Filter != null)
+                {
+                    canSend = Extensions.Evaluate(c.Filter, message);
+                }
+
+                if (canSend)
+
+                    returnValue.Consumers.Add(new GetSourceConsumersResponse.Consumer
+                    {
+                        Id = c.Id,
+                        Client = c.Client,
+                        User = c.User,
+                        IsPushEnabled = c.IsPushEnabled,
+                        DeviceKey = c.DeviceKey,
+                        Filter = c.Filter,
+                        IsSmsEnabled = c.IsSmsEnabled,
+                        Phone = c.Phone,
+                        IsEmailEnabled = c.IsEmailEnabled,
+                        Email = c.Email
+                    });
+            });
+        }
+
+        return Ok(returnValue);
+    }
+
+
 }
