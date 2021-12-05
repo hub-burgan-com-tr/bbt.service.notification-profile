@@ -3,6 +3,6 @@
 # bbt.service.notification-profile
 Keeps configuration of stream sourced notification settings of customers
 
-Do not forget initialize local Sql Server
+Do not forget initialize local Sql Server and EF
 
 > Default config : Data Source=localhost;Initial Catalog=Notification;User Id=SA;Password=@Qwert12;
