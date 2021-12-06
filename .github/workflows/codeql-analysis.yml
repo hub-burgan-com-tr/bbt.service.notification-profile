@@ -39,8 +39,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    - working-directory: ./src/bbt.service.notification-profile
-
+   
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
