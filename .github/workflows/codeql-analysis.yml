@@ -14,6 +14,9 @@ name: "CodeQL"
 on:
   push:
     branches: [ main ]
+    paths:
+    - '**.cs'
+    - '**.csproj'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ main ]
@@ -31,6 +34,7 @@ jobs:
 
     strategy:
       fail-fast: false
+      
       matrix:
         language: [ 'csharp' ]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
@@ -64,4 +68,3 @@ jobs:
       
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
-      
