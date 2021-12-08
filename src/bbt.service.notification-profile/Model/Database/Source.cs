@@ -10,6 +10,7 @@ public class Source
     public ICollection<Source> Children { get; set; }
     public SourceDisplayType DisplayType {get;set;}
     public string Topic { get; set; }
+    public string ClientIdJsonPath { get; set; }
     public string ApiKey { get; set; }
     public string Secret { get; set; }
     public List<SourceParameter> Parameters { get; set; }
@@ -18,3 +19,5 @@ public class Source
     public string EmailServiceReference { get; set; }
 
 }
+
+//TODO: Diger modellere ClientIdJsonPath eklenmeli

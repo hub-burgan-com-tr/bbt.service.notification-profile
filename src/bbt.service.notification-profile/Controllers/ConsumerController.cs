@@ -42,7 +42,7 @@ public class ConsumerController : ControllerBase
             var consumers = db.Consumers.Where(s =>
                 s.Client == client &&
                 s.User == user &&
-                (source.HasValue || s.SourceId == source.Value))
+                (source == null || source.HasValue || s.SourceId == source.Value))
             .AsNoTracking();
 
             returnValue.Consumers = consumers.Select(c =>

@@ -59,6 +59,8 @@ public class SourceController : ControllerBase
                     Title = new GetSourcesResponse.Source.TitleLabel { EN = p.Title_EN, TR = p.Title_TR },
                 }).ToList(),
                 Topic = s.Topic,
+                DisplayType = s.DisplayType,
+                ClientIdJsonPath = s.ClientIdJsonPath,
                 ApiKey = s.ApiKey,
                 Secret = s.Secret,
                 PushServiceReference = s.PushServiceReference,

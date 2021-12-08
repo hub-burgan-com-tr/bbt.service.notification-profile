@@ -9,7 +9,9 @@ public class GetSourcesResponse
         public List<Source> Children{ get; set; }
         public TitleLabel Title { get; set; }
         public List<SourceParameter> Parameters{ get; set; }
+        public SourceDisplayType DisplayType {get;set;}
         public string Topic { get; set; }
+        public string ClientIdJsonPath { get; set; }
         public string ApiKey { get; set; }
         public string Secret { get; set; }
         public string PushServiceReference { get; set; }
@@ -33,3 +35,5 @@ public class GetSourcesResponse
         }
     }
 }
+
+//TODO: Display diger modellerede yansimali
