@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 public enum SourceDisplayType
 {
-   NotDisplay,
-   Display,
-   DisplaySetSwitch,
-   DisplayAndSetSwitchParameters,
-   DisplayAndSetSwitchParametersChannelsInfo,
+    NotDisplay = 1,
+    Display = 2,
+    DisplaySetSwitch = 3,
+    DisplayAndSetSwitchParameters = 4,
+    DisplayAndSetSwitchParametersChannelsInfo = 5,
 }
