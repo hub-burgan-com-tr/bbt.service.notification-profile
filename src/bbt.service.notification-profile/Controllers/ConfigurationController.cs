@@ -54,24 +54,24 @@ public class ConfigurationController : ControllerBase
            Tags = new[] { "Configuration" }
        )]
     [HttpGet("/configuration/clients/{client}/users/{user}/consumer-tree")]
-    [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(SourceConfigResponse))]
+    [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetConsumerTreeResponse))]
 
     public IActionResult GetUserConsumers(
       [FromRoute] long client,
       [FromRoute] long user)
 
     {
-        SourceConfigResponse returnValue = new SourceConfigResponse();
+        GetConsumerTreeResponse returnValue = new GetConsumerTreeResponse();
 
         using (var db = new DatabaseContext())
         {
             var consumers = db.Consumers.Where(s =>
                 s.Client == client &&
                 s.User == user
-            );
+            ).ToList();
 
             var sources = db.Sources.Select(x => x.Id);
-            List<SourceConfigResponse.ConfUser> confUsers = new List<SourceConfigResponse.ConfUser>();
+            List<GetConsumerTreeResponse.ConfUser> confUsers = new List<GetConsumerTreeResponse.ConfUser>();
 
             
                 foreach (var sourceId in sources)
@@ -80,7 +80,7 @@ public class ConfigurationController : ControllerBase
 
                     if (consumer != null)
                     {
-                        confUsers.Add(new SourceConfigResponse.ConfUser
+                        confUsers.Add(new GetConsumerTreeResponse.ConfUser
                         {
                             Source = consumer.SourceId,
                             Filter = consumer.Filter,
@@ -97,7 +97,7 @@ public class ConfigurationController : ControllerBase
 
                     else
                     {
-                        confUsers.Add(new SourceConfigResponse.ConfUser
+                        confUsers.Add(new GetConsumerTreeResponse.ConfUser
                         {
                             Source = sourceId,
                             Filter = null,

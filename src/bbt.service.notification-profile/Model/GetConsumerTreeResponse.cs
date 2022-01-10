@@ -1,4 +1,4 @@
-public class SourceConfigResponse {
+public class GetConsumerTreeResponse {
     public List<ConfUser> Consumers { get; set; }
 
     public class ConfUser
