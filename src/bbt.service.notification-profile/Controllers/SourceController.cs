@@ -26,7 +26,7 @@ public class SourceController : ControllerBase
     [HttpGet("/sources")]
     [SwaggerResponse(200, "Success, sources are returned successfully", typeof(GetSourcesResponse))]
 
-    public IActionResult Get()
+    public IActionResult GetSources()
     {
         List<Source> sources;
 
@@ -70,6 +70,43 @@ public class SourceController : ControllerBase
 
         }
     }
+
+
+    [SwaggerOperation(
+              Summary = "Returns registered data source",
+              Tags = new[] { "Source" }
+          )]
+    [HttpGet("/sources/id/{id}")]
+    [SwaggerResponse(200, "Success, specify id source are returned successfully", typeof(GetSourceTopicByIdResponse))]
+    [SwaggerResponse(460, "Source is not found.", typeof(Guid))]
+
+    public IActionResult GetSourceById(
+      [FromRoute] int id
+
+ )
+    {
+        GetSourceTopicByIdResponse returnValue = new GetSourceTopicByIdResponse();
+
+        using (var db = new DatabaseContext())
+        {
+            var source = db.Sources.Where(s =>
+                s.Id == id).FirstOrDefault();
+                  if (source == null)
+                return new ObjectResult(id) { StatusCode = 460 };
+
+            returnValue.Id=source.Id;
+            returnValue.Topic=source.Topic;
+            returnValue.SmsServiceReference=source.SmsServiceReference;
+            returnValue.EmailServiceReference=source.EmailServiceReference;
+            returnValue.PushServiceReference=source.PushServiceReference;
+
+        }
+
+        return Ok(returnValue);
+    }
+    
+
+    
 
     [SwaggerOperation(
              Summary = "Adds new data sources",
