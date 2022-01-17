@@ -54,14 +54,72 @@ public class ConfigurationController : ControllerBase
            Tags = new[] { "Configuration" }
        )]
     [HttpGet("/configuration/clients/{client}/users/{user}/consumer-tree")]
-    [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetUserConsumersResponse))]
+    [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetConsumerTreeResponse))]
 
     public IActionResult GetUserConsumers(
       [FromRoute] long client,
       [FromRoute] long user)
-     
+
     {
-        throw new NotImplementedException();
+        GetConsumerTreeResponse returnValue = new GetConsumerTreeResponse();
+
+        using (var db = new DatabaseContext())
+        {
+            var consumers = db.Consumers.Where(s =>
+                s.Client == client &&
+                s.User == user
+            ).ToList();
+
+            var sources = db.Sources.Select(x => x.Id);
+            List<GetConsumerTreeResponse.ConfUser> confUsers = new List<GetConsumerTreeResponse.ConfUser>();
+
+            
+                foreach (var sourceId in sources)
+                {
+                    var consumer = consumers.FirstOrDefault(x => sourceId == x.SourceId );
+
+                    if (consumer != null)
+                    {
+                        confUsers.Add(new GetConsumerTreeResponse.ConfUser
+                        {
+                            Source = consumer.SourceId,
+                            Filter = consumer.Filter,
+                            IsPushEnabled = consumer.IsPushEnabled,
+                            DeviceKey = consumer.DeviceKey,
+                            IsSmsEnabled = consumer.IsSmsEnabled,
+                            Phone = consumer.Phone,
+                            IsEmailEnabled = consumer.IsEmailEnabled,
+                            Email = consumer.Email
+                        });
+
+
+                    }
+
+                    else
+                    {
+                        confUsers.Add(new GetConsumerTreeResponse.ConfUser
+                        {
+                            Source = sourceId,
+                            Filter = null,
+                            IsPushEnabled = false,
+                            DeviceKey = null,
+                            IsSmsEnabled = false,
+                            Phone = null,
+                            IsEmailEnabled = false,
+                            Email = null
+                        });
+
+                    }
+
+                
+
+            }
+
+            returnValue.Consumers = confUsers;
+
+        }
+
+        return Ok(returnValue);
     }
 
     [SwaggerOperation(
@@ -74,12 +132,12 @@ public class ConfigurationController : ControllerBase
     public IActionResult PostUserConsumers(
       [FromRoute] long client,
       [FromRoute] long user)
-     
+
     {
         throw new NotImplementedException();
     }
 
-    
+
 
 
     [SwaggerOperation(
