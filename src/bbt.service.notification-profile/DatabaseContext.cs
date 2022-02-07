@@ -14,7 +14,11 @@ public class DatabaseContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         //options.UseSqlite($"Data Source={DbPath}");
-        options.UseSqlServer(@"Data Source=localhost;Initial Catalog=Notification;User Id=SA;Password=@Qwert12;");
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            .AddJsonFile("appsettings.json")
+            .Build();
+        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         options.EnableSensitiveDataLogging();
     }
 
