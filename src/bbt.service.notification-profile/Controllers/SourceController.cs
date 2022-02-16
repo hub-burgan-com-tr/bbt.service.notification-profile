@@ -99,6 +99,15 @@ public class SourceController : ControllerBase
             returnValue.SmsServiceReference=source.SmsServiceReference;
             returnValue.EmailServiceReference=source.EmailServiceReference;
             returnValue.PushServiceReference=source.PushServiceReference;
+            returnValue.Title_TR=source.Title_TR;
+            returnValue.Title_EN=source.Title_EN;
+            returnValue.ParentId=source.ParentId;
+            returnValue.DisplayType=source.DisplayType;
+            returnValue.ApiKey=source.ApiKey;
+            returnValue.Secret=source.Secret;
+            returnValue.ClientIdJsonPath=source.ClientIdJsonPath;
+            returnValue.Kafka=source.Kafka;
+
 
         }
 
