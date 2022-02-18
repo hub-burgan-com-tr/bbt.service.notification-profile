@@ -220,7 +220,7 @@ public class SourceController : ControllerBase
      )]
     [HttpGet("/sources/{id}/consumers-by-client/{client}")]
     [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetSourceConsumersResponse))]
-
+    [SwaggerResponse(470, "No results were found for the given parameters", typeof(Guid))]
     public IActionResult GetSourceConsumers(
     [FromRoute] int id,
     [FromRoute] long client,
@@ -236,6 +236,9 @@ public class SourceController : ControllerBase
         {
             // 0 nolu musteri generic musteri olarak kabul ediliyor. Banka kullanicilarin ozel durumlarda subscription olusturmalari icin kullanilacak.
             var consumers = db.Consumers.Where(s => (s.Client == client || s.Client == 0) && s.SourceId == id).ToList();
+
+            if (consumers.Count == 0)
+               return new ObjectResult(consumers) { StatusCode = 470 };
 
             // Eger filtre yoksa bosu bosuna deserialize etme
             if (consumers.Any(c => c.Filter != null))
