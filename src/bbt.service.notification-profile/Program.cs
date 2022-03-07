@@ -34,9 +34,8 @@ if (app.Environment.IsDevelopment())
 
                 });
 }
-
-app.UseAuthorization();
 app.UseRouting();
+app.UseAuthorization();
 app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
