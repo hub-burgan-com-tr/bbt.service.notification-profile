@@ -17,8 +17,9 @@ public class DatabaseContext : DbContext
         IConfigurationRoot configuration = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile("appsettings.json")
+            .AddEnvironmentVariables()
             .Build();
-
+            
         options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         options.EnableSensitiveDataLogging();
         Console.WriteLine(configuration.GetConnectionString("DefaultConnection"));
