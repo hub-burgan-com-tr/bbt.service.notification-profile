@@ -15,14 +15,22 @@ public class DatabaseContext : DbContext
     {
         //options.UseSqlite($"Data Source={DbPath}");
         IConfigurationRoot configuration = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{GetEnviroment()}.json", false, true)
             .AddEnvironmentVariables()
             .Build();
+            
             
         options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         options.EnableSensitiveDataLogging();
         Console.WriteLine(configuration.GetConnectionString("DefaultConnection"));
+    }
+    
+
+    string? GetEnviroment()
+    {
+        return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
