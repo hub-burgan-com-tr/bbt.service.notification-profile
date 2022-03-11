@@ -30,7 +30,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "bbt.service.notification-profile v1");
-                c.RoutePrefix = "";
+                //c.RoutePrefix = "";
 
             });
 //}
