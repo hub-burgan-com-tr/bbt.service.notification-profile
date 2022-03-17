@@ -1,4 +1,5 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+COPY ./server-certificate.pem /etc/ssl/certs/server-certificate.pem
 WORKDIR /app
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
