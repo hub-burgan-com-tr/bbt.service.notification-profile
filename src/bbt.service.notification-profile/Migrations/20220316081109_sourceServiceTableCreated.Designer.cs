@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Notification.Profile.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220316081109_sourceServiceTableCreated")]
+    partial class sourceServiceTableCreated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -128,7 +130,7 @@ namespace Notification.Profile.Migrations
                     b.Property<string>("EmailServiceReference")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("KafkaUrl")
+                    b.Property<string>("Kafka")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ParentId")
@@ -165,7 +167,7 @@ namespace Notification.Profile.Migrations
                             ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                             DisplayType = 5,
                             EmailServiceReference = "notify_email_incoming_eft",
-                            KafkaUrl = "test",
+                            Kafka = "test",
                             PushServiceReference = "notify_push_incoming_eft",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                             SmsServiceReference = "notify_sms_incoming_eft",
@@ -179,7 +181,7 @@ namespace Notification.Profile.Migrations
                             ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                             DisplayType = 4,
                             EmailServiceReference = "notify_email_incoming_fast",
-                            KafkaUrl = "test",
+                            Kafka = "test",
                             ParentId = 1,
                             PushServiceReference = "notify_push_incoming_fast",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
@@ -194,7 +196,7 @@ namespace Notification.Profile.Migrations
                             ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                             DisplayType = 2,
                             EmailServiceReference = "notify_email_incoming_fast",
-                            KafkaUrl = "test",
+                            Kafka = "test",
                             ParentId = 101,
                             PushServiceReference = "notify_push_incoming_fast",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
@@ -209,7 +211,7 @@ namespace Notification.Profile.Migrations
                             ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                             DisplayType = 4,
                             EmailServiceReference = "notify_email_incoming_qr",
-                            KafkaUrl = "test",
+                            Kafka = "test",
                             ParentId = 1,
                             PushServiceReference = "notify_push_incoming_qr",
                             Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
@@ -298,7 +300,7 @@ namespace Notification.Profile.Migrations
                         new
                         {
                             Id = 1,
-                            ServiceUrl = "localhost:/getcustomerId",
+                            ServiceUrl = "test",
                             SourceId = 1
                         });
                 });

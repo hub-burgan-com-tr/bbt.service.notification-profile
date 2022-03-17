@@ -106,7 +106,7 @@ public class SourceController : ControllerBase
             returnValue.ApiKey=source.ApiKey;
             returnValue.Secret=source.Secret;
             returnValue.ClientIdJsonPath=source.ClientIdJsonPath;
-            returnValue.Kafka=source.Kafka;
+            returnValue.KafkaUrl=source.KafkaUrl;
 
 
         }

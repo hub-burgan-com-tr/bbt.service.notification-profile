@@ -1,7 +1,9 @@
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 
@@ -20,6 +22,7 @@ builder.Services.AddSwaggerGen(c =>
                 c.EnableAnnotations(enableAnnotationsForInheritance: true, enableAnnotationsForPolymorphism: true);
                 c.CustomSchemaIds(x => x.FullName);
             });
+builder.Services.AddDbContext<DatabaseContext>();
 
 var app = builder.Build();
 
@@ -41,5 +44,13 @@ app.UseEndpoints(endpoints =>
             endpoints.MapControllers();
             endpoints.MapHealthChecks("/health");
         });
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<DatabaseContext>();    
+    context.Database.Migrate();
+}
 
 app.Run();
