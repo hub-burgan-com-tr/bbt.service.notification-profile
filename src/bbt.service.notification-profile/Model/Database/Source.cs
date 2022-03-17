@@ -10,7 +10,7 @@ public class Source
     public ICollection<Source> Children { get; set; }
     public SourceDisplayType DisplayType {get;set;}
     public string Topic { get; set; }
-    public string Kafka {get; set; }
+    public string KafkaUrl {get; set; }
     public string ClientIdJsonPath { get; set; }
     public string ApiKey { get; set; }
     public string Secret { get; set; }

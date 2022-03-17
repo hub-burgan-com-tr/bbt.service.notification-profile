@@ -15,7 +15,7 @@ public class GetSourceTopicByIdResponse
         public string ApiKey { get; set; }
         public string Secret{ get; set; }
         public string ClientIdJsonPath { get; set; }
-        public string Kafka { get; set; }
+        public string KafkaUrl { get; set; }
         
 }
 

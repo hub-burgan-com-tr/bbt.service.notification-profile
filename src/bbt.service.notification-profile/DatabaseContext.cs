@@ -5,6 +5,7 @@ public class DatabaseContext : DbContext
 {
     public DbSet<Source> Sources { get; set; }
     public DbSet<Consumer> Consumers { get; set; }
+    public DbSet<SourceService> SourceServices { get; set; }
     public string DbPath { get; private set; }
     public DatabaseContext()
     {
@@ -76,7 +77,7 @@ public class DatabaseContext : DbContext
               Title_EN = "Incoming EFT",
               DisplayType = SourceDisplayType.DisplayAndSetSwitchParametersChannelsInfo,
               Topic = "http://localhost:8082/topics/cdc_eft/incoming_eft",
-              Kafka = "test",
+              KafkaUrl = "test",
               ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
               Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
               PushServiceReference = "notify_push_incoming_eft",
@@ -93,7 +94,7 @@ public class DatabaseContext : DbContext
                    ParentId = 1,
                    DisplayType = SourceDisplayType.DisplayAndSetSwitchParameters,
                    Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast",
-                   Kafka = "test",
+                   KafkaUrl = "test",
                    ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                    Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                    PushServiceReference = "notify_push_incoming_fast",
@@ -108,7 +109,7 @@ public class DatabaseContext : DbContext
                    ParentId = 101,
                    DisplayType = SourceDisplayType.Display,
                    Topic = "http://localhost:8082/topics/cdc_eft/incoming_fast_not_delivered",
-                   Kafka = "test",
+                   KafkaUrl = "test",
                    ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                    Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                    PushServiceReference = "notify_push_incoming_fast",
@@ -123,7 +124,7 @@ public class DatabaseContext : DbContext
                    ParentId = 1,
                    DisplayType = SourceDisplayType.DisplayAndSetSwitchParameters,
                    Topic = "http://localhost:8082/topics/cdc_eft/incoming_qr",
-                   Kafka = "test",
+                   KafkaUrl = "test",
                    ApiKey = "a1b2c33d4e5f6g7h8i9jakblc",
                    Secret = "11561681-8ba5-4b46-bed0-905ae1769bc6",
                    PushServiceReference = "notify_push_incoming_qr",
@@ -210,19 +211,27 @@ public class DatabaseContext : DbContext
         builder.Entity<Consumer>(c =>
         {
             c.HasData(
-    new Consumer
-    {
-        Id = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"),
-        Client = (long)0,
-        User = (long)123456,
-        SourceId = 1,
-        Filter = "Message.data.amount >= 500000",
-        IsPushEnabled = false,
-        IsSmsEnabled = true,
-        IsEmailEnabled = false
-    });
+            new Consumer
+            {
+                Id = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"),
+                Client = (long)0,
+                User = (long)123456,
+                SourceId = 1,
+                Filter = "Message.data.amount >= 500000",
+                IsPushEnabled = false,
+                IsSmsEnabled = true,
+                IsEmailEnabled = false
+            });
             c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
         });
+        builder.Entity<SourceService>().HasData(
+          new SourceService
+          {
+              Id = 1,
+              SourceId = 1,
+              ServiceUrl = "localhost:/getcustomerId",
+              
+          });
 
 
     }
