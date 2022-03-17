@@ -1,5 +1,4 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-COPY ./https://api.nonprod.ebt.bank:6443-certificate.pem /etc/ssl/certs/server-certificate.pem
 WORKDIR /app
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
