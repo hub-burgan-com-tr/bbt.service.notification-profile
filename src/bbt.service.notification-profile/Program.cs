@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen(c =>
                 c.EnableAnnotations(enableAnnotationsForInheritance: true, enableAnnotationsForPolymorphism: true);
                 c.CustomSchemaIds(x => x.FullName);
             });
-//builder.Services.AddDbContext<DatabaseContext>();
+builder.Services.AddDbContext<DatabaseContext>();
 
 var app = builder.Build();
 
@@ -46,13 +46,13 @@ app.UseEndpoints(endpoints =>
         });
 
 
-/*using (var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<DatabaseContext>();    
     context.Database.Migrate();
 }
-*/
+
 
 app.Run();
