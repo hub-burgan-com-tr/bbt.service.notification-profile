@@ -91,9 +91,17 @@ public class SourceController : ControllerBase
         {
             var source = db.Sources.Where(s =>
                 s.Id == id).FirstOrDefault();
-                  if (source == null)
-                return new ObjectResult(id) { StatusCode = 460 };
 
+            if (source == null)
+            return new ObjectResult(id) { StatusCode = 460 };
+
+            
+            List<SourceServicesUrl> servicesUrls = new List<SourceServicesUrl>();
+            SourceServicesUrl sourceServicesUrl= new SourceServicesUrl();
+            var sourceService = db.SourceServices.Where(s=> id == s.SourceId).Select(x => new SourceServicesUrl{
+                ServiceUrl=x.ServiceUrl
+            }).ToList();
+            
             returnValue.Id=source.Id;
             returnValue.Topic=source.Topic;
             returnValue.SmsServiceReference=source.SmsServiceReference;
@@ -107,8 +115,8 @@ public class SourceController : ControllerBase
             returnValue.Secret=source.Secret;
             returnValue.ClientIdJsonPath=source.ClientIdJsonPath;
             returnValue.KafkaUrl=source.KafkaUrl;
-
-
+            returnValue.ServiceUrlList=sourceService;
+            
         }
 
         return Ok(returnValue);

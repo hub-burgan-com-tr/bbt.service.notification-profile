@@ -231,6 +231,21 @@ public class DatabaseContext : DbContext
               SourceId = 1,
               ServiceUrl = "localhost:/getcustomerId",
               
+          },
+          
+          new SourceService
+          {
+              Id = 2,
+              SourceId = 1,
+              ServiceUrl = "localhost:/get2customerId",
+              
+          },
+          new SourceService
+          {
+              Id = 3,
+              SourceId = 101,
+              ServiceUrl = "localhost:/get3customerId",
+              
           });
 
 
