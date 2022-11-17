@@ -1,0 +1,220 @@
+﻿@page "/Pages/SourcePage"
+@inherits BaseComponent
+
+@using Notification.Profile.Model;
+@using bbt.service.notification.ui.Component;
+@using bbt.service.notification.ui.Component.Modal;
+
+<EditForm Model="@sourceModel" OnValidSubmit="SourceSave">
+    <DataAnnotationsValidator />
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-md-2">
+                <RadzenLabel Text="Title_TR"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenTextBox Style="width:245px" @bind-Value=@sourceModel.Title_TR></RadzenTextBox>
+            </div>
+            <div class="col-md-2">
+                <RadzenLabel Text="Title_EN" Style="margin-left:80px;"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenTextBox Style="width:245px;margin-left:80px;" @bind-Value=@sourceModel.Title_EN></RadzenTextBox>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                <RadzenLabel Text="Parent"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value=@sourceModel.ParentId
+                                Data=@parentList
+                                TextProperty="Topic"
+                                ValueProperty="Id" Style="width:245px;" />
+                @*<RadzenNumeric Style="width:245px" @bind-Value=@sourceModel.ParentId></RadzenNumeric>*@
+            </div>
+            <div class="col-md-2">
+                <RadzenLabel Text="Topic" Style="margin-left:80px;"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <RadzenLabel Text="*" Style="color:red;font-weight:bold;margin-left:-40px;" />
+                    <RadzenTextBox Style="width:250px;margin-left:92px;margin-top:-20px;" @bind-Value=@sourceModel.Topic></RadzenTextBox>
+
+                </div>
+                <div style="margin-left:80px;">
+                    <ValidationMessage For="() =>sourceModel.Topic"></ValidationMessage>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                <RadzenLabel Text="SmsReference"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value=@sourceModel.SmsServiceReference
+                                Data=@listContentSms
+                                TextProperty="contentName"
+                                ValueProperty="contentName" Style="width:245px;" />
+
+            </div>
+            <div class="col-md-2">
+                <RadzenLabel Text="EmailReference" Style="margin-left:80px;"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value=@sourceModel.EmailServiceReference
+                                Data=@listContentEmail
+                                TextProperty="contentName"
+                                ValueProperty="contentName" Style="width:245px;margin-left:80px;" />
+
+            </div>
+
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                <RadzenLabel Text="PushReference"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value=@sourceModel.PushServiceReference
+                                Data=@listContentPush
+                                TextProperty="contentName"
+                                ValueProperty="contentName" Style="width:245px;" />
+            </div>
+            <div class="col-md-2">
+                <RadzenLabel Text="ClientIdJsonPath" Style="margin-left:80px;"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenTextBox Style="width:245px;margin-left:80px;" @bind-Value=@sourceModel.ClientIdJsonPath></RadzenTextBox>
+            </div>
+
+        </div>
+        <div class="row" style="margin-top:10px;">
+
+
+            <div class="col-md-2">
+
+                <RadzenLabel Text="KafkaUrl"></RadzenLabel>
+
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <RadzenLabel Text="*" Style="color:red;font-weight:bold;margin-left:-100px;" />
+                    <RadzenTextBox Style="width:255px;margin-top:-20px;margin-left:12px;" @bind-Value=@sourceModel.KafkaUrl></RadzenTextBox>
+                </div>
+                <ValidationMessage For="() =>sourceModel.KafkaUrl"></ValidationMessage>
+            </div>
+            <div class="col-md-2">
+
+                <RadzenLabel Text="KafkaCertificate" Style="margin-left:80px;"></RadzenLabel>
+
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <RadzenLabel Text="*" Style="color:red;font-weight:bold;margin-left:29px;" />
+                    <RadzenTextBox Style="width:255px;margin-left:92px;margin-top:-20px;" @bind-Value=@sourceModel.KafkaCertificate></RadzenTextBox>
+                </div>
+                <div style="margin-left:80px;width:250px;">
+                    <ValidationMessage For="() =>sourceModel.KafkaCertificate"></ValidationMessage>
+                </div>
+            </div>
+
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                <RadzenLabel Text="DisplayType"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+
+
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value=@sourceModel.DisplayType
+                                Data=@displayTipList
+                                TextProperty="Text"
+                                Change=@(args => DisplayTypeChange())
+                                ValueProperty="Value" Style="width:245px;" />
+            </div>
+            <div class="col-md-2">
+                <RadzenLabel Text="RetentationTime" Style="margin-left:80px;"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenNumeric Style="width:245px;margin-left:80px;" @bind-Value=@sourceModel.RetentationTime></RadzenNumeric>
+            </div>
+
+        </div>
+          <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                <RadzenLabel Text="ProductCode"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+
+
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value=@sourceModel.ProductCodeId
+                                Data=@productCodeList
+                                TextProperty="ProductCodeName"
+                                ValueProperty="Id" Style="width:245px;" />
+            </div>
+            </div>
+         @if (appsetting==true)
+        {
+          <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                <RadzenLabel Text="Prod Kaydet"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                <RadzenCheckBox  @bind-Value=@sourceModel.CheckDeploy></RadzenCheckBox>
+            </div>
+            </div>
+        }
+    </div>
+    <hr />
+    <div class="row" style="margin-left:2px;margin-top:20px;">
+        <button class="btn btn-primary" style="font-size:15px;background-color:green;margin-left:10px;width:120px;color: white;" type="submit">Kaydet</button>
+    @*    @if (appsetting != "Prod")
+        {
+            <button class="btn btn-primary" style="font-size:15px;background-color:orange;margin-left:10px;width:120px;color: white;" @onclick="() => DeployProd()" >Prod Kaydet</button>
+        }*@
+        <button type="reset" class="btn btn-secondary" style="font-size:15px;background-color:dimgray;margin-left:10px;width:120px;" data-dismiss="modal" @onclick="() => ModalClose()">İptal</button>
+
+    </div>
+
+
+</EditForm>
+
+<BaseLoadingModal @ref="LoadingModal">
+</BaseLoadingModal>
+
+
+
+
+
+
+
+
+
+

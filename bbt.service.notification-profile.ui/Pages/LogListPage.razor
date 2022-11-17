@@ -1,0 +1,87 @@
+﻿@page "/Pages/LogListPage"
+@inherits BaseComponent
+
+@using Notification.Profile.Model;
+@using bbt.service.notification.ui.Component;
+@using bbt.service.notification.ui.Component.Modal;
+@using Notification.Profile.Helper;
+@using Notification.Profile.Model.Database;
+<RadzenCard>
+    <div class="row top-space" style="width:100%;">
+        <div class="row">
+            <div class="col-md-2">
+                Phone Number
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.PhoneNumber></RadzenTextBox>
+            </div>
+            <div class="col-md-2">
+                Email
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.Email></RadzenTextBox>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                Customer No
+            </div>
+            <div class="col-md-4">
+                <RadzenNumeric Style="width:250px" @bind-Value=@searchModel.CustomerNo></RadzenNumeric>
+            </div>
+            <div class="col-md-2">
+                Response Message
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.ResponseMessage></RadzenTextBox>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                Start Date
+            </div>
+            <div class="col-md-4">
+                <RadzenDatePicker Style="width:250px" @bind-Value=@searchModel.StartDate DateFormat="dd/MM/yyyy" YearRange="2020:2090"></RadzenDatePicker>
+            </div>
+            <div class="col-md-2">
+                End Date
+            </div>
+            <div class="col-md-4">
+                <RadzenDatePicker Style="width:250px" @bind-Value=@searchModel.EndDate DateFormat="dd/MM/yyyy" YearRange="2020:2090"></RadzenDatePicker>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <RadzenButton Icon="search" Click="() =>Search()" Text="Ara" ButtonStyle="ButtonStyle.Primary" />
+            <RadzenButton Icon="search_off" Text="İptal" Style="font-size:11pt;background-color:dimgray;" Click="() => Cancel()" />
+        </div>
+    </div>
+
+</RadzenCard>
+
+<div>
+
+    <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true" Count="@rowsCount" Style="margin-top:5px;"
+                    Data="@logList" TItem="MessageNotificationLog" ColumnWidth="300px" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" ShowPagingSummary="true">
+        <Columns>
+
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="CustomerNo" Title="CustomerNo" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="PhoneNumber" Title="PhoneNumber" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="Email" Title="Email" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="Content" Title="Content" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="IsRead" Title="IsRead" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="ReadTime" Title="ReadTime" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="IsDelete" Title="IsDelete" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="DeleteTime" Title="DeleteTime" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="ResponseMessage" Title="ResponseMessage" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="CreateDate" Title="CreateDate" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="RequestData" Title="RequestData" Width="160px" />
+            <RadzenDataGridColumn TItem="MessageNotificationLog" Property="ResponseData" Title="ResponseData" Width="160px" />
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+<BaseLoadingModal @ref="LoadingModal">
+</BaseLoadingModal>
+
+
+

@@ -1,0 +1,101 @@
+﻿@page "/Pages/SourceListPage"
+@inherits BaseComponent
+
+@using Notification.Profile.Model;
+@using bbt.service.notification.ui.Component;
+@using bbt.service.notification.ui.Component.Modal;
+@using Notification.Profile.Helper;
+<RadzenCard>
+    <div class="row top-space" style="width:100%;">
+        <div class="row">
+            <div class="col-md-2">
+                Title
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.Title></RadzenTextBox>
+            </div>
+            <div class="col-md-2">
+                Topic
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.Topic></RadzenTextBox>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                SmsServiceReference
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.SmsServiceReference></RadzenTextBox>
+            </div>
+            <div class="col-md-2">
+                EmailServiceReference
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.EmailServiceReference></RadzenTextBox>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <RadzenButton Icon="search" Click="() =>Search()" Text="Ara" ButtonStyle="ButtonStyle.Primary" />
+            <RadzenButton Icon="search_off" Text="İptal" Style="font-size:11pt;background-color:dimgray;" Click="() => Cancel()" />
+        </div>
+    </div>
+
+</RadzenCard>
+<RadzenButton Icon="add_circle_outline" Text="Yeni Kayıt" Style="font-size:15px;width:150px;margin-left:18px;margin-top:5px;" Click="() => OpenSourceDetailModal()"></RadzenButton>
+
+<div>
+
+    <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true" Count="@rowsCount" Style="margin-top:5px;"
+                    Data="@sourceList" TItem="Source" ColumnWidth="300px" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" ShowPagingSummary="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="Source" Width="100px" Title="Düzenle">
+                <Template Context="item">
+                    <RadzenButton title="Düzenle" Icon="mode_edit_outline" Style="font-size:11pt" Click="()=>SourceEdit(item)"></RadzenButton>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Source" Width="100px" Title="Sil">
+                <Template Context="item">
+                    <RadzenButton title="Sil" Icon="delete_forever" Style="font-size:11pt;background-color:darkred;" Click="@((args) =>SourceDelete(item))"></RadzenButton>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Source" Property="Id" Title="Id" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="ParentId" Title="Parent Id" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="Title.TR" Title="Title_TR" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="Title.EN" Title="Title_EN" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="Topic" Title="Topic" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="PushServiceReference" Title="PushServiceReference" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="SmsServiceReference" Title="SmsServiceReference" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="EmailServiceReference" Title="EmailServiceReference" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="ClientIdJsonPath" Title="ClientIdJsonPath" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="KafkaUrl" Title="KafkaUrl" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="KafkaCertificate" Title="KafkaCertificate" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="ProductCodeId" Title="ProductCodeId" Visible="false" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="ProductCodeName" Title="ProductCode" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="DisplayType" Title="DisplayType" Width="160px">
+
+                <Template Context="item">
+                    @if (item.DisplayType != 0)
+                    {
+                        @(EnumHelper.GetDescription<SourceDisplayType>((SourceDisplayType)item.DisplayType))
+                    }
+
+
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Source" Property="RetentationTime" Title="RetentationTime" Width="160px" />
+
+        </Columns>
+    </RadzenDataGrid>
+</div>
+<bbt.service.notification.ui.Component.Modal.BaseModal Title="Source Ekle" Width="2000" Height="500" IsFullScreen="false" @ref="ModalSource">
+    <ChildContent>
+        <SourcePage SourceId="@SourceId" sourceDetayModel="@sourceDetayModel" ListUpdate="ListUpdate"></SourcePage>
+    </ChildContent>
+</bbt.service.notification.ui.Component.Modal.BaseModal>
+
+<BaseLoadingModal @ref="LoadingModal">
+</BaseLoadingModal>
+
+
+
