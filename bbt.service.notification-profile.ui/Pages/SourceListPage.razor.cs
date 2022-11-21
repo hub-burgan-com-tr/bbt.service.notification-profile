@@ -108,6 +108,7 @@ namespace bbt.service.notification.ui.Pages
                 });
             }
         }
+      
         protected async Task ListUpdate()
         {
             ExecuteMethod(() =>
