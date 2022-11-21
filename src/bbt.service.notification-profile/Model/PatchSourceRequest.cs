@@ -1,7 +1,9 @@
 
 
+using Notification.Profile.Model;
+using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+[SwaggerSchemaFilter(typeof(SourceSchemaFilter))]
 public class PatchSourceRequest
 {
     //public string Title { get; set; }

@@ -33,6 +33,9 @@ public class SourceSchemaFilter : ISchemaFilter
             ["ClientIdJsonPath"] = new OpenApiString(String.Empty),
 
             ["RetentationTime"] = new OpenApiInteger(0),
+
+            ["ProductCodeId"] = new OpenApiInteger(0),
+
         };
     }
 }

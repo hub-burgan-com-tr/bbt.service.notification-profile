@@ -96,8 +96,8 @@ namespace bbt.service.notification.ui.Pages
                     }
                     parentList = sourceService.GetSourceWithSearchModel(searchModel).Result.Sources;
                     displayTipList = EnumHelper.BuildSelectListItems(typeof(SourceDisplayType));
-                    appsetting =Convert.ToBoolean(configuration.GetSection("ProdSave").Value);
-                  //  appsetting = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                    appsetting = Convert.ToBoolean(configuration.GetSection("ProdSave").Value);
+                    //  appsetting = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
                     GetTemplateResponseModel respEmail = dengageService.GetMessagingGatewayEmailContent().Result;
                     if (respEmail != null && respEmail.Result == ResultEnum.Success)
@@ -210,24 +210,24 @@ namespace bbt.service.notification.ui.Pages
             else
             {
 
-               
-                    sourceResp = sourceService.Post(sourceModel).Result;
-                    if (sourceResp.Result == ResultEnum.Error)
-                    {
-                        Notification.ShowErrorMessage("Hata", "Kaydedilirken Hata Oluştu");
-                    }
-                    else
-                    {
-                        Notification.ShowSuccessMessage("Başarılı", "Bilgiler Başarıyla Kaydedildi");
-                        dialogService.Close();
-                        NavigationManager.NavigateTo("Pages/SourceListPage");
-                        ListUpdate.InvokeAsync();
+
+                sourceResp = sourceService.Post(sourceModel).Result;
+                if (sourceResp.Result == ResultEnum.Error)
+                {
+                    Notification.ShowErrorMessage("Hata", "Kaydedilirken Hata Oluştu");
+                }
+                else
+                {
+                    Notification.ShowSuccessMessage("Başarılı", "Bilgiler Başarıyla Kaydedildi");
+                    dialogService.Close();
+                    NavigationManager.NavigateTo("Pages/SourceListPage");
+                    ListUpdate.InvokeAsync();
 
 
-                    }
-           
+                }
+
+            }
         }
-    }
 
-}
+    }
 }

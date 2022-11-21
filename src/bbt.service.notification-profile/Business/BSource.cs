@@ -11,6 +11,7 @@ using Notification.Profile.Model.Database;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Text;
 
 namespace Notification.Profile.Business
 {
@@ -22,7 +23,7 @@ namespace Notification.Profile.Business
         private readonly IProductCode _IproductCode;
 
 
-        public BSource(IConfiguration configuration, IConsumer Iconsumer, ILogHelper logHelper,IProductCode productCode)
+        public BSource(IConfiguration configuration, IConsumer Iconsumer, ILogHelper logHelper, IProductCode productCode)
         {
             _configuration = configuration;
             _Iconsumer = Iconsumer;
@@ -248,7 +249,7 @@ namespace Notification.Profile.Business
                                KafkaUrl = source.KafkaUrl,
                                KafkaCertificate = source.KafkaCertificate,
                                ProductCodeId = source.ProductCodeId,
-                               DisplayType =(int) source.DisplayType,
+                               DisplayType = (int)source.DisplayType,
                                EmailServiceReference = source.EmailServiceReference,
                                PushServiceReference = source.PushServiceReference,
                                RetentationTime = source.RetentationTime,
@@ -259,7 +260,7 @@ namespace Notification.Profile.Business
                                ProductCodeName = productCode.ProductCodeName
                            });
 
-            getSourcesResponse.Sources = sources.ToList();
+                getSourcesResponse.Sources = sources.ToList();
             }
             return getSourcesResponse;
 
@@ -341,6 +342,7 @@ namespace Notification.Profile.Business
                 if (data.SmsServiceReference != null) source.SmsServiceReference = data.SmsServiceReference;
                 if (data.EmailServiceReference != null) source.EmailServiceReference = data.EmailServiceReference;
                 if (data.KafkaUrl != null) source.KafkaUrl = data.KafkaUrl;
+                if (data.ClientIdJsonPath != null) source.ClientIdJsonPath = data.ClientIdJsonPath;
                 if (data.KafkaCertificate != null) source.KafkaCertificate = data.KafkaCertificate;
                 if (data.RetentationTime != null) source.RetentationTime = data.RetentationTime;
                 if (data.ProductCodeId != null) source.ProductCodeId = data.ProductCodeId;
@@ -350,81 +352,74 @@ namespace Notification.Profile.Business
             }
             if (data.CheckDeploy == true)
             {
-                var connectionString = _configuration.GetConnectionString("ProdConnectionString");
-                using (var connection = new SqlConnection(connectionString))
+
+                string path = _configuration.GetSection("NotificationProdSearchEndPoint").Value.ToString();
+                var uri = new Uri(path);
+                GetSourcesResponse result = new GetSourcesResponse();
+                using (var httpClient = new HttpClient())
                 {
-                    connection.Open();
-
-                    int selectId = 0;
-                    string sqlSelect = "Select * From [Sources] Where Topic='" + data.Topic + "' ";
-                    SqlCommand commandSelect = new SqlCommand(sqlSelect, connection);
-                    SqlDataReader reader = commandSelect.ExecuteReader();
-                   
-                        while (reader.Read())
-                        {
-                            selectId = (int)reader["Id"];
-                        }
-                        if (selectId>0)
-                        {
-                        string sqlUpdate = "";
-                        sqlUpdate = "UPDATE [Sources] SET Topic=@Topic,PushServiceReference=@PushServiceReference,SmsServiceReference=@SmsServiceReference,EmailServiceReference=@EmailServiceReference,KafkaUrl=@KafkaUrl," +
-                            " KafkaCertificate=@KafkaCertificate,DisplayType=@DisplayType,Title_EN=@Title_EN,Title_TR=@Title_TR,ClientIdJsonPath=@ClientIdJsonPath,RetentationTime=@RetentationTime,ProductCodeId=@ProductCodeId " +
-                            " Where Id=@id";
-
-                        SqlCommand commandUpdate = new SqlCommand(sqlUpdate, connection);
-
-                        commandUpdate.Parameters.Add("@id", SqlDbType.Int).Value = selectId;
-                        commandUpdate.Parameters.Add("@Topic", SqlDbType.NVarChar, int.MaxValue).Value = data.Topic;
-                        commandUpdate.Parameters.Add("@PushServiceReference", SqlDbType.NVarChar, int.MaxValue).Value = data.PushServiceReference == null ? DBNull.Value : data.PushServiceReference;
-                        commandUpdate.Parameters.Add("@SmsServiceReference", SqlDbType.NVarChar, int.MaxValue).Value = data.SmsServiceReference == null ? DBNull.Value : data.SmsServiceReference;
-                        commandUpdate.Parameters.Add("@EmailServiceReference", SqlDbType.NVarChar, int.MaxValue).Value = data.EmailServiceReference == null ? DBNull.Value : data.EmailServiceReference;
-                        commandUpdate.Parameters.Add("@KafkaUrl", SqlDbType.NVarChar, int.MaxValue).Value = data.KafkaUrl == null ? DBNull.Value : data.KafkaUrl;
-                        commandUpdate.Parameters.Add("@KafkaCertificate", SqlDbType.NVarChar, int.MaxValue).Value = data.KafkaCertificate == null ? DBNull.Value : data.KafkaCertificate;
-                        commandUpdate.Parameters.Add("@DisplayType", SqlDbType.Int).Value = data.DisplayType;
-                        commandUpdate.Parameters.Add("@Title_EN", SqlDbType.NVarChar, int.MaxValue).Value = data.Title_EN;
-                        commandUpdate.Parameters.Add("@Title_TR", SqlDbType.NVarChar, int.MaxValue).Value = data.Title_TR;
-                        commandUpdate.Parameters.Add("@ClientIdJsonPath", SqlDbType.NVarChar, int.MaxValue).Value = data.ClientIdJsonPath == null ? DBNull.Value : data.ClientIdJsonPath;
-                        commandUpdate.Parameters.Add("@RetentationTime", SqlDbType.Int).Value = data.RetentationTime;
-                        commandUpdate.Parameters.Add("@ProductCodeId", SqlDbType.Int).Value = data.ProductCodeId;
-
-                        commandUpdate.ExecuteNonQuery();
-
-                        commandUpdate.Dispose();
-                        connection.Close();
-                    }
-                    else
+                    SearchSourceModel searchSourceModel = new SearchSourceModel();
+                    searchSourceModel.Topic = data.Topic;
+                    data.CheckDeploy = false;
+                    var json = JsonConvert.SerializeObject(searchSourceModel);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response = httpClient.PostAsync(uri, content).Result;
+                    result = response.Content.ReadAsAsync<GetSourcesResponse>().Result;
+                }
+                if (result != null && result.Sources.Count > 0)
+                {
+                    string pathEnd = _configuration.GetSection("NotificationProdPatchEndPoint").Value.ToString().Replace("{id}", result.Sources.FirstOrDefault().Id.ToString());
+                    var uriEnd = new Uri(pathEnd);
+                    using (var httpClient = new HttpClient())
                     {
-
-                        string sql = "";
-                        sql = "INSERT INTO [Sources](Topic,PushServiceReference,SmsServiceReference,EmailServiceReference,KafkaUrl,KafkaCertificate,DisplayType,Title_EN,Title_TR,ClientIdJsonPath,RetentationTime,ProductCodeId) VALUES(@param1,@param2,@param3,@param4,@param5,@param6,@param7,@param8,@param9,@param10,@param11,@param12)";
-                        SqlCommand command = new SqlCommand(sql, connection);
-                        command.Parameters.Add("@param1", SqlDbType.NVarChar, int.MaxValue).Value = data.Topic;
-                        command.Parameters.Add("@param2", SqlDbType.NVarChar, int.MaxValue).Value = data.PushServiceReference == null ? DBNull.Value : data.PushServiceReference;
-                        command.Parameters.Add("@param3", SqlDbType.NVarChar, int.MaxValue).Value = data.SmsServiceReference == null ? DBNull.Value : data.SmsServiceReference;
-                        command.Parameters.Add("@param4", SqlDbType.NVarChar, int.MaxValue).Value = data.EmailServiceReference == null ? DBNull.Value : data.EmailServiceReference;
-                        command.Parameters.Add("@param5", SqlDbType.NVarChar, int.MaxValue).Value = data.KafkaUrl == null ? DBNull.Value : data.KafkaUrl;
-                        command.Parameters.Add("@param6", SqlDbType.NVarChar, int.MaxValue).Value = data.KafkaCertificate == null ? DBNull.Value : data.KafkaCertificate;
-                        command.Parameters.Add("@param7", SqlDbType.Int).Value = data.DisplayType;
-                        command.Parameters.Add("@param8", SqlDbType.NVarChar, int.MaxValue).Value = data.Title_EN;
-                        command.Parameters.Add("@param9", SqlDbType.NVarChar, int.MaxValue).Value = data.Title_TR;
-                        command.Parameters.Add("@param10", SqlDbType.NVarChar, int.MaxValue).Value = data.ClientIdJsonPath == null ? DBNull.Value : data.ClientIdJsonPath;
-                        command.Parameters.Add("@param11", SqlDbType.Int).Value = data.RetentationTime;
-                        command.Parameters.Add("@param12", SqlDbType.Int).Value = data.ProductCodeId;
-                        command.ExecuteNonQuery();
-
-                        command.Dispose();
-                        connection.Close();
+                        data.CheckDeploy = false;
+                        var json = JsonConvert.SerializeObject(data);
+                        var content = new StringContent(json, Encoding.UTF8, "application/json");
+                        HttpResponseMessage response = httpClient.PatchAsync(uriEnd, content).Result;
+                        if (response.IsSuccessStatusCode == true)
+                        {
+                            string resultEnd = response.Content.ReadAsStringAsync().Result;
+                        }
+                        else
+                        {
+                            sourceResp.Result = ResultEnum.Error;
+                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. "+response.ReasonPhrase);
+                        }
                     }
                 }
+
+                else
+                {
+                    string paths = _configuration.GetSection("NotificationProdEndPoint").Value.ToString();
+                    var uris = new Uri(paths);
+                    using (var httpClient = new HttpClient())
+                    {
+                        data.CheckDeploy = false;
+                        var json = JsonConvert.SerializeObject(data);
+                        var content = new StringContent(json, Encoding.UTF8, "application/json");
+                        HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
+                        if (response.IsSuccessStatusCode == true)
+                        {
+                            string resultres = response.Content.ReadAsStringAsync().Result;
+                        }
+                        else
+                        {
+                            sourceResp.Result = ResultEnum.Error;
+                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
+                        }
+                    }
+
+                }
             }
-
-
             return sourceResp;
         }
 
         public SourceResponseModel Post(PostSourceRequest data)
         {
+
             SourceResponseModel sourceResp = new SourceResponseModel();
+
+
             using (var db = new DatabaseContext())
             {
                 db.Add(new Model.Database.Source
@@ -451,34 +446,27 @@ namespace Notification.Profile.Business
 
                 db.SaveChanges();
                 sourceResp.Result = ResultEnum.Success;
+
                 if (data.CheckDeploy == true)
                 {
-                    var connectionString = _configuration.GetConnectionString("ProdConnectionString");
-                    using (var connection = new SqlConnection(connectionString))
+                    string paths = _configuration.GetSection("NotificationProdEndPoint").Value.ToString();
+                    var uris = new Uri(paths);
+                    using (var httpClient = new HttpClient())
                     {
-                        connection.Open();
-
-                        string sql = "";
-
-                        sql = "INSERT INTO [Sources](Topic,PushServiceReference,SmsServiceReference,EmailServiceReference,KafkaUrl,KafkaCertificate,DisplayType,Title_EN,Title_TR,ClientIdJsonPath,RetentationTime,ProductCodeId) VALUES(@param1,@param2,@param3,@param4,@param5,@param6,@param7,@param8,@param9,@param10,@param11,@param12)";
-                        SqlCommand command = new SqlCommand(sql, connection);
-                        command.Parameters.Add("@param1", SqlDbType.NVarChar, int.MaxValue).Value = data.Topic;
-                        command.Parameters.Add("@param2", SqlDbType.NVarChar, int.MaxValue).Value = data.PushServiceReference == null ? DBNull.Value : data.PushServiceReference;
-                        command.Parameters.Add("@param3", SqlDbType.NVarChar, int.MaxValue).Value = data.SmsServiceReference == null ? DBNull.Value : data.SmsServiceReference;
-                        command.Parameters.Add("@param4", SqlDbType.NVarChar, int.MaxValue).Value = data.EmailServiceReference == null ? DBNull.Value : data.EmailServiceReference;
-                        command.Parameters.Add("@param5", SqlDbType.NVarChar, int.MaxValue).Value = data.KafkaUrl == null ? DBNull.Value : data.KafkaUrl;
-                        command.Parameters.Add("@param6", SqlDbType.NVarChar, int.MaxValue).Value = data.KafkaCertificate == null ? DBNull.Value : data.KafkaCertificate;
-                        command.Parameters.Add("@param7", SqlDbType.Int).Value = data.DisplayType;
-                        command.Parameters.Add("@param8", SqlDbType.NVarChar, int.MaxValue).Value = data.Title_EN;
-                        command.Parameters.Add("@param9", SqlDbType.NVarChar, int.MaxValue).Value = data.Title_TR;
-                        command.Parameters.Add("@param10", SqlDbType.NVarChar, int.MaxValue).Value = data.ClientIdJsonPath == null ? DBNull.Value : data.ClientIdJsonPath;
-                        command.Parameters.Add("@param11", SqlDbType.Int).Value = data.RetentationTime;
-                        command.Parameters.Add("@param12", SqlDbType.Int).Value = data.ProductCodeId;
-
-                        command.ExecuteNonQuery();
-
-                        command.Dispose();
-                        connection.Close();
+                        data.CheckDeploy = false;
+                        var json = JsonConvert.SerializeObject(data);
+                        var content = new StringContent(json, Encoding.UTF8, "application/json");
+                        HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
+                     
+                        if (response.IsSuccessStatusCode == true)
+                        {
+                            string result = response.Content.ReadAsStringAsync().Result;
+                        }
+                        else
+                        {
+                            sourceResp.Result = ResultEnum.Error;
+                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
+                        }
                     }
                 }
 
@@ -489,9 +477,9 @@ namespace Notification.Profile.Business
         {
             SourceListResponse response = new SourceListResponse();
             GetProductCodeResponse productCodeResponse = new GetProductCodeResponse();
-            productCodeResponse= _IproductCode.ProductCodeListRedis().Result;
+            productCodeResponse = _IproductCode.ProductCodeListRedis().Result;
             List<ProductCode> productCodeList = new List<ProductCode>();
-            if (productCodeResponse!=null && productCodeResponse.Result == ResultEnum.Success)
+            if (productCodeResponse != null && productCodeResponse.Result == ResultEnum.Success)
             {
                 productCodeList = productCodeResponse.ProductCodes;
                 if (productCodeList.Count > 0)
@@ -520,7 +508,7 @@ namespace Notification.Profile.Business
                 response.MessageList.Add("Product Code list is error!.");
                 return response;
             }
-           
+
 
             return response;
         }

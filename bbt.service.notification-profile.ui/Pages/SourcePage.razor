@@ -164,7 +164,7 @@
             </div>
 
         </div>
-          <div class="row" style="margin-top:10px;">
+        <div class="row" style="margin-top:10px;">
             <div class="col-md-2">
                 <RadzenLabel Text="ProductCode"></RadzenLabel>
             </div>
@@ -179,25 +179,25 @@
                                 TextProperty="ProductCodeName"
                                 ValueProperty="Id" Style="width:245px;" />
             </div>
-            </div>
-         @if (appsetting==true)
+        </div>
+        @if (appsetting == true)
         {
-          <div class="row" style="margin-top:10px;">
-            <div class="col-md-2">
-                <RadzenLabel Text="Prod Kaydet"></RadzenLabel>
-            </div>
-            <div class="col-md-3">
-                <RadzenCheckBox  @bind-Value=@sourceModel.CheckDeploy></RadzenCheckBox>
-            </div>
+            <div class="row" style="margin-top:10px;">
+                <div class="col-md-2">
+                    <RadzenLabel Text="Prod Kaydet"></RadzenLabel>
+                </div>
+                <div class="col-md-3">
+                    <RadzenCheckBox @bind-Value=@sourceModel.CheckDeploy></RadzenCheckBox>
+                </div>
             </div>
         }
     </div>
     <hr />
     <div class="row" style="margin-left:2px;margin-top:20px;">
         <button class="btn btn-primary" style="font-size:15px;background-color:green;margin-left:10px;width:120px;color: white;" type="submit">Kaydet</button>
-    @*    @if (appsetting != "Prod")
+        @*    @if (appsetting != "Prod")
         {
-            <button class="btn btn-primary" style="font-size:15px;background-color:orange;margin-left:10px;width:120px;color: white;" @onclick="() => DeployProd()" >Prod Kaydet</button>
+        <button class="btn btn-primary" style="font-size:15px;background-color:orange;margin-left:10px;width:120px;color: white;" @onclick="() => DeployProd()" >Prod Kaydet</button>
         }*@
         <button type="reset" class="btn btn-secondary" style="font-size:15px;background-color:dimgray;margin-left:10px;width:120px;" data-dismiss="modal" @onclick="() => ModalClose()">İptal</button>
 
