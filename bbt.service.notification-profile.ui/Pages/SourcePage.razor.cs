@@ -126,33 +126,7 @@ namespace bbt.service.notification.ui.Pages
                     {
                         Notification.ShowErrorMessage("Hata", respSms.MessageList[0]);
                     }
-                    //GetDengageContentResponse respEmail = dengageService.GetDengageEmailContent().Result;
-                    //if (respEmail != null && respEmail.message == StructResult.Successful)
-                    //{
-                    //    listContentEmail = respEmail.data.result;
-                    //}
-                    //else
-                    //{
-                    //    Notification.ShowErrorMessage("Hata", "Dengage bağlanırken hata oluştu.");
-                    //}
-                    //GetDengageContentResponse respSms = dengageService.GetDengageSmsContent().Result;
-                    //if (respSms != null && respSms.message == StructResult.Successful)
-                    //{
-                    //    listContentSms = respSms.data.result;
-                    //}
-                    //else
-                    //{
-                    //    Notification.ShowErrorMessage("Hata", "Dengage bağlanırken hata oluştu.");
-                    //}
-                    //GetDengageContentResponse respPush = dengageService.GetDengagePushContent().Result;
-                    //if (respPush != null && respPush.message == StructResult.Successful)
-                    //{
-                    //    listContentPush = respPush.data.result;
-                    //}
-                    //else
-                    //{
-                    //    Notification.ShowErrorMessage("Hata", "Dengage bağlanırken hata oluştu.");
-                    //}
+                   
                 });
                 LoadingModal.Close();
             }
