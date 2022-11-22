@@ -188,6 +188,7 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.Topic = sourceModel.Topic;
                 patchRequest.DisplayType = sourceModel.DisplayType;
                 patchRequest.CheckDeploy = sourceModel.CheckDeploy;
+                patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                 patchRequest.ProductCodeId = sourceModel.ProductCodeId;
 
                 sourceResp = sourceService.Patch(sourceModel.Id, patchRequest).Result;
