@@ -97,7 +97,6 @@ namespace bbt.service.notification.ui.Pages
                     parentList = sourceService.GetSourceWithSearchModel(searchModel).Result.Sources;
                     displayTipList = EnumHelper.BuildSelectListItems(typeof(SourceDisplayType));
                     appsetting = Convert.ToBoolean(configuration.GetSection("ProdSave").Value);
-                    //  appsetting = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
                     GetTemplateResponseModel respEmail = dengageService.GetMessagingGatewayEmailContent().Result;
                     if (respEmail != null && respEmail.Result == ResultEnum.Success)
