@@ -98,6 +98,7 @@ namespace bbt.service.notification.ui.Pages
                     displayTipList = EnumHelper.BuildSelectListItems(typeof(SourceDisplayType));
                     appsetting = Convert.ToBoolean(configuration.GetSection("ProdSave").Value);
 
+
                     GetTemplateResponseModel respEmail = dengageService.GetMessagingGatewayEmailContent().Result;
                     if (respEmail != null && respEmail.Result == ResultEnum.Success)
                     {
@@ -125,7 +126,7 @@ namespace bbt.service.notification.ui.Pages
                     {
                         Notification.ShowErrorMessage("Hata", respSms.MessageList[0]);
                     }
-                   
+
                 });
                 LoadingModal.Close();
             }
@@ -163,6 +164,7 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.CheckDeploy = sourceModel.CheckDeploy;
                 patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                 patchRequest.ProductCodeId = sourceModel.ProductCodeId;
+                patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
 
                 sourceResp = sourceService.Patch(sourceModel.Id, patchRequest).Result;
                 if (sourceResp.Result == ResultEnum.Error)
