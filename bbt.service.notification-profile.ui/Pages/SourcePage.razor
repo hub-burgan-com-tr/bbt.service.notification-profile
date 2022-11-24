@@ -67,8 +67,8 @@
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 @bind-Value=@sourceModel.SmsServiceReference
                                 Data=@listContentSms
-                                TextProperty="contentName"
-                                ValueProperty="contentName" Style="width:245px;" />
+                                TextProperty="contentfullpath"
+                                ValueProperty="contentfullpath" Style="width:245px;" />
 
             </div>
             <div class="col-md-2">
@@ -80,8 +80,8 @@
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 @bind-Value=@sourceModel.EmailServiceReference
                                 Data=@listContentEmail
-                                TextProperty="contentName"
-                                ValueProperty="contentName" Style="width:245px;margin-left:80px;" />
+                                TextProperty="contentfullpath"
+                                ValueProperty="contentfullpath" Style="width:245px;margin-left:80px;" />
 
             </div>
 
@@ -97,8 +97,8 @@
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 @bind-Value=@sourceModel.PushServiceReference
                                 Data=@listContentPush
-                                TextProperty="contentName"
-                                ValueProperty="contentName" Style="width:245px;" />
+                                TextProperty="contentfullpath"
+                                ValueProperty="contentfullpath" Style="width:245px;" />
             </div>
             <div class="col-md-2">
                 <RadzenLabel Text="ClientIdJsonPath" Style="margin-left:80px;"></RadzenLabel>

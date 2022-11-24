@@ -97,7 +97,7 @@ namespace bbt.service.notification.ui.Pages
                     parentList = sourceService.GetSourceWithSearchModel(searchModel).Result.Sources;
                     displayTipList = EnumHelper.BuildSelectListItems(typeof(SourceDisplayType));
                     appsetting = Convert.ToBoolean(configuration.GetSection("ProdSave").Value);
-                    //  appsetting = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
 
                     GetTemplateResponseModel respEmail = dengageService.GetMessagingGatewayEmailContent().Result;
                     if (respEmail != null && respEmail.Result == ResultEnum.Success)
@@ -126,33 +126,7 @@ namespace bbt.service.notification.ui.Pages
                     {
                         Notification.ShowErrorMessage("Hata", respSms.MessageList[0]);
                     }
-                    //GetDengageContentResponse respEmail = dengageService.GetDengageEmailContent().Result;
-                    //if (respEmail != null && respEmail.message == StructResult.Successful)
-                    //{
-                    //    listContentEmail = respEmail.data.result;
-                    //}
-                    //else
-                    //{
-                    //    Notification.ShowErrorMessage("Hata", "Dengage bağlanırken hata oluştu.");
-                    //}
-                    //GetDengageContentResponse respSms = dengageService.GetDengageSmsContent().Result;
-                    //if (respSms != null && respSms.message == StructResult.Successful)
-                    //{
-                    //    listContentSms = respSms.data.result;
-                    //}
-                    //else
-                    //{
-                    //    Notification.ShowErrorMessage("Hata", "Dengage bağlanırken hata oluştu.");
-                    //}
-                    //GetDengageContentResponse respPush = dengageService.GetDengagePushContent().Result;
-                    //if (respPush != null && respPush.message == StructResult.Successful)
-                    //{
-                    //    listContentPush = respPush.data.result;
-                    //}
-                    //else
-                    //{
-                    //    Notification.ShowErrorMessage("Hata", "Dengage bağlanırken hata oluştu.");
-                    //}
+
                 });
                 LoadingModal.Close();
             }
@@ -188,7 +162,9 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.Topic = sourceModel.Topic;
                 patchRequest.DisplayType = sourceModel.DisplayType;
                 patchRequest.CheckDeploy = sourceModel.CheckDeploy;
+                patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                 patchRequest.ProductCodeId = sourceModel.ProductCodeId;
+                patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
 
                 sourceResp = sourceService.Patch(sourceModel.Id, patchRequest).Result;
                 if (sourceResp.Result == ResultEnum.Error)
