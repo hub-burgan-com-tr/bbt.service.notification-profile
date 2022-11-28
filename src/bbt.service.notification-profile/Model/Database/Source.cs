@@ -21,7 +21,7 @@ namespace Notification.Profile.Model.Database
         public string EmailServiceReference { get; set; }
         public string KafkaCertificate { get; set; }
         public int RetentationTime { get; set; }
-        public int ProductCodeId { get; set; }
+        public int? ProductCodeId { get; set; }
      
     }
 }

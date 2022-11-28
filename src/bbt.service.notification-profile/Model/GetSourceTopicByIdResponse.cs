@@ -23,7 +23,7 @@ namespace Notification.Profile.Model
         public string KafkaCertificate { get; set; }
         public List<SourceServicesUrl> ServiceUrlList { get; set; }
         public int RetentationTime { get; set; }
-        public int ProductCodeId { get; set; }
+        public int? ProductCodeId { get; set; }
 
 
     }
