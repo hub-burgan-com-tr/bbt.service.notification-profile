@@ -34,7 +34,7 @@ public class PostSourceRequest
 
     public int RetentationTime { get; set; }
 
-    public int ProductCodeId { get; set; }
+    public int? ProductCodeId { get; set; }
 
     [NotMapped]
     public bool CheckDeploy { get; set; }

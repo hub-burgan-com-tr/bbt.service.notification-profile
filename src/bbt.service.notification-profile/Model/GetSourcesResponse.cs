@@ -29,7 +29,7 @@ namespace Notification.Profile.Model
 
         public int RetentationTime { get; set; }
 
-        public int ProductCodeId { get; set; }
+        public int? ProductCodeId { get; set; }
        
         public string ProductCodeName { get; set; }
 

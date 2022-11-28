@@ -236,6 +236,8 @@ namespace Notification.Profile.Business
 
                 sources = (from source in db.Sources
                            join productCode in db.ProductCodes on source.ProductCodeId equals productCode.Id
+                            into pc
+                           from p in pc.DefaultIfEmpty()
                            where (String.IsNullOrEmpty(model.Topic) || source.Topic.Contains(model.Topic)) && (String.IsNullOrEmpty(model.Title) || source.Title_TR.Contains(model.Title)) &&
                            (String.IsNullOrEmpty(model.SmsServiceReference) || source.SmsServiceReference.Contains(model.SmsServiceReference)) &&
                            (String.IsNullOrEmpty(model.EmailServiceReference) || source.EmailServiceReference.Contains(model.EmailServiceReference))
@@ -257,7 +259,7 @@ namespace Notification.Profile.Business
                                Title = new Model.Source.TitleLabel { EN = source.Title_EN, TR = source.Title_TR },
                                Topic = source.Topic,
                                Secret = source.Secret,
-                               ProductCodeName = productCode.ProductCodeName
+                               ProductCodeName = p == null ? null : p.ProductCodeName
                            });
 
                 getSourcesResponse.Sources = sources.ToList();
