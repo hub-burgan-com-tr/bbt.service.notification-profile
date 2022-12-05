@@ -1,5 +1,6 @@
 
 using bbt.service.notification.ui.Component;
+using bbt.service.notification.ui.Component.Pagination;
 using bbt.service.notification.ui.Configuration;
 using bbt.service.notification.ui.Data;
 using bbt.service.notification.ui.Override;
@@ -23,6 +24,7 @@ builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ThemeState>();
 builder.Services.AddScoped<MenuService>();
 builder.Services.AddScoped<BaseComponent>();
+builder.Services.AddScoped<BasePaginationComponent>();
 builder.Services.AddScoped<INotification, RadzenNotification>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<IBaseConfiguration,BaseConfiguration>();

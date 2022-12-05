@@ -227,7 +227,6 @@ namespace Notification.Profile.Business
         }
         public GetSourcesResponse GetSourceWithSearchModel(SearchSourceModel model)
         {
-
             GetSourcesResponse getSourcesResponse = new GetSourcesResponse();
             IQueryable<Model.Source> sources;
             getSourcesResponse.Sources = new List<Model.Source>();
@@ -243,7 +242,6 @@ namespace Notification.Profile.Business
                            (String.IsNullOrEmpty(model.EmailServiceReference) || source.EmailServiceReference.Contains(model.EmailServiceReference))
                            select new Model.Source
                            {
-
                                Id = source.Id,
                                ApiKey = source.ApiKey,
                                ClientIdJsonPath = source.ClientIdJsonPath,
@@ -260,9 +258,12 @@ namespace Notification.Profile.Business
                                Topic = source.Topic,
                                Secret = source.Secret,
                                ProductCodeName = p == null ? null : p.ProductCodeName
-                           });
+                           }).Skip(((model.CurrentPage) - 1) * model.RequestItemSize)
+                            .Take(model.RequestItemSize);
 
+                getSourcesResponse.Result = ResultEnum.Success;
                 getSourcesResponse.Sources = sources.ToList();
+                getSourcesResponse.Count =db.Sources.Count();
             }
             return getSourcesResponse;
 

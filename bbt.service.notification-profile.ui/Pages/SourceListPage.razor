@@ -5,6 +5,7 @@
 @using bbt.service.notification.ui.Component;
 @using bbt.service.notification.ui.Component.Modal;
 @using Notification.Profile.Helper;
+@using bbt.service.notification.ui.Component.Pagination;
 <RadzenCard>
     <div class="row top-space" style="width:100%;">
         <div class="row">
@@ -46,8 +47,8 @@
 
 <div>
 
-    <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true" Count="@rowsCount" Style="margin-top:5px;"
-                    Data="@sourceList" TItem="Source" ColumnWidth="300px" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" ShowPagingSummary="true">
+    <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true"  Style="margin-top:5px;"
+                    Data="@sourceList" TItem="Source" ColumnWidth="300px"  PagerHorizontalAlign="HorizontalAlign.Center" >
         <Columns>
             <RadzenDataGridColumn TItem="Source" Width="100px" Title="Düzenle">
                 <Template Context="item">
@@ -93,7 +94,8 @@
         <SourcePage SourceId="@SourceId" sourceDetayModel="@sourceDetayModel" ListUpdate="ListUpdate"></SourcePage>
     </ChildContent>
 </bbt.service.notification.ui.Component.Modal.BaseModal>
-
+<BasePaginationComponent @ref="Pagination" PageSize="@PageSize">
+</BasePaginationComponent>
 <BaseLoadingModal @ref="LoadingModal">
 </BaseLoadingModal>
 
