@@ -19,52 +19,81 @@ namespace bbt.service.notification.ui.Pages
         private RadzenDataGrid<Source> grid { get; set; }
 
         public SearchSourceModel searchModel { get; set; } = new SearchSourceModel();
-    
+
         public int SourceId { get; set; }
 
         public Source sourceDetayModel { get; set; }
         public BaseModal ModalSource { get; set; }
-      
+
+        public GetSourcesResponse responseModel { get; set; }
         [Inject]
         public Radzen.DialogService dialogService { get; set; }
 
         private int pageCount = 10;
         private int rowsCount = 0;
-      
-    
+
+
         public void Search()
         {
+            ExecuteMethod(() =>
+            {
+                LoadingModal.Open();
+                BeforeSearch();
+                responseModel = sourceService.GetSourceWithSearchModel(searchModel).Result;
+                if (responseModel.Result == ResultEnum.Success)
+                {
 
-            LoadingModal.Open();
-            sourceList = sourceService.GetSourceWithSearchModel(searchModel).Result.Sources;
-            rowsCount = sourceList.Count();
-            LoadingModal.Close();
+                    sourceList = responseModel.Sources;
 
+                }
+                rowsCount = sourceList.Count();
+                AfterSearch();
+                LoadingModal.Close();
+
+            });
         }
         protected override void CustomOnAfterRenderAsync(bool firstRender)
         {
             base.CustomOnAfterRenderAsync(firstRender);
+
+
             if (firstRender)
             {
-
-                ExecuteMethod(() =>
+                Pagination.OnPageChange += () =>
                 {
                     Search();
-                });
-            }
-        }
-   
-        //protected override async Task OnInitializedAsync()
-        //{
-        //    base.OnInitialized();
-        //    Search();
+                };
 
-        //}
+
+                if (IsFirstLoad)
+                {
+                    Search();
+                }
+            }
+
+        }
+        protected virtual void AfterSearch()
+        {
+            Pagination.CurrentPage = searchModel.CurrentPage;
+            Pagination.Count = responseModel.Count;
+
+            Pagination.CalculateTotalPage();
+
+            OnAfterSearch?.Invoke();
+        }
+        public virtual void BeforeSearch()
+        {
+            searchModel.CurrentPage = Pagination.CurrentPage;
+            searchModel.RequestItemSize = Pagination.PageSize;
+
+            OnBeforeSearch?.Invoke();
+        }
         public void Cancel()
         {
             searchModel = new SearchSourceModel();
             sourceList = sourceService.GetSourceWithSearchModel(searchModel).Result.Sources;
-            rowsCount = sourceList.Count();
+            Pagination.Count = sourceList.Count();
+            // rowsCount = sourceList.Count();
         }
         public void OpenSourceDetailModal()
         {
@@ -96,27 +125,27 @@ namespace bbt.service.notification.ui.Pages
                     {
 
                         Notification.ShowSuccessMessage("Silindi.", string.Empty);
-                        
+
                         CustomOnAfterRenderAsync(true);
 
                     }
                     else
                     {
-                        Notification.ShowErrorMessage("Hata","Silinirken hata oluştu.");
-                      
+                        Notification.ShowErrorMessage("Hata", "Silinirken hata oluştu.");
+
                     }
                 });
             }
         }
-      
+
         protected async Task ListUpdate()
         {
             ExecuteMethod(() =>
             {
                 Search();
             });
-           
+
         }
-     
+
     }
 }

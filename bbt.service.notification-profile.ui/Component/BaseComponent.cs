@@ -1,4 +1,5 @@
 ﻿using bbt.service.notification.ui.Component.Modal;
+using bbt.service.notification.ui.Component.Pagination;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -11,13 +12,22 @@ namespace bbt.service.notification.ui.Component
 
         [Inject]
         protected INotification Notification { get; set; }
-
-      
+        [Parameter]
+        public bool IsFirstLoad { get; set; } = true;
+        [Parameter]
+        public int PageSize { get; set; } = 20;
+        public BasePaginationComponent Pagination { get; set; }
 
         [Inject]
         protected IJSRuntime jsRuntime { get; set; }
 
         public BaseLoadingModal LoadingModal { get; set; }
+
+        [Parameter]
+        public Action OnAfterSearch { get; set; }
+
+        [Parameter]
+        public Action OnBeforeSearch { get; set; }
 
         public virtual async void ExecuteMethod(Action action)
         {
@@ -90,5 +100,6 @@ namespace bbt.service.notification.ui.Component
         {
 
         }
+
     }
 }

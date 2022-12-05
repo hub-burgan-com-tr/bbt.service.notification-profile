@@ -1,6 +1,8 @@
-﻿namespace Notification.Profile.Model
+﻿using Notification.Profile.Model.BaseSearchRequest;
+
+namespace Notification.Profile.Model
 {
-    public class GetMessageNotificationLogRequest
+    public class GetMessageNotificationLogRequest: BaseSearchRequestModel
     {
         public long? CustomerNo { get; set; }
         public int? SourceId { get; set; }

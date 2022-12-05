@@ -1,6 +1,8 @@
-﻿namespace Notification.Profile.Model
+﻿using Notification.Profile.Model.BaseSearchRequest;
+
+namespace Notification.Profile.Model
 {
-    public class SearchSourceModel
+    public class SearchSourceModel : BaseSearchRequestModel
     {
         public string Topic { get; set; }
         public string SmsServiceReference { get; set; }

@@ -6,6 +6,7 @@
 @using bbt.service.notification.ui.Component.Modal;
 @using Notification.Profile.Helper;
 @using Notification.Profile.Model.Database;
+@using bbt.service.notification.ui.Component.Pagination;
 <RadzenCard>
     <div class="row top-space" style="width:100%;">
         <div class="row">
@@ -13,7 +14,7 @@
                 Phone Number
             </div>
             <div class="col-md-4">
-                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.PhoneNumber></RadzenTextBox>
+                <RadzenTextBox Style="width:250px"   Change=@OnChange @bind-Value=@searchModel.PhoneNumber></RadzenTextBox>
             </div>
             <div class="col-md-2">
                 Email
@@ -27,7 +28,7 @@
                 Customer No
             </div>
             <div class="col-md-4">
-                <RadzenNumeric Style="width:250px" @bind-Value=@searchModel.CustomerNo></RadzenNumeric>
+                <RadzenNumeric Style="width:250px" TValue="long?"  Change=@OnChange @bind-Value=@searchModel.CustomerNo></RadzenNumeric>
             </div>
             <div class="col-md-2">
                 Response Message
@@ -37,18 +38,22 @@
             </div>
         </div>
         <div class="row" style="margin-top:10px;">
-            <div class="col-md-2">
-                Start Date
-            </div>
-            <div class="col-md-4">
-                <RadzenDatePicker Style="width:250px" @bind-Value=@searchModel.StartDate DateFormat="dd/MM/yyyy" YearRange="2020:2090"></RadzenDatePicker>
-            </div>
-            <div class="col-md-2">
-                End Date
-            </div>
-            <div class="col-md-4">
-                <RadzenDatePicker Style="width:250px" @bind-Value=@searchModel.EndDate DateFormat="dd/MM/yyyy" YearRange="2020:2090"></RadzenDatePicker>
-            </div>
+
+   
+                <div class="col-md-2">
+                    Start Date
+                </div>
+                <div class="col-md-4">
+                    <RadzenDatePicker Style="width:250px" @bind-Value=@searchModel.StartDate Disabled="@textChange" DateFormat="dd/MM/yyyy" YearRange="2020:2090"></RadzenDatePicker>
+                </div>
+                <div class="col-md-2">
+                    End Date
+                </div>
+                <div class="col-md-4">
+                    <RadzenDatePicker Style="width:250px" @bind-Value=@searchModel.EndDate  Disabled="@textChange"  DateFormat="dd/MM/yyyy" YearRange="2020:2090"></RadzenDatePicker>
+                </div>
+       
+
         </div>
         <div class="col-md-2">
             <RadzenButton Icon="search" Click="() =>Search()" Text="Ara" ButtonStyle="ButtonStyle.Primary" />
@@ -59,9 +64,10 @@
 </RadzenCard>
 
 <div>
-
-    <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true" Count="@rowsCount" Style="margin-top:5px;"
-                    Data="@logList" TItem="MessageNotificationLog" ColumnWidth="300px" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center" ShowPagingSummary="true">
+    @if(@logList!=null && @logList.Count()>0)
+    {
+    <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true" Style="margin-top:5px;"
+                    Data="@logList" TItem="MessageNotificationLog" ColumnWidth="300px" PagerHorizontalAlign="HorizontalAlign.Center">
         <Columns>
 
             <RadzenDataGridColumn TItem="MessageNotificationLog" Property="CustomerNo" Title="CustomerNo" Width="160px" />
@@ -77,9 +83,20 @@
             <RadzenDataGridColumn TItem="MessageNotificationLog" Property="RequestData" Title="RequestData" Width="160px" />
             <RadzenDataGridColumn TItem="MessageNotificationLog" Property="ResponseData" Title="ResponseData" Width="160px" />
         </Columns>
-    </RadzenDataGrid>
-</div>
+        </RadzenDataGrid>
+    }
+    else{
 
+
+         <div class="col-12">
+                    <RadzenCard>
+                        <span>Log Kaydı Bulunamadı...</span>
+                    </RadzenCard>
+                </div>
+    }
+</div>
+<BasePaginationComponent @ref="Pagination" PageSize="@PageSize">
+</BasePaginationComponent>
 <BaseLoadingModal @ref="LoadingModal">
 </BaseLoadingModal>
 

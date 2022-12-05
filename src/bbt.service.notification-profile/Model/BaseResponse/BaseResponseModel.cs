@@ -21,5 +21,6 @@ namespace Notification.Profile.Model.BaseResponse
         public ResultEnum Result { get; set; }
 
         public string StatusCode { get; set; }
+        public int Count { get; set; }
     }
 }

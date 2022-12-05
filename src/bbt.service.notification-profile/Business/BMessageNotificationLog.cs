@@ -30,10 +30,11 @@ namespace Notification.Profile.Business
                                     ((logModel.StartDate.HasValue && logModel.EndDate.HasValue) ?
                                     (logs.CreateDate >= logModel.StartDate && logs.CreateDate <= logModel.EndDate) : true)
                                     orderby logs.CreateDate descending
-                                    select (logs));
+                                    select (logs)).Skip(((logModel.CurrentPage) - 1) * logModel.RequestItemSize)
+                            .Take(logModel.RequestItemSize); 
                 response.Result = ResultEnum.Success;
                 response.MessageNotificationLogs = notificationLogs.ToList();
-                
+                response.Count = db.MessageNotificationLogs.Count();
             }
 
             return response;
