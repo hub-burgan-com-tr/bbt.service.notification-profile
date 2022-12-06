@@ -19,7 +19,7 @@
     }
         public class CustomerList
     {
-        public int customerNumber { get; set; }
+        public long customerNumber { get; set; }
         public Name name { get; set; }
         public string citizenshipNumber { get; set; }
         public string taxNo { get; set; }
@@ -29,6 +29,8 @@
         public string businessLine { get; set; }
         public object device { get; set; }
         public string identityNumber { get; set; }
+
+        public long branchCode { get; set; }
     }
 
     public class GsmPhone

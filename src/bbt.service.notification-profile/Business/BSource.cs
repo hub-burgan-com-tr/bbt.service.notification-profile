@@ -132,9 +132,12 @@ namespace Notification.Profile.Business
                     GetSourceTopicByIdResponse source = GetSourceById(requestModel.sourceid);
                     PostConsumerRequest postConsumerRequest = new PostConsumerRequest();
                     postConsumerRequest.Phone = new Phone();
-                    postConsumerRequest.Phone.Number = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.number);
-                    postConsumerRequest.Phone.CountryCode = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.country);
-                    postConsumerRequest.Phone.Prefix = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.prefix);
+                    if (customerInformationModel.customerList[0].gsmPhone != null)
+                    {
+                        postConsumerRequest.Phone.Number = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.number);
+                        postConsumerRequest.Phone.CountryCode = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.country);
+                        postConsumerRequest.Phone.Prefix = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.prefix);
+                    }
                     postConsumerRequest.Email = customerInformationModel.customerList[0].email;
                     postConsumerRequest.DeviceKey = customerInformationModel.customerList[0].device == null ? null : customerInformationModel.customerList[0].device.ToString();
                     postConsumerRequest.IsSmsEnabled = source.SmsServiceReference == "string" ? false : true;
@@ -263,7 +266,7 @@ namespace Notification.Profile.Business
 
                 getSourcesResponse.Result = ResultEnum.Success;
                 getSourcesResponse.Sources = sources.ToList();
-                getSourcesResponse.Count =db.Sources.Count();
+                getSourcesResponse.Count = db.Sources.Count();
             }
             return getSourcesResponse;
 
@@ -386,7 +389,7 @@ namespace Notification.Profile.Business
                         else
                         {
                             sourceResp.Result = ResultEnum.Error;
-                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. "+response.ReasonPhrase);
+                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
                         }
                     }
                 }
@@ -460,7 +463,7 @@ namespace Notification.Profile.Business
                         var json = JsonConvert.SerializeObject(data);
                         var content = new StringContent(json, Encoding.UTF8, "application/json");
                         HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
-                     
+
                         if (response.IsSuccessStatusCode == true)
                         {
                             string result = response.Content.ReadAsStringAsync().Result;
