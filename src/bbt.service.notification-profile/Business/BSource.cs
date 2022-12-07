@@ -127,7 +127,7 @@ namespace Notification.Profile.Business
                 CustomerInformationModel customerInformationModel = bGetCustomerInfo.GetTelephoneNumber(new GetTelephoneNumberRequestModel() { name = requestModel.client.ToString() }).Result;
                 _logHelper.LogCreate(requestModel, JsonConvert.SerializeObject(customerInformationModel), "GetTelephoneNumber", "");
                 Console.WriteLine("customerInformationModel" + JsonConvert.SerializeObject(customerInformationModel));
-                if (customerInformationModel != null && customerInformationModel.customerList != null && customerInformationModel.customerList.Count > 0)
+                if (customerInformationModel != null && customerInformationModel.customerList != null && customerInformationModel.customerList.Count > 0 && customerInformationModel.customerList[0].gsmPhone != null)
                 {
                     GetSourceTopicByIdResponse source = GetSourceById(requestModel.sourceid);
                     PostConsumerRequest postConsumerRequest = new PostConsumerRequest();
@@ -263,7 +263,7 @@ namespace Notification.Profile.Business
 
                 getSourcesResponse.Result = ResultEnum.Success;
                 getSourcesResponse.Sources = sources.ToList();
-                getSourcesResponse.Count =db.Sources.Count();
+                getSourcesResponse.Count = db.Sources.Count();
             }
             return getSourcesResponse;
 
@@ -386,7 +386,7 @@ namespace Notification.Profile.Business
                         else
                         {
                             sourceResp.Result = ResultEnum.Error;
-                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. "+response.ReasonPhrase);
+                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
                         }
                     }
                 }
@@ -460,7 +460,7 @@ namespace Notification.Profile.Business
                         var json = JsonConvert.SerializeObject(data);
                         var content = new StringContent(json, Encoding.UTF8, "application/json");
                         HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
-                     
+
                         if (response.IsSuccessStatusCode == true)
                         {
                             string result = response.Content.ReadAsStringAsync().Result;
