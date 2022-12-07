@@ -55,7 +55,7 @@ namespace bbt.service.notification.ui.Shared
             }
         }
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
           
             if (httpContextAccessor != null && httpContextAccessor.HttpContext != null &&
@@ -73,17 +73,24 @@ namespace bbt.service.notification.ui.Shared
             }
 
             examples = MenuService.MenuItems;
-
+             
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+          //  NavigationManager.NavigateTo("/Pages/SourceListPage");
+            await base.OnInitializedAsync();
         }
-
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (!firstRender)
             {
+               
                 var example = MenuService.FindCurrent(UriHelper.ToAbsoluteUri(UriHelper.Uri));
 
                 await JSRuntime.InvokeVoidAsync("setTitle", MenuService.TitleFor(example));
+            
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/Pages/SourceListPage");
             }
         }
 

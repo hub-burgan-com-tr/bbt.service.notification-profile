@@ -127,17 +127,14 @@ namespace Notification.Profile.Business
                 CustomerInformationModel customerInformationModel = bGetCustomerInfo.GetTelephoneNumber(new GetTelephoneNumberRequestModel() { name = requestModel.client.ToString() }).Result;
                 _logHelper.LogCreate(requestModel, JsonConvert.SerializeObject(customerInformationModel), "GetTelephoneNumber", "");
                 Console.WriteLine("customerInformationModel" + JsonConvert.SerializeObject(customerInformationModel));
-                if (customerInformationModel != null && customerInformationModel.customerList != null && customerInformationModel.customerList.Count > 0)
+                if (customerInformationModel != null && customerInformationModel.customerList != null && customerInformationModel.customerList.Count > 0 && customerInformationModel.customerList[0].gsmPhone != null)
                 {
                     GetSourceTopicByIdResponse source = GetSourceById(requestModel.sourceid);
                     PostConsumerRequest postConsumerRequest = new PostConsumerRequest();
                     postConsumerRequest.Phone = new Phone();
-                    if (customerInformationModel.customerList[0].gsmPhone != null)
-                    {
-                        postConsumerRequest.Phone.Number = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.number);
-                        postConsumerRequest.Phone.CountryCode = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.country);
-                        postConsumerRequest.Phone.Prefix = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.prefix);
-                    }
+                    postConsumerRequest.Phone.Number = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.number);
+                    postConsumerRequest.Phone.CountryCode = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.country);
+                    postConsumerRequest.Phone.Prefix = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.prefix);
                     postConsumerRequest.Email = customerInformationModel.customerList[0].email;
                     postConsumerRequest.DeviceKey = customerInformationModel.customerList[0].device == null ? null : customerInformationModel.customerList[0].device.ToString();
                     postConsumerRequest.IsSmsEnabled = source.SmsServiceReference == "string" ? false : true;
