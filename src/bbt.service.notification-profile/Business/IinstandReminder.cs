@@ -7,6 +7,7 @@ namespace Notification.Profile.Business
     {
         Task<GetInstantCustomerPermissionResponse> GetCustomerPermission(string customerId,string lang);
         Task<PostInstantCustomerPermissionResponse> PostCustomerPermission(string customerId, PostInstantCustomerPermissionRequest request);
+        Task<GetInstantDGReminderResponse> GetCustomerPermissionWithProductCode(long customerNumber, string productCode);
 
 
     }

@@ -18,7 +18,9 @@ namespace Notification.Profile.Enum
         [Description("471")]
         StatusCode471 = 6,
         [Description("472")]
-        StatusCode472 = 7
+        StatusCode472 = 7,
+        [Description("473")]
+        StatusCode473 = 8
     }
 
     public struct StructStatusCode
@@ -35,6 +37,7 @@ namespace Notification.Profile.Enum
 
         public const string StatusCode471 = "Entry is undefined.";
         public const string StatusCode472 = "Template list error.";
+        public const string StatusCode473 = "Product Code is null.";
     }
     /// <response code="200">Limit execute request is executed successfully.</response>
     /// <response code="452">Path can not be emtpy or null.</response>

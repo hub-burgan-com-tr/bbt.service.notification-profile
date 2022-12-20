@@ -36,6 +36,10 @@ public class SourceSchemaFilter : ISchemaFilter
 
             ["ProductCodeId"] = new OpenApiInteger(0),
 
+            ["SaveInbox"] = new OpenApiBoolean(false),
+
+            
+
         };
     }
 }

@@ -179,6 +179,12 @@
                                 TextProperty="ProductCodeName"
                                 ValueProperty="Id" Style="width:245px;" />
             </div>
+             <div class="col-md-2">
+                <RadzenLabel Text="Inbox Kaydet" Style="margin-left:80px;width:245px;"></RadzenLabel>
+            </div>
+            <div class="col-md-3">
+                   <RadzenCheckBox @bind-Value=@sourceModel.SaveInbox Style="margin-left:80px;"></RadzenCheckBox>
+            </div>
         </div>
         @if (appsetting == true)
         {

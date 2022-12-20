@@ -22,7 +22,8 @@ namespace Notification.Profile.Model.Database
         public string KafkaCertificate { get; set; }
         public int RetentationTime { get; set; }
         public int? ProductCodeId { get; set; }
-     
+        public bool SaveInbox { get; set; }
+
     }
 }
 //TODO: Diger modellere ClientIdJsonPath eklenmeli

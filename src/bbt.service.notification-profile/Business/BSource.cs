@@ -21,14 +21,16 @@ namespace Notification.Profile.Business
         private readonly IConsumer _Iconsumer;
         private readonly ILogHelper _logHelper;
         private readonly IProductCode _IproductCode;
+        private readonly IinstandReminder _IinstandReminder;
 
 
-        public BSource(IConfiguration configuration, IConsumer Iconsumer, ILogHelper logHelper, IProductCode productCode)
+        public BSource(IConfiguration configuration, IConsumer Iconsumer, ILogHelper logHelper, IProductCode productCode, IinstandReminder ıinstandReminder)
         {
             _configuration = configuration;
             _Iconsumer = Iconsumer;
             _logHelper = logHelper;
             _IproductCode = productCode;
+            _IinstandReminder = ıinstandReminder;
         }
 
         public SourceResponseModel Delete(int id)
@@ -105,6 +107,7 @@ namespace Notification.Profile.Business
             returnValue.RetentationTime = source.RetentationTime;
             returnValue.ServiceUrlList = servicesUrls;
             returnValue.ProductCodeId = source.ProductCodeId;
+            returnValue.SaveInbox = source.SaveInbox;
 
             return returnValue;
         }
@@ -129,7 +132,32 @@ namespace Notification.Profile.Business
                 Console.WriteLine("customerInformationModel" + JsonConvert.SerializeObject(customerInformationModel));
                 if (customerInformationModel != null && customerInformationModel.customerList != null && customerInformationModel.customerList.Count > 0 && customerInformationModel.customerList[0].gsmPhone != null)
                 {
+                    string productCodeName;
                     GetSourceTopicByIdResponse source = GetSourceById(requestModel.sourceid);
+
+
+                    if (source != null && source.ProductCodeId != null)
+                    {
+                        ProductCodeResponseModel productCodeResponseModel = _IproductCode.GetProductCodeWithId(source.ProductCodeId.Value);
+                        if (productCodeResponseModel.productCode != null)
+                        {
+                            productCodeName = productCodeResponseModel.productCode.ProductCodeName;
+                        }
+                        else
+                        {
+                            returnValue.StatusCode = EnumHelper.GetDescription<StatusCodeEnum>(StatusCodeEnum.StatusCode473);
+                            returnValue.MessageList.Add(customerInformationModel.returnDescription);
+                            returnValue.Result = ResultEnum.Error;
+                            return returnValue;
+                        }
+                    }
+                    else
+                    {
+                        returnValue.StatusCode = EnumHelper.GetDescription<StatusCodeEnum>(StatusCodeEnum.StatusCode470);
+                        returnValue.MessageList.Add(customerInformationModel.returnDescription);
+                        returnValue.Result = ResultEnum.Error;
+                        return returnValue;
+                    }
                     PostConsumerRequest postConsumerRequest = new PostConsumerRequest();
                     postConsumerRequest.Phone = new Phone();
                     postConsumerRequest.Phone.Number = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.number);
@@ -137,9 +165,19 @@ namespace Notification.Profile.Business
                     postConsumerRequest.Phone.Prefix = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.prefix);
                     postConsumerRequest.Email = customerInformationModel.customerList[0].email;
                     postConsumerRequest.DeviceKey = customerInformationModel.customerList[0].device == null ? null : customerInformationModel.customerList[0].device.ToString();
-                    postConsumerRequest.IsSmsEnabled = source.SmsServiceReference == "string" ? false : true;
-                    postConsumerRequest.IsEmailEnabled = source.EmailServiceReference == "string" ? false : true;
-                    postConsumerRequest.IsPushEnabled = source.PushServiceReference == "string" ? false : true;
+                    GetInstantDGReminderResponse getInstantDGReminderResp = _IinstandReminder.GetCustomerPermissionWithProductCode(requestModel.client, productCodeName).Result;
+                    if (getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Success)
+                    {
+                        postConsumerRequest.IsSmsEnabled = getInstantDGReminderResp.SEND_SMS;
+                        postConsumerRequest.IsEmailEnabled = getInstantDGReminderResp.SEND_EMAIL;
+                        postConsumerRequest.IsPushEnabled = getInstantDGReminderResp.SEND_PUSHNOTIFICATION;
+                    }
+                    else
+                    {
+                        postConsumerRequest.IsSmsEnabled = true;
+                        postConsumerRequest.IsEmailEnabled =true;
+                        postConsumerRequest.IsPushEnabled = true;
+                    }
                     postConsumerRequest.IsStaff = customerInformationModel.customerList[0].isStaff;
                     PostConsumerResponse postConsumerResponse = _Iconsumer.PostConsumers(requestModel.client, requestModel.sourceid, postConsumerRequest);
                     returnValue.Consumers.Add(new GetSourceConsumersResponse.Consumer
@@ -257,6 +295,7 @@ namespace Notification.Profile.Business
                                Title = new Model.Source.TitleLabel { EN = source.Title_EN, TR = source.Title_TR },
                                Topic = source.Topic,
                                Secret = source.Secret,
+                               SaveInbox=source.SaveInbox,
                                ProductCodeName = p == null ? null : p.ProductCodeName
                            }).Skip(((model.CurrentPage) - 1) * model.RequestItemSize)
                             .Take(model.RequestItemSize);
@@ -310,7 +349,8 @@ namespace Notification.Profile.Business
                     KafkaCertificate = s.KafkaCertificate,
                     KafkaUrl = s.KafkaUrl,
                     RetentationTime = s.RetentationTime,
-                    ProductCodeId = s.ProductCodeId
+                    ProductCodeId = s.ProductCodeId,
+                    SaveInbox=s.SaveInbox
 
 
                 };
@@ -349,6 +389,7 @@ namespace Notification.Profile.Business
                 if (data.KafkaCertificate != null) source.KafkaCertificate = data.KafkaCertificate;
                 if (data.RetentationTime != null) source.RetentationTime = data.RetentationTime;
                 if (data.ProductCodeId != null) source.ProductCodeId = data.ProductCodeId;
+                if (data.SaveInbox != null) source.SaveInbox = data.SaveInbox;
                 db.Sources.Update(source);
                 db.SaveChanges();
                 sourceResp.Result = ResultEnum.Success;
@@ -444,6 +485,7 @@ namespace Notification.Profile.Business
                     ClientIdJsonPath = data.ClientIdJsonPath,
                     RetentationTime = data.RetentationTime,
                     ProductCodeId = data.ProductCodeId,
+                    SaveInbox = data.SaveInbox, 
 
                 });
 

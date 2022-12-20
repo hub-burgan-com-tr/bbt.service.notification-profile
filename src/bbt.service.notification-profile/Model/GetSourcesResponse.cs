@@ -32,6 +32,7 @@ namespace Notification.Profile.Model
         public int? ProductCodeId { get; set; }
        
         public string ProductCodeName { get; set; }
+        public bool SaveInbox { get; set; }
 
         public class SourceParameter
         {
