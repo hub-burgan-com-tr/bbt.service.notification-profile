@@ -36,6 +36,8 @@ public class PostSourceRequest
 
     public int? ProductCodeId { get; set; }
 
+    public bool SaveInbox { get; set; }
+
     [NotMapped]
     public bool CheckDeploy { get; set; }
 

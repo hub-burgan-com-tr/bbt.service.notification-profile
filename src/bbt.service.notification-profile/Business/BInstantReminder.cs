@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 using Notification.Profile.Model;
+using Notification.Profile.Enum;
 
 namespace Notification.Profile.Business
 {
@@ -47,13 +48,13 @@ namespace Notification.Profile.Business
             var cachedList = await _cache.GetAsync("notificationRedis");
             if (cachedList != null && !string.IsNullOrEmpty(System.Text.Encoding.UTF8.GetString(cachedList)))
             {
-               reminderDefinitionList = JsonConvert.DeserializeObject<List<ReminderDefinition>>(System.Text.Encoding.UTF8.GetString(cachedList));
+                reminderDefinitionList = JsonConvert.DeserializeObject<List<ReminderDefinition>>(System.Text.Encoding.UTF8.GetString(cachedList));
             }
             else
             {
                 reminderDefinitionResponse = _IreminderDefinition.GetReminderDefinitionListWithLang(lang);
                 reminderDefinitionList = reminderDefinitionResponse.ReminderDefinitionList;
-               
+
                 await _cache.SetAsync("notificationRedis", Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(reminderDefinitionList)),
                 new DistributedCacheEntryOptions()
                 {
@@ -61,7 +62,7 @@ namespace Notification.Profile.Business
                 });
             }
 
-            
+
 
             List<DbDataEntity> dbParams = new List<DbDataEntity>();
             DbDataEntity dbData = new DbDataEntity();
@@ -78,7 +79,7 @@ namespace Notification.Profile.Business
                 ReminderGet reminder;
 
                 List<ReminderGet> reminders = new List<ReminderGet>();
-              
+
                 foreach (DataRow dr in dt.Rows)
                 {
                     reminder = new ReminderGet();
@@ -108,7 +109,7 @@ namespace Notification.Profile.Business
                     reminder.reminderType = consumer.DefinitionCode;
                     reminder.amount = 0;//Karar verilecek
                     reminder.hasAmountRestriction = true;//Karar verilecek
-                   
+
                     GetReminderDefinitionResponse reminderDefinitionRespNew = _IreminderDefinition.GetReminderDefinitionWithDefinitionCode(reminderDefinitionList, consumer.DefinitionCode);
                     if (reminderDefinitionRespNew != null && reminderDefinitionRespNew.ReminderDefinitions != null)
                     {
@@ -124,22 +125,22 @@ namespace Notification.Profile.Business
                 instantReminder.Result = Enum.ResultEnum.Error;
                 instantReminder.MessageList = responseModel.MessageList;
             }
-          
+
             return instantReminder;
         }
-     
+
         public async Task<PostInstantCustomerPermissionResponse> PostCustomerPermission(string customerId, PostInstantCustomerPermissionRequest request)
         {
             var connectionString = _configuration.GetConnectionString("ReminderConnectionString");
-            
+
             PostInstantCustomerPermissionResponse response = new PostInstantCustomerPermissionResponse();
             try
             {
                 for (int i = 0; i < request.reminders.Count; i++)
                 {
                     ReminderPost r = new ReminderPost();
-                    r = request.reminders[i];   
-                    
+                    r = request.reminders[i];
+
 
                     List<DbDataEntity> dbParams = new List<DbDataEntity>();
                     DbDataEntity dbData = new DbDataEntity();
@@ -205,6 +206,55 @@ namespace Notification.Profile.Business
             }
         }
 
+        public async Task<GetInstantDGReminderResponse> GetCustomerPermissionWithProductCode(long customerNumber, string productCode)
+        {
+            GetInstantDGReminderResponse response = new GetInstantDGReminderResponse();
+            var connectionString = _configuration.GetConnectionString("ReminderConnectionString");
+            //using (var connection = new SqlConnection(connectionString))
+            //{
+            //    var query2 = "SELECT * FROM [REM].[DG_REMINDER] WHERE CUSTOMER_NUMBER="
+            //      + "@paramCustomerNumber And PRODUCT_CODE=@paramProductCode";
+            //    var adapter = new SqlDataAdapter(query2, connection);
+            //    adapter.SelectCommand.Parameters.AddWithValue("@paramCustomerNumber", customerNumber);
+            //    adapter.SelectCommand.Parameters.AddWithValue("@paramProductCode", productCode);
+            //    var result = new DataSet();
+            //    adapter.Fill(result);
+            //    //return result;
+            //}
 
+            using (var conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                //  string query = "Select * from [REM].[DG_REMINDER] where CUSTOMER_NUMBER=" + customerNumber + " And PRODUCT_CODE='" + productCode + "'";
+                  string query = "SELECT * FROM [REM].[DG_REMINDER] WHERE CUSTOMER_NUMBER="
+               + "@paramCustomerNumber And PRODUCT_CODE=@paramProductCode";
+
+                SqlCommand command = new SqlCommand(query, conn);
+
+                command.Parameters.Add("@paramCustomerNumber", SqlDbType.BigInt).Value =customerNumber ;
+                command.Parameters.Add("@paramProductCode", SqlDbType.VarChar, 50).Value = productCode;
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    response.SEND_EMAIL = (bool)reader["SEND_EMAIL"];
+                    response.SEND_SMS = (bool)reader["SEND_SMS"];
+                    response.SEND_NOTIFICATION = (bool)reader["SEND_NOTIFICATION"];
+                    response.SEND_PUSHNOTIFICATION = (bool)reader["SEND_PUSHNOTIFICATION"];
+                    response.CUSTOMER_NUMBER = (long)reader["CUSTOMER_NUMBER"];
+                    response.PRODUCT_CODE = reader["PRODUCT_CODE"].ToString();
+                }
+                if (response.CUSTOMER_NUMBER != null && response.CUSTOMER_NUMBER > 0)
+                {
+                    response.Result = ResultEnum.Success;
+                }
+                else
+                {
+                    response.Result = ResultEnum.Error;
+                }
+                conn.Close();
+            }
+            return response;
+        }
     }
 }

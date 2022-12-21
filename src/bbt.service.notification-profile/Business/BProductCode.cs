@@ -55,6 +55,18 @@ namespace Notification.Profile.Business
             }
             return returnValue;
         }
+        public ProductCodeResponseModel GetProductCodeWithId(int Id)
+        {
+            var returnValue = new ProductCodeResponseModel();
+            using (var db = new DatabaseContext())
+            {
+                var productCode = db.ProductCodes.FirstOrDefault(x=>x.Id==Id);
+                returnValue.productCode = productCode;
+                returnValue.StatusCode = EnumHelper.GetDescription<StatusCodeEnum>(StatusCodeEnum.StatusCode200);
+                returnValue.Result = ResultEnum.Success;
+            }
+            return returnValue;
+        }
         public async Task<GetProductCodeResponse> ProductCodeListRedis()
         {
           

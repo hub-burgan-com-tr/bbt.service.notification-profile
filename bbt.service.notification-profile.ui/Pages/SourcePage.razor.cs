@@ -77,6 +77,7 @@ namespace bbt.service.notification.ui.Pages
                         sourceModel.Topic = sourceDetayModel.Topic;
                         sourceModel.ClientIdJsonPath = sourceDetayModel.ClientIdJsonPath;
                         sourceModel.ProductCodeId = sourceDetayModel.ProductCodeId;
+                        sourceModel.SaveInbox = sourceDetayModel.SaveInbox;
                     }
                     GetProductCodeResponse getProductCodeResponse = new GetProductCodeResponse();
                     getProductCodeResponse = productCodeService.GetProductCode().Result;
@@ -165,7 +166,7 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                 patchRequest.ProductCodeId = sourceModel.ProductCodeId;
                 patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
-
+                patchRequest.SaveInbox = sourceModel.SaveInbox;
                 sourceResp = sourceService.Patch(sourceModel.Id, patchRequest).Result;
                 if (sourceResp.Result == ResultEnum.Error)
                 {

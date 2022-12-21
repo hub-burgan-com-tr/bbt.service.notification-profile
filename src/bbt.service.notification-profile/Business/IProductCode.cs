@@ -11,6 +11,8 @@ namespace Notification.Profile.Business
         ProductCodeResponseModel PostProductCode(PostProductCodeRequest request);
         ProductCodeResponseModel DeleteProductCode(int id);
 
+        ProductCodeResponseModel GetProductCodeWithId(int id);
+
         Task<GetProductCodeResponse> ProductCodeListRedis();
     }
 }
