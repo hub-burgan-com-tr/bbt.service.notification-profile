@@ -30,7 +30,7 @@ public class ProductCodeController : ControllerBase
            Tags = new[] { "ProductCode" }
        )]
     [HttpGet("/ProductCodes")]
-    [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetProductCodeResponse))]
+    [SwaggerResponse(200, "Success, productcode is returned successfully", typeof(GetProductCodeResponse))]
 
     public IActionResult GetProductCode()
     {
@@ -58,14 +58,14 @@ public class ProductCodeController : ControllerBase
     [HttpPost("/PostProductCode")]
     [SwaggerResponse(200, "Success, productCode is returned successfully", typeof(PostProductCodeRequest))]
 
-    public IActionResult PostProductCode([FromBody] PostProductCodeRequest productCode)
+    public IActionResult PostProductCode([FromBody] PostProductCodeRequest productCodeModel)
 
     {
         var span = _tracer.CurrentTransaction?.StartSpan("PostProductCodeSpan", "PostProductCode");
         ProductCodeResponseModel postProductCodeResponse = new ProductCodeResponseModel();
         try
         {
-            postProductCodeResponse = _IproductCode.PostProductCode(productCode);
+            postProductCodeResponse = _IproductCode.PostProductCode(productCodeModel);
             if (postProductCodeResponse != null && postProductCodeResponse.Result == ResultEnum.Error)
             {
                 span.CaptureErrorLog(new ErrorLog("Error Message( StatusCode:" + postProductCodeResponse.StatusCode + " - Message:" + postProductCodeResponse.MessageList[0].ToString() + ")")
@@ -73,7 +73,7 @@ public class ProductCodeController : ControllerBase
                     Level = "error",
                     ParamMessage = postProductCodeResponse.StatusCode + " - " + postProductCodeResponse.MessageList[0].ToString()
                 });
-                _logHelper.LogCreate(productCode, postProductCodeResponse.StatusCode, MethodBase.GetCurrentMethod().Name, postProductCodeResponse.MessageList[0]);
+                _logHelper.LogCreate(productCodeModel, postProductCodeResponse.StatusCode, MethodBase.GetCurrentMethod().Name, postProductCodeResponse.MessageList[0]);
                 return this.StatusCode(Convert.ToInt32(postProductCodeResponse.StatusCode), postProductCodeResponse.MessageList);
             }
         }
@@ -81,7 +81,7 @@ public class ProductCodeController : ControllerBase
         {
             span?.CaptureException(e);
 
-            _logHelper.LogCreate(productCode, postProductCodeResponse, MethodBase.GetCurrentMethod().Name, e.Message);
+            _logHelper.LogCreate(productCodeModel, postProductCodeResponse, MethodBase.GetCurrentMethod().Name, e.Message);
             return this.StatusCode(500, e.Message);
         }
         return Ok(postProductCodeResponse);
@@ -93,14 +93,14 @@ public class ProductCodeController : ControllerBase
     [HttpPost("/PatchProductCode/{id}")]
     [SwaggerResponse(200, "Success, productCode is updated successfully", typeof(PatchProductCode))]
 
-    public IActionResult PatchProductCode([FromRoute] int id, [FromBody] PatchProductCode productCode)
+    public IActionResult PatchProductCode([FromRoute] int id, [FromBody] PatchProductCode productCodeModel)
 
     {
         var span = _tracer.CurrentTransaction?.StartSpan("PostProductCodeSpan", "PostProductCode");
         ProductCodeResponseModel postProductCodeResponse = new ProductCodeResponseModel();
         try
         {
-            postProductCodeResponse = _IproductCode.PatchProductCode(id, productCode);
+            postProductCodeResponse = _IproductCode.PatchProductCode(id, productCodeModel);
             if (postProductCodeResponse != null && postProductCodeResponse.Result == ResultEnum.Error)
             {
                 span.CaptureErrorLog(new ErrorLog("Error Message( StatusCode:" + postProductCodeResponse.StatusCode + " - Message:" + postProductCodeResponse.MessageList[0].ToString() + ")")
@@ -108,7 +108,7 @@ public class ProductCodeController : ControllerBase
                     Level = "error",
                     ParamMessage = postProductCodeResponse.StatusCode + " - " + postProductCodeResponse.MessageList[0].ToString()
                 });
-                _logHelper.LogCreate(productCode, postProductCodeResponse.StatusCode, MethodBase.GetCurrentMethod().Name, postProductCodeResponse.MessageList[0]);
+                _logHelper.LogCreate(productCodeModel, postProductCodeResponse.StatusCode, MethodBase.GetCurrentMethod().Name, postProductCodeResponse.MessageList[0]);
                 return this.StatusCode(Convert.ToInt32(postProductCodeResponse.StatusCode), postProductCodeResponse.MessageList);
             }
         }
@@ -116,7 +116,7 @@ public class ProductCodeController : ControllerBase
         {
             span?.CaptureException(e);
 
-            _logHelper.LogCreate(productCode, postProductCodeResponse, MethodBase.GetCurrentMethod().Name, e.Message);
+            _logHelper.LogCreate(productCodeModel, postProductCodeResponse, MethodBase.GetCurrentMethod().Name, e.Message);
             return this.StatusCode(500, e.Message);
         }
         return Ok(postProductCodeResponse);

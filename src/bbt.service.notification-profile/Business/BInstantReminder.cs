@@ -210,14 +210,31 @@ namespace Notification.Profile.Business
         {
             GetInstantDGReminderResponse response = new GetInstantDGReminderResponse();
             var connectionString = _configuration.GetConnectionString("ReminderConnectionString");
+            //using (var connection = new SqlConnection(connectionString))
+            //{
+            //    var query2 = "SELECT * FROM [REM].[DG_REMINDER] WHERE CUSTOMER_NUMBER="
+            //      + "@paramCustomerNumber And PRODUCT_CODE=@paramProductCode";
+            //    var adapter = new SqlDataAdapter(query2, connection);
+            //    adapter.SelectCommand.Parameters.AddWithValue("@paramCustomerNumber", customerNumber);
+            //    adapter.SelectCommand.Parameters.AddWithValue("@paramProductCode", productCode);
+            //    var result = new DataSet();
+            //    adapter.Fill(result);
+            //    //return result;
+            //}
+
             using (var conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                string sql = "Select * from [REM].[DG_REMINDER] where CUSTOMER_NUMBER=" + customerNumber + " And PRODUCT_CODE='" + productCode + "'";
+                //  string query = "Select * from [REM].[DG_REMINDER] where CUSTOMER_NUMBER=" + customerNumber + " And PRODUCT_CODE='" + productCode + "'";
+                  string query = "SELECT * FROM [REM].[DG_REMINDER] WHERE CUSTOMER_NUMBER="
+               + "@paramCustomerNumber And PRODUCT_CODE=@paramProductCode";
 
-                SqlCommand command = new SqlCommand(sql, conn);
+                SqlCommand command = new SqlCommand(query, conn);
+
+                command.Parameters.Add("@paramCustomerNumber", SqlDbType.BigInt).Value =customerNumber ;
+                command.Parameters.Add("@paramProductCode", SqlDbType.VarChar, 50).Value = productCode;
                 SqlDataReader reader = command.ExecuteReader();
-               
+
                 while (reader.Read())
                 {
                     response.SEND_EMAIL = (bool)reader["SEND_EMAIL"];
