@@ -210,49 +210,49 @@ namespace Notification.Profile.Business
         {
             GetInstantDGReminderResponse response = new GetInstantDGReminderResponse();
             var connectionString = _configuration.GetConnectionString("ReminderConnectionString");
-            //using (var connection = new SqlConnection(connectionString))
-            //{
-            //    var query2 = "SELECT * FROM [REM].[DG_REMINDER] WHERE CUSTOMER_NUMBER="
-            //      + "@paramCustomerNumber And PRODUCT_CODE=@paramProductCode";
-            //    var adapter = new SqlDataAdapter(query2, connection);
-            //    adapter.SelectCommand.Parameters.AddWithValue("@paramCustomerNumber", customerNumber);
-            //    adapter.SelectCommand.Parameters.AddWithValue("@paramProductCode", productCode);
-            //    var result = new DataSet();
-            //    adapter.Fill(result);
-            //    //return result;
-            //}
 
-            using (var conn = new SqlConnection(connectionString))
+            try
             {
-                conn.Open();
-                //  string query = "Select * from [REM].[DG_REMINDER] where CUSTOMER_NUMBER=" + customerNumber + " And PRODUCT_CODE='" + productCode + "'";
-                  string query = "SELECT * FROM [REM].[DG_REMINDER] WHERE CUSTOMER_NUMBER="
-               + "@paramCustomerNumber And PRODUCT_CODE=@paramProductCode";
-
-                SqlCommand command = new SqlCommand(query, conn);
-
-                command.Parameters.Add("@paramCustomerNumber", SqlDbType.BigInt).Value =customerNumber ;
-                command.Parameters.Add("@paramProductCode", SqlDbType.VarChar, 50).Value = productCode;
-                SqlDataReader reader = command.ExecuteReader();
-
-                while (reader.Read())
+                using (var conn = new SqlConnection(connectionString))
                 {
-                    response.SEND_EMAIL = (bool)reader["SEND_EMAIL"];
-                    response.SEND_SMS = (bool)reader["SEND_SMS"];
-                    response.SEND_NOTIFICATION = (bool)reader["SEND_NOTIFICATION"];
-                    response.SEND_PUSHNOTIFICATION = (bool)reader["SEND_PUSHNOTIFICATION"];
-                    response.CUSTOMER_NUMBER = (long)reader["CUSTOMER_NUMBER"];
-                    response.PRODUCT_CODE = reader["PRODUCT_CODE"].ToString();
+                    conn.Open();
+                    string query = "SELECT * FROM [REM].[DG_REMINDER] WHERE CUSTOMER_NUMBER="
+                 + "@paramCustomerNumber And PRODUCT_CODE=@paramProductCode";
+
+                    SqlCommand command = new SqlCommand(query, conn);
+
+                    command.Parameters.Add("@paramCustomerNumber", SqlDbType.BigInt).Value = customerNumber;
+                    command.Parameters.Add("@paramProductCode", SqlDbType.VarChar, 50).Value = productCode;
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        response.SEND_EMAIL = (bool)reader["SEND_EMAIL"];
+                        response.SEND_SMS = (bool)reader["SEND_SMS"];
+                        response.SEND_NOTIFICATION = (bool)reader["SEND_NOTIFICATION"];
+                        response.SEND_PUSHNOTIFICATION = (bool)reader["SEND_PUSHNOTIFICATION"];
+                        response.CUSTOMER_NUMBER = (long)reader["CUSTOMER_NUMBER"];
+                        response.PRODUCT_CODE = reader["PRODUCT_CODE"].ToString();
+                    }
+                   
+                    if (response.CUSTOMER_NUMBER != null && response.CUSTOMER_NUMBER <0)
+                    {
+                        response.Count = 1;
+                    }
+                    else
+                    {
+                        response.Count = -1;
+                    }
+                    conn.Close();
                 }
-                if (response.CUSTOMER_NUMBER != null && response.CUSTOMER_NUMBER > 0)
-                {
-                    response.Result = ResultEnum.Success;
-                }
-                else
-                {
-                    response.Result = ResultEnum.Error;
-                }
-                conn.Close();
+                response.Result = ResultEnum.Success;
+            }
+            catch (Exception ex)
+            {
+                response.Result = Enum.ResultEnum.Error;
+                response.MessageList.Add(ex.Message);
+
+                return response;
             }
             return response;
         }

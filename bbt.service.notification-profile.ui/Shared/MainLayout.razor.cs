@@ -2,6 +2,7 @@
 using bbt.service.notification.ui.Override;
 using bbt.service.notification.ui.Override.Service;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using Radzen.Blazor;
 
@@ -29,7 +30,11 @@ namespace bbt.service.notification.ui.Shared
         [Inject]
         protected IBaseConfiguration baseConfiguration { get; set; }
 
-       
+
+        [CascadingParameter]
+        protected Task<AuthenticationState> AuthenticationState { get; set; }
+        [Inject]
+        public bbt.service.notification.ui.Data.HttpContextAccessor httpContext { get; set; }
 
         RadzenSidebar sidebar0 { get; set; }
         RadzenBody body0 { get; set; }
@@ -57,7 +62,7 @@ namespace bbt.service.notification.ui.Shared
 
         protected override async Task OnInitializedAsync()
         {
-          
+            httpContext.Context.Features.Get<HttpContext>();
             if (httpContextAccessor != null && httpContextAccessor.HttpContext != null &&
                  httpContextAccessor.HttpContext.Request != null && httpContextAccessor.HttpContext.Request.Headers.ContainsKey("User-Agent"))
             {
@@ -73,20 +78,20 @@ namespace bbt.service.notification.ui.Shared
             }
 
             examples = MenuService.MenuItems;
-             
+
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-          //  NavigationManager.NavigateTo("/Pages/SourceListPage");
+            //  NavigationManager.NavigateTo("/Pages/SourceListPage");
             await base.OnInitializedAsync();
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (!firstRender)
             {
-               
+
                 var example = MenuService.FindCurrent(UriHelper.ToAbsoluteUri(UriHelper.Uri));
 
                 await JSRuntime.InvokeVoidAsync("setTitle", MenuService.TitleFor(example));
-            
+
             }
             else
             {
@@ -107,6 +112,19 @@ namespace bbt.service.notification.ui.Shared
             UriHelper.NavigateTo(UriHelper.ToAbsoluteUri(UriHelper.Uri).ToString());
         }
 
-       
+
+        //protected override void OnInitialized()
+        //{
+        //    base.OnInitialized();
+        //    httpContext.Context.Features.Get<HttpContext>();
+        //}
+        public void LoginSite()
+        {
+            NavigationManager.NavigateTo($"login?redirectUri=/", forceLoad: true);
+        }
+        public void LogoutSite()
+        {
+            NavigationManager.NavigateTo($"logoutPage?redirectUri=/", forceLoad: true);
+        }
     }
 }

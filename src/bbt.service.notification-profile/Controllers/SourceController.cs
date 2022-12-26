@@ -96,7 +96,7 @@ public class SourceController : ControllerBase
             span?.CaptureException(e);
 
             _logHelper.LogCreate(id, returnValue, MethodBase.GetCurrentMethod().Name, e.Message);
-            return this.StatusCode(500, e.Message);
+            return this.StatusCode(Convert.ToInt32(returnValue.StatusCode), e.Message);
         }
 
     }
@@ -283,7 +283,7 @@ public class SourceController : ControllerBase
             span?.CaptureException(e);
             _logHelper.LogCreate("ClientId:" + requestModel.client + "SourceID:" + requestModel.sourceid +"jsonDat:"+requestModel.jsonData, returnValue, "GetSourceConsumersError", e.Message);
             Console.WriteLine("CATCH " + e.Message);
-            return new ObjectResult(null) { StatusCode = 500 };
+            return this.StatusCode(Convert.ToInt32(returnValue.StatusCode), e.Message);
         }
         return Ok(returnValue);
 

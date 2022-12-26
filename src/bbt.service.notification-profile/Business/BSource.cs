@@ -166,17 +166,24 @@ namespace Notification.Profile.Business
                     postConsumerRequest.Email = customerInformationModel.customerList[0].email;
                     postConsumerRequest.DeviceKey = customerInformationModel.customerList[0].device == null ? null : customerInformationModel.customerList[0].device.ToString();
                     GetInstantDGReminderResponse getInstantDGReminderResp = _IinstandReminder.GetCustomerPermissionWithProductCode(requestModel.client, productCodeName).Result;
-                    if (getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Success)
+                    if (getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Success && getInstantDGReminderResp.Count ==1)
                     {
                         postConsumerRequest.IsSmsEnabled = getInstantDGReminderResp.SEND_SMS;
                         postConsumerRequest.IsEmailEnabled = getInstantDGReminderResp.SEND_EMAIL;
                         postConsumerRequest.IsPushEnabled = getInstantDGReminderResp.SEND_PUSHNOTIFICATION;
                     }
-                    else
+                    if(getInstantDGReminderResp != null  && getInstantDGReminderResp.Result == ResultEnum.Success && getInstantDGReminderResp.Count==-1)
                     {
                         postConsumerRequest.IsSmsEnabled = true;
                         postConsumerRequest.IsEmailEnabled =true;
                         postConsumerRequest.IsPushEnabled = true;
+                    }
+                    if(getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Error)
+                    {
+                        returnValue.StatusCode = EnumHelper.GetDescription<StatusCodeEnum>(StatusCodeEnum.StatusCode475);
+                        returnValue.MessageList.Add(getInstantDGReminderResp.MessageList[0]);
+                        returnValue.Result = ResultEnum.Error;
+                        return returnValue;
                     }
                     postConsumerRequest.IsStaff = customerInformationModel.customerList[0].isStaff;
                     PostConsumerResponse postConsumerResponse = _Iconsumer.PostConsumers(requestModel.client, requestModel.sourceid, postConsumerRequest);
