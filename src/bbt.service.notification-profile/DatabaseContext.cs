@@ -11,6 +11,7 @@ public class DatabaseContext : DbContext
     public DbSet<ReminderDefinition> ReminderDefinitions { get; set; }
     public DbSet<NotificationLog> NotificationLogs { get; set; }
     public DbSet<ProductCode> ProductCodes { get; set; }
+    public DbSet<UserRegistry> UserRegistry { get; set; }
     public string DbPath { get; private set; }
     public DatabaseContext()
     {
@@ -160,9 +161,8 @@ public class DatabaseContext : DbContext
                   .Property(f => f.Id)
                   .ValueGeneratedOnAdd();
 
-
-
-
-
+        builder.Entity<UserRegistry>()
+                .Property(f => f.Id)
+                .ValueGeneratedOnAdd();
     }
 }
