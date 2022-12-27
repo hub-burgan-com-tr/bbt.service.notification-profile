@@ -235,7 +235,7 @@ namespace Notification.Profile.Business
                         response.PRODUCT_CODE = reader["PRODUCT_CODE"].ToString();
                     }
                    
-                    if (response.CUSTOMER_NUMBER != null && response.CUSTOMER_NUMBER <0)
+                    if (response.CUSTOMER_NUMBER != null && response.CUSTOMER_NUMBER >0)
                     {
                         response.Count = 1;
                     }
