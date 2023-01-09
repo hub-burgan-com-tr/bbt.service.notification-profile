@@ -42,7 +42,11 @@
                                     <label class="d-none d-sm-inline-block" style="margin-left: 1rem">Theme:</label>
                                     <RadzenDropDown style="margin:0 .5rem" TValue="string" TextProperty="Text" ValueProperty="Value" Data="@themes" Value="@ThemeState.CurrentTheme" Change="@ChangeTheme" />
                                 </div>
+                             <div class="d-none d-md-inline-flex align-items-center">
 
+                            <RadzenButton Text="Çıkış" Icon="account_balance_wallet" Style="background-color:dimgray"  Click="@(args => LogoutSite())"></RadzenButton>
+
+                        </div>
                             </div>
                         </div>
                     </ChildContent>
