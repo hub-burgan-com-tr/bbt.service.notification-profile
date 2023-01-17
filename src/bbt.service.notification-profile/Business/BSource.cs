@@ -183,7 +183,11 @@ namespace Notification.Profile.Business
                         returnValue.StatusCode = EnumHelper.GetDescription<StatusCodeEnum>(StatusCodeEnum.StatusCode475);
                         returnValue.MessageList.Add(getInstantDGReminderResp.MessageList[0]);
                         returnValue.Result = ResultEnum.Error;
-                        return returnValue;
+
+                        postConsumerRequest.IsSmsEnabled = true;
+                        postConsumerRequest.IsEmailEnabled = true;
+                        postConsumerRequest.IsPushEnabled = true;
+                      //  return returnValue;
                     }
                     postConsumerRequest.IsStaff = customerInformationModel.customerList[0].isStaff;
                     PostConsumerResponse postConsumerResponse = _Iconsumer.PostConsumers(requestModel.client, requestModel.sourceid, postConsumerRequest);
