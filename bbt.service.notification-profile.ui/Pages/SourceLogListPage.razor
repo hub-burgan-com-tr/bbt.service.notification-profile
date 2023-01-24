@@ -1,0 +1,131 @@
+﻿@page "/Pages/SourceLogListPage"
+@inherits BaseComponent
+
+@using Notification.Profile.Model;
+@using bbt.service.notification.ui.Component;
+@using bbt.service.notification.ui.Component.Modal;
+@using Notification.Profile.Helper;
+@using Notification.Profile.Model.Database;
+@using bbt.service.notification.ui.Component.Pagination;
+<RadzenCard>
+    <div class="row top-space" style="width:100%;">
+        <div class="row">
+            <div class="col-md-2">
+                Topic
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.Topic></RadzenTextBox>
+            </div>
+            <div class="col-md-2">
+                PushReference
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.PushServiceReference></RadzenTextBox>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                SmsReference
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.SmsServiceReference></RadzenTextBox>
+            </div>
+            <div class="col-md-2">
+                EmailReference
+            </div>
+            <div class="col-md-4">
+                <RadzenTextBox Style="width:250px" @bind-Value=@searchModel.EmailServiceReference></RadzenTextBox>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+
+
+            <div class="col-md-2">
+
+                Start Date
+                <RadzenLabel Text="*" Style="color:red;font-weight:bold;margin-left:3px;" />
+
+            </div>
+            <div class="col-md-4">
+                <RadzenDatePicker Style="width:250px" @bind-Value=@searchModel.StartDate DateFormat="dd/MM/yyyy" YearRange="2022:2090"></RadzenDatePicker>
+            </div>
+            <div class="col-md-2">
+                End Date
+                <RadzenLabel Text="*" Style="color:red;font-weight:bold;margin-left:3px;" />
+
+            </div>
+            <div class="col-md-4">
+                <RadzenDatePicker Style="width:250px" @bind-Value=@searchModel.EndDate DateFormat="dd/MM/yyyy" YearRange="2022:2090"></RadzenDatePicker>
+            </div>
+
+
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+              Method Type
+            </div>
+            <div class="col-md-4">
+                  <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value=@searchModel.MethodType
+                                Data=@methodTypeList
+                                Style="width:245px;" />
+            </div>
+
+
+        </div>
+        <div class="col-md-2">
+            <RadzenButton Icon="search" Click="() =>Search()" Text="Ara" ButtonStyle="ButtonStyle.Primary" />
+            <RadzenButton Icon="search_off" Text="İptal" Style="font-size:11pt;background-color:dimgray;" Click="() => Cancel()" />
+        </div>
+    </div>
+
+</RadzenCard>
+
+<div>
+    @if (@logList != null && @logList.Count() > 0)
+    {
+        <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true" Style="margin-top:5px;"
+                    Data="@logList" TItem="SourceLog" ColumnWidth="300px" PagerHorizontalAlign="HorizontalAlign.Center">
+            <Columns>
+                <RadzenDataGridColumn TItem="SourceLog" Property="SourceId" Title="SourceId" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="Title_TR" Title="Title_TR" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="Title_EN" Title="Title_EN" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="ParentId" Title="ParentId" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="DisplayType" Title="DisplayType" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="Topic" Title="Topic" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="KafkaUrl" Title="KafkaUrl" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="ClientIdJsonPath" Title="ClientIdJsonPath" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="PushServiceReference" Title="PushServiceReference" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="SmsServiceReference" Title="SmsServiceReference" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="EmailServiceReference" Title="EmailServiceReference" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="KafkaCertificate" Title="KafkaCertificate" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="RetentationTime" Title="RetentationTime" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="ProductCodeId" Title="ProductCodeId" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="SaveInbox" Title="SaveInbox" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="MethodType" Title="MethodType" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="CreateDate" Title="CreateDate" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="CreateUser" Title="CreateUser" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="Environment" Title="Environment" Width="160px" />
+            </Columns>
+        </RadzenDataGrid>
+    }
+    else
+    {
+
+
+        <div class="col-12">
+            <RadzenCard>
+                <span>Log Kaydı Bulunamadı...</span>
+            </RadzenCard>
+        </div>
+    }
+</div>
+<BasePaginationComponent @ref="Pagination" PageSize="@PageSize">
+</BasePaginationComponent>
+<BaseLoadingModal @ref="LoadingModal">
+</BaseLoadingModal>
+
+
+

@@ -21,7 +21,11 @@ namespace bbt.service.notification.ui.Service
         Task<SourceResponseModel> Patch(int id, PatchSourceRequest model);
 
         [Delete("/sources/{id}")]
-        Task<SourceResponseModel> Delete(int id);
+        Task<SourceResponseModel> Delete(int id,string user);
+
+        [Post("/sources/prod")]
+        Task<SourceResponseModel> PostProd(PostSourceRequest model);
+
 
     }
 }

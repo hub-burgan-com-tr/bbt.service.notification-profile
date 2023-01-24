@@ -2,6 +2,7 @@
 using bbt.service.notification.ui.Component.Modal;
 using bbt.service.notification.ui.Service;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Notification.Profile.Enum;
 using Notification.Profile.Model;
 using Radzen;
@@ -28,6 +29,8 @@ namespace bbt.service.notification.ui.Pages
         public GetSourcesResponse responseModel { get; set; }
         [Inject]
         public Radzen.DialogService dialogService { get; set; }
+        [CascadingParameter]
+        Task<AuthenticationState> AuthenticationStated { get; set; }
 
         private int pageCount = 10;
         private int rowsCount = 0;
@@ -108,6 +111,7 @@ namespace bbt.service.notification.ui.Pages
         }
         public void SourceDelete(Source item)
         {
+            
             sourceDetayModel = item;
             DeleteConfirm();
         }
@@ -120,7 +124,11 @@ namespace bbt.service.notification.ui.Pages
 
                 ExecuteMethod(() =>
                 {
-                    sourceResp = sourceService.Delete(sourceDetayModel.Id).Result;
+                    string sicil = string.Empty;
+                    var user = (AuthenticationStated).Result.User;
+                    sicil = user.Claims.Where(c => c.Type == "sicil")
+                             .Select(c => c.Value).SingleOrDefault();
+                    sourceResp = sourceService.Delete(sourceDetayModel.Id,sicil).Result;
                     if (sourceResp.Result == ResultEnum.Success)
                     {
 
@@ -144,6 +152,55 @@ namespace bbt.service.notification.ui.Pages
             {
                 Search();
             });
+
+        }
+        public async void ProdSave(Source sourceModel)
+        {
+            string sicil = string.Empty;
+            var user = (AuthenticationStated).Result.User;
+            sicil = user.Claims.Where(c => c.Type == "sicil")
+                     .Select(c => c.Value).SingleOrDefault();
+            var result = await dialogService.Confirm("Release oluşmasını onaylıyor musunuz?", "Onay", new ConfirmOptions() { OkButtonText = "Evet", CancelButtonText = "Hayır" });
+            if (result.HasValue && result.Value)
+            {
+
+                ExecuteMethod(() =>
+                {
+
+                    PostSourceRequest postRequest = new PostSourceRequest();
+                    postRequest.KafkaCertificate = sourceModel.KafkaCertificate;
+                    postRequest.SmsServiceReference = sourceModel.SmsServiceReference;
+                    postRequest.PushServiceReference = sourceModel.PushServiceReference;
+                    postRequest.EmailServiceReference = sourceModel.EmailServiceReference;
+                    postRequest.KafkaUrl = sourceModel.KafkaUrl;
+                    postRequest.RetentationTime = sourceModel.RetentationTime;
+                    postRequest.Title_TR = sourceModel.Title.TR;
+                    postRequest.Title_EN = sourceModel.Title.EN;
+                    postRequest.Secret = sourceModel.Secret;
+                    postRequest.Topic = sourceModel.Topic;
+                    postRequest.DisplayType = sourceModel.DisplayType;
+                    postRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
+                    postRequest.ProductCodeId = sourceModel.ProductCodeId;
+                    postRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
+                    postRequest.SaveInbox = sourceModel.SaveInbox;
+                    postRequest.User = sicil;
+                    
+                   SourceResponseModel sourceResp= sourceService.PostProd(postRequest).Result;
+
+                    if (sourceResp.Result == ResultEnum.Error)
+                    {
+                        Notification.ShowErrorMessage("Hata", "Kaydedilirken Hata Oluştu");
+                    }
+                    else
+                    {
+                        Notification.ShowSuccessMessage("Başarılı", "Bilgiler Başarıyla Kaydedildi");
+                        dialogService.Close();
+                    
+
+
+                    }
+                });
+            }
 
         }
 

@@ -11,12 +11,13 @@ namespace Notification.Profile.Business
 
         SourceResponseModel Patch(int id, PatchSourceRequest data);
 
-        SourceResponseModel Delete(int id);
+        SourceResponseModel Delete(int id,string user);
 
         GetSourceConsumersResponse GetSourceConsumers(GetSourceConsumersRequestBody requestModel);
 
         GetSourcesResponse GetSourceWithSearchModel(SearchSourceModel model);
         SourceListResponse GetSourceByProductCodeId(string productCodeName);
+        SourceResponseModel PostProd(PostSourceRequest data);
 
 
 

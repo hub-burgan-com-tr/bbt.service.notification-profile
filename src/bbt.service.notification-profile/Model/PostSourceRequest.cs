@@ -41,4 +41,7 @@ public class PostSourceRequest
     [NotMapped]
     public bool CheckDeploy { get; set; }
 
+    [NotMapped]
+    public string User { get; set; }
+
 }

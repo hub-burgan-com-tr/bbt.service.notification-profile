@@ -227,13 +227,13 @@ public class SourceController : ControllerBase
     [SwaggerResponse(200, "Success, source is deleted successfully", typeof(SourceResponseModel))]
     [SwaggerResponse(460, "Source is not found", typeof(Guid))]
     [SwaggerResponse(461, "Source has consumer(s)", typeof(Guid))]
-    public IActionResult Delete([FromRoute] int id)
+    public IActionResult Delete([FromRoute] int id, string user)
     {
         var span = _tracer.CurrentTransaction?.StartSpan("DeleteSpan", "Delete");
         SourceResponseModel respModel = new SourceResponseModel();
         try
         {
-            respModel = _Isource.Delete(id);
+            respModel = _Isource.Delete(id,user);
             if (respModel != null && respModel.Result == Notification.Profile.Enum.ResultEnum.Error)
             {
                 span.CaptureErrorLog(new ErrorLog("Error Message( StatusCode:" + respModel.StatusCode + " - Message:" + respModel.MessageList[0].ToString() + ")")
@@ -288,4 +288,29 @@ public class SourceController : ControllerBase
         return Ok(returnValue);
 
     }
-}
+
+    [SwaggerOperation(Summary = "Adds new data prod sources", Tags = new[] { "Source" })]
+    [HttpPost("/sources/prod")]
+    [SwaggerResponse(200, "Success, sources is created successfully", typeof(void))]
+  
+        public IActionResult PostProd([FromBody] PostSourceRequest data)
+        {
+            SourceResponseModel sourceResp = new SourceResponseModel();
+            var span = _tracer.CurrentTransaction?.StartSpan("PostSpan", "Post");
+            try
+            {
+                sourceResp = _Isource.PostProd(data);
+
+            }
+            catch (Exception e)
+            {
+                span?.CaptureException(e);
+                _logHelper.LogCreate(data, "StatusCode:500", MethodBase.GetCurrentMethod().Name, e.Message);
+                return this.StatusCode(500, e.Message);
+            }
+
+            return Ok(sourceResp);
+        }
+
+    }
+

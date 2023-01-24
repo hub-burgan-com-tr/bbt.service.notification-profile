@@ -22,18 +22,19 @@ namespace Notification.Profile.Business
         private readonly ILogHelper _logHelper;
         private readonly IProductCode _IproductCode;
         private readonly IinstandReminder _IinstandReminder;
+        private readonly ISourceLog _ISourceLog;
 
-
-        public BSource(IConfiguration configuration, IConsumer Iconsumer, ILogHelper logHelper, IProductCode productCode, IinstandReminder ıinstandReminder)
+        public BSource(IConfiguration configuration, IConsumer Iconsumer, ILogHelper logHelper, IProductCode productCode, IinstandReminder ıinstandReminder, ISourceLog ISourceLog)
         {
             _configuration = configuration;
             _Iconsumer = Iconsumer;
             _logHelper = logHelper;
             _IproductCode = productCode;
             _IinstandReminder = ıinstandReminder;
+            _ISourceLog = ISourceLog;
         }
 
-        public SourceResponseModel Delete(int id)
+        public SourceResponseModel Delete(int id,string user)
         {
             var returnValue = new SourceResponseModel();
             using (var db = new DatabaseContext())
@@ -60,6 +61,17 @@ namespace Notification.Profile.Business
                 db.Remove(source);
                 db.SaveChanges();
                 returnValue.Result = ResultEnum.Success;
+
+                SourceLogRequest logRequest = new SourceLogRequest();
+                logRequest.sourceLog = source;
+                logRequest.User =user;
+                logRequest.MethodType = "Delete";
+                logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
+                if (logResponse.Result == ResultEnum.Error)
+                {
+                    returnValue.MessageList.Add("SourceLog kaydederken hata oluştu. ");
+                }
             }
             return returnValue;
         }
@@ -404,68 +416,80 @@ namespace Notification.Profile.Business
                 db.Sources.Update(source);
                 db.SaveChanges();
                 sourceResp.Result = ResultEnum.Success;
-            }
-            if (data.CheckDeploy == true)
-            {
 
-                string path = _configuration.GetSection("NotificationProdSearchEndPoint").Value.ToString();
-                var uri = new Uri(path);
-                GetSourcesResponse result = new GetSourcesResponse();
-                using (var httpClient = new HttpClient())
-                {
-                    SearchSourceModel searchSourceModel = new SearchSourceModel();
-                    searchSourceModel.Topic = data.Topic;
-                    data.CheckDeploy = false;
-                    var json = JsonConvert.SerializeObject(searchSourceModel);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = httpClient.PostAsync(uri, content).Result;
-                    result = response.Content.ReadAsAsync<GetSourcesResponse>().Result;
-                }
-                if (result != null && result.Sources.Count > 0)
-                {
-                    string pathEnd = _configuration.GetSection("NotificationProdPatchEndPoint").Value.ToString().Replace("{id}", result.Sources.FirstOrDefault().Id.ToString());
-                    var uriEnd = new Uri(pathEnd);
-                    using (var httpClient = new HttpClient())
-                    {
-                        data.CheckDeploy = false;
-                        var json = JsonConvert.SerializeObject(data);
-                        var content = new StringContent(json, Encoding.UTF8, "application/json");
-                        HttpResponseMessage response = httpClient.PatchAsync(uriEnd, content).Result;
-                        if (response.IsSuccessStatusCode == true)
-                        {
-                            string resultEnd = response.Content.ReadAsStringAsync().Result;
-                        }
-                        else
-                        {
-                            sourceResp.Result = ResultEnum.Error;
-                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
-                        }
-                    }
-                }
 
-                else
+                SourceLogRequest logRequest = new SourceLogRequest();
+                logRequest.sourceLog = source;
+                logRequest.User = data.User;
+                logRequest.MethodType = "Update";
+                logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
+                if (logResponse.Result == ResultEnum.Error)
                 {
-                    string paths = _configuration.GetSection("NotificationProdEndPoint").Value.ToString();
-                    var uris = new Uri(paths);
-                    using (var httpClient = new HttpClient())
-                    {
-                        data.CheckDeploy = false;
-                        var json = JsonConvert.SerializeObject(data);
-                        var content = new StringContent(json, Encoding.UTF8, "application/json");
-                        HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
-                        if (response.IsSuccessStatusCode == true)
-                        {
-                            string resultres = response.Content.ReadAsStringAsync().Result;
-                        }
-                        else
-                        {
-                            sourceResp.Result = ResultEnum.Error;
-                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
-                        }
-                    }
-
+                    sourceResp.MessageList.Add("SourceLog update ederken hata oluştu. ");
                 }
             }
+            //if (data.CheckDeploy == true)
+            //{
+
+            //    string path = _configuration.GetSection("NotificationProdSearchEndPoint").Value.ToString();
+            //    var uri = new Uri(path);
+            //    GetSourcesResponse result = new GetSourcesResponse();
+            //    using (var httpClient = new HttpClient())
+            //    {
+            //        SearchSourceModel searchSourceModel = new SearchSourceModel();
+            //        searchSourceModel.Topic = data.Topic;
+            //        data.CheckDeploy = false;
+            //        var json = JsonConvert.SerializeObject(searchSourceModel);
+            //        var content = new StringContent(json, Encoding.UTF8, "application/json");
+            //        HttpResponseMessage response = httpClient.PostAsync(uri, content).Result;
+            //        result = response.Content.ReadAsAsync<GetSourcesResponse>().Result;
+            //    }
+            //    if (result != null && result.Sources.Count > 0)
+            //    {
+            //        string pathEnd = _configuration.GetSection("NotificationProdPatchEndPoint").Value.ToString().Replace("{id}", result.Sources.FirstOrDefault().Id.ToString());
+            //        var uriEnd = new Uri(pathEnd);
+            //        using (var httpClient = new HttpClient())
+            //        {
+            //            data.CheckDeploy = false;
+            //            var json = JsonConvert.SerializeObject(data);
+            //            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            //            HttpResponseMessage response = httpClient.PatchAsync(uriEnd, content).Result;
+            //            if (response.IsSuccessStatusCode == true)
+            //            {
+            //                string resultEnd = response.Content.ReadAsStringAsync().Result;
+            //            }
+            //            else
+            //            {
+            //                sourceResp.Result = ResultEnum.Error;
+            //                sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
+            //            }
+            //        }
+            //    }
+
+            //    else
+            //    {
+            //        string paths = _configuration.GetSection("NotificationProdEndPoint").Value.ToString();
+            //        var uris = new Uri(paths);
+            //        using (var httpClient = new HttpClient())
+            //        {
+            //            data.CheckDeploy = false;
+            //            var json = JsonConvert.SerializeObject(data);
+            //            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            //            HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
+            //            if (response.IsSuccessStatusCode == true)
+            //            {
+            //                string resultres = response.Content.ReadAsStringAsync().Result;
+            //            }
+            //            else
+            //            {
+            //                sourceResp.Result = ResultEnum.Error;
+            //                sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
+            //            }
+            //        }
+
+            //    }
+            //}
             return sourceResp;
         }
 
@@ -473,61 +497,138 @@ namespace Notification.Profile.Business
         {
 
             SourceResponseModel sourceResp = new SourceResponseModel();
-
+            Model.Database.Source sourceModel = new Model.Database.Source();
+            sourceModel.Topic = data.Topic;
+            sourceModel.ApiKey = data.ApiKey;
+            sourceModel.Secret = data.Secret;
+            sourceModel.PushServiceReference = data.PushServiceReference;
+            sourceModel.SmsServiceReference = data.SmsServiceReference;
+            sourceModel.EmailServiceReference = data.EmailServiceReference;
+            sourceModel.KafkaUrl = data.KafkaUrl;
+            sourceModel.KafkaCertificate = data.KafkaCertificate;
+            sourceModel.DisplayType = (SourceDisplayType)data.DisplayType;
+            sourceModel.Title_EN = data.Title_EN;
+            sourceModel.Title_TR = data.Title_TR;
+            sourceModel.ParentId = data.ParentId;
+            sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
+            sourceModel.RetentationTime = data.RetentationTime;
+            sourceModel.ProductCodeId = data.ProductCodeId;
+            sourceModel.SaveInbox = data.SaveInbox;
 
             using (var db = new DatabaseContext())
             {
-                db.Add(new Model.Database.Source
-                {
-                    //Id = data.Id,
-                    //Title = data.Title,
-                    Topic = data.Topic,
-                    ApiKey = data.ApiKey,
-                    Secret = data.Secret,
-                    PushServiceReference = data.PushServiceReference,
-                    SmsServiceReference = data.SmsServiceReference,
-                    EmailServiceReference = data.EmailServiceReference,
-                    KafkaUrl = data.KafkaUrl,
-                    KafkaCertificate = data.KafkaCertificate,
-                    DisplayType = (SourceDisplayType)data.DisplayType,
-                    Title_EN = data.Title_EN,
-                    Title_TR = data.Title_TR,
-                    ParentId = data.ParentId,
-                    ClientIdJsonPath = data.ClientIdJsonPath,
-                    RetentationTime = data.RetentationTime,
-                    ProductCodeId = data.ProductCodeId,
-                    SaveInbox = data.SaveInbox, 
-
-                });
+                db.Add(sourceModel);
 
                 db.SaveChanges();
                 sourceResp.Result = ResultEnum.Success;
-
-                if (data.CheckDeploy == true)
+                SourceLogRequest logRequest = new SourceLogRequest();
+                logRequest.sourceLog = sourceModel;
+                logRequest.User = data.User;
+                logRequest.MethodType = "Insert";
+                logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                SourceLogResponse logResponse= _ISourceLog.PostSourceLog(logRequest);
+                if (logResponse.Result == ResultEnum.Error)
                 {
-                    string paths = _configuration.GetSection("NotificationProdEndPoint").Value.ToString();
-                    var uris = new Uri(paths);
-                    using (var httpClient = new HttpClient())
-                    {
-                        data.CheckDeploy = false;
-                        var json = JsonConvert.SerializeObject(data);
-                        var content = new StringContent(json, Encoding.UTF8, "application/json");
-                        HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
-
-                        if (response.IsSuccessStatusCode == true)
-                        {
-                            string result = response.Content.ReadAsStringAsync().Result;
-                        }
-                        else
-                        {
-                            sourceResp.Result = ResultEnum.Error;
-                            sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
-                        }
-                    }
+                    sourceResp.MessageList.Add("SourceLog kaydederken hata oluştu. ");
                 }
 
                 return sourceResp;
             }
+        }
+        public SourceResponseModel PostProd(PostSourceRequest data)
+        {
+
+            SourceResponseModel sourceResp = new SourceResponseModel();
+
+            string path = _configuration.GetSection("NotificationProdSearchEndPoint").Value.ToString();
+            var uri = new Uri(path);
+            GetSourcesResponse result = new GetSourcesResponse();
+            using (var httpClient = new HttpClient())
+            {
+                SearchSourceModel searchSourceModel = new SearchSourceModel();
+                searchSourceModel.Topic = data.Topic;
+                data.CheckDeploy = false;
+                var json = JsonConvert.SerializeObject(searchSourceModel);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = httpClient.PostAsync(uri, content).Result;
+                result = response.Content.ReadAsAsync<GetSourcesResponse>().Result;
+            }
+            if (result != null && result.Sources.Count > 0)
+            {
+                string pathEnd = _configuration.GetSection("NotificationProdPatchEndPoint").Value.ToString().Replace("{id}", result.Sources.FirstOrDefault().Id.ToString());
+                var uriEnd = new Uri(pathEnd);
+                using (var httpClient = new HttpClient())
+                {
+                    data.CheckDeploy = false;
+                    var json = JsonConvert.SerializeObject(data);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response = httpClient.PatchAsync(uriEnd, content).Result;
+                    if (response.IsSuccessStatusCode == true)
+                    {
+                        string resultEnd = response.Content.ReadAsStringAsync().Result;
+                    }
+                    else
+                    {
+                        sourceResp.Result = ResultEnum.Error;
+                        sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
+                    }
+                }
+            }
+
+            else
+            {
+                string paths = _configuration.GetSection("NotificationProdEndPoint").Value.ToString();
+                var uris = new Uri(paths);
+                using (var httpClient = new HttpClient())
+                {
+                    data.CheckDeploy = false;
+                    var json = JsonConvert.SerializeObject(data);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
+                    if (response.IsSuccessStatusCode == true)
+                    {
+                        string resultres = response.Content.ReadAsStringAsync().Result;
+                    }
+                    else
+                    {
+                        sourceResp.Result = ResultEnum.Error;
+                        sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
+                    }
+                }
+
+            }
+
+            SourceLogRequest logRequest = new SourceLogRequest();
+            Model.Database.Source sourceModel = new Model.Database.Source();
+            sourceModel.Id = sourceResp.Id;
+            sourceModel.Topic = data.Topic;
+            sourceModel.ApiKey = data.ApiKey;
+            sourceModel.Secret = data.Secret;
+            sourceModel.PushServiceReference = data.PushServiceReference;
+            sourceModel.SmsServiceReference = data.SmsServiceReference;
+            sourceModel.EmailServiceReference = data.EmailServiceReference;
+            sourceModel.KafkaUrl = data.KafkaUrl;
+            sourceModel.KafkaCertificate = data.KafkaCertificate;
+            sourceModel.DisplayType = (SourceDisplayType)data.DisplayType;
+            sourceModel.Title_EN = data.Title_EN;
+            sourceModel.Title_TR = data.Title_TR;
+            sourceModel.ParentId = data.ParentId;
+            sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
+            sourceModel.RetentationTime = data.RetentationTime;
+            sourceModel.ProductCodeId = data.ProductCodeId;
+            sourceModel.SaveInbox = data.SaveInbox;
+            logRequest.sourceLog = sourceModel;
+            logRequest.Environment ="Prod";
+            logRequest.User = data.User;
+            logRequest.MethodType = "Release";
+            SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
+            if (logResponse.Result == ResultEnum.Error)
+            {
+                sourceResp.MessageList.Add("SourceLog kaydederken hata oluştu. ");
+            }
+
+
+            return sourceResp;
         }
         public SourceListResponse GetSourceByProductCodeId(string productCodeName)
         {
