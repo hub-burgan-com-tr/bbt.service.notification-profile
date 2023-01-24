@@ -25,4 +25,7 @@ public class PatchSourceRequest
     public bool SaveInbox { get; set; }
     [NotMapped]
     public bool CheckDeploy { get; set; } = false;
+
+    [NotMapped]
+    public string User { get; set; } 
 }

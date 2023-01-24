@@ -217,6 +217,9 @@ builder.Services.AddRefitClient<IProductCodeService>().
                ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ApiUri"]));
 builder.Services.AddRefitClient<IUserRegistryService>().
                ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ApiUri"]));
+builder.Services.AddRefitClient<ISourceLogService>().
+               ConfigureHttpClient(c => c.BaseAddress = new Uri(builder.Configuration["ApiUri"]));
+
 builder.Services.Configure<OktaSettings>(builder.Configuration.GetSection("Okta"));
 builder.Services.AddScoped<ITokenService, OktaTokenService>();
 

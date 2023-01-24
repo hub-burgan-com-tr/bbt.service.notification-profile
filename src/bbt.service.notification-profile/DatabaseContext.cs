@@ -12,6 +12,8 @@ public class DatabaseContext : DbContext
     public DbSet<NotificationLog> NotificationLogs { get; set; }
     public DbSet<ProductCode> ProductCodes { get; set; }
     public DbSet<UserRegistry> UserRegistry { get; set; }
+
+    public DbSet<SourceLog> SourceLogs { get; set; }
     public string DbPath { get; private set; }
     public DatabaseContext()
     {
@@ -164,5 +166,13 @@ public class DatabaseContext : DbContext
         builder.Entity<UserRegistry>()
                 .Property(f => f.Id)
                 .ValueGeneratedOnAdd();
+
+        builder.Entity<SourceLog>()
+          .Property(f => f.Id)
+          .ValueGeneratedOnAdd();
+
+
+        builder.Entity<SourceLog>()
+                 .ToTable("SourceLogs", b => b.IsTemporal());
     }
 }

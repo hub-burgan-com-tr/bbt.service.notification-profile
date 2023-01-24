@@ -25,9 +25,17 @@ namespace bbt.service.notification.ui.Override.Service
             Children=null
           
             },
+           new MenuItem()
+        {
+            Name = "Source Log",
+            Path = "/Pages/SourceLogListPage",
+            Icon = "format_list_bulleted",
+            Children=null
+
+            },
              new MenuItem()
         {
-            Name = "Log",
+            Name = "Message Notification Log",
             Path = "/Pages/LogListPage",
             Icon = "format_list_bulleted",
             Children=null

@@ -50,12 +50,17 @@
     <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true"  Style="margin-top:5px;"
                     Data="@sourceList" TItem="Source" ColumnWidth="300px"  PagerHorizontalAlign="HorizontalAlign.Center" >
         <Columns>
-            <RadzenDataGridColumn TItem="Source" Width="100px" Title="Düzenle">
+              <RadzenDataGridColumn TItem="Source" Width="90px" Title="Release">
+                <Template Context="item">
+                    <RadzenButton title="Release" Icon="add_task" Style="font-size:11pt;background-color:green" Click="@((args) =>ProdSave(item))"></RadzenButton>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Source" Width="90px" Title="Düzenle">
                 <Template Context="item">
                     <RadzenButton title="Düzenle" Icon="mode_edit_outline" Style="font-size:11pt" Click="()=>SourceEdit(item)"></RadzenButton>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Source" Width="100px" Title="Sil">
+            <RadzenDataGridColumn TItem="Source" Width="90px" Title="Sil">
                 <Template Context="item">
                     <RadzenButton title="Sil" Icon="delete_forever" Style="font-size:11pt;background-color:darkred;" Click="@((args) =>SourceDelete(item))"></RadzenButton>
                 </Template>

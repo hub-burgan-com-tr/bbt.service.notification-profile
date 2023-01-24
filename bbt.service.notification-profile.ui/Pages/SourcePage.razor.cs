@@ -3,6 +3,7 @@ using bbt.service.notification.ui.Configuration;
 using bbt.service.notification.ui.Model;
 using bbt.service.notification.ui.Service;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Notification.Profile.Enum;
 using Notification.Profile.Helper;
 using Notification.Profile.Model;
@@ -36,6 +37,9 @@ namespace bbt.service.notification.ui.Pages
         public Notification.Profile.Model.Source sourceDetayModel { get; set; }
         [Inject]
         public Radzen.DialogService dialogService { get; set; }
+
+        [CascadingParameter]
+        Task<AuthenticationState> AuthenticationStated { get; set; }
         public int DisplayType { get; set; }
 
 
@@ -147,6 +151,10 @@ namespace bbt.service.notification.ui.Pages
 
         public void SourceSave()
         {
+            string sicil = string.Empty;
+            var user = ( AuthenticationStated).Result.User;
+            sicil = user.Claims.Where(c => c.Type == "sicil")
+                     .Select(c => c.Value).SingleOrDefault();
             SourceResponseModel sourceResp = new SourceResponseModel();
             if (sourceModel != null && sourceModel.Id > 0)
             {
@@ -167,6 +175,7 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.ProductCodeId = sourceModel.ProductCodeId;
                 patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                 patchRequest.SaveInbox = sourceModel.SaveInbox;
+                patchRequest.User = sicil;
                 sourceResp = sourceService.Patch(sourceModel.Id, patchRequest).Result;
                 if (sourceResp.Result == ResultEnum.Error)
                 {
@@ -187,7 +196,7 @@ namespace bbt.service.notification.ui.Pages
             else
             {
 
-
+                sourceModel.User = sicil;
                 sourceResp = sourceService.Post(sourceModel).Result;
                 if (sourceResp.Result == ResultEnum.Error)
                 {

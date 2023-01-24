@@ -58,6 +58,7 @@ builder.Services.AddScoped<IMessageNotificationLog, BMessageNotificationLog>();
 builder.Services.AddScoped<IProductCode, BProductCode>();
 builder.Services.AddScoped<IGetTemplate, BGetTemplate>();
 builder.Services.AddScoped<IUserRegistry, BUserRegistry>();
+builder.Services.AddScoped<ISourceLog, BSourceLog>();
 builder.Services.AddSingleton(n => Agent.Tracer);
 var app = builder.Build();
 
