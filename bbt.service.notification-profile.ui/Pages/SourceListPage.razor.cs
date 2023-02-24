@@ -182,6 +182,7 @@ namespace bbt.service.notification.ui.Pages
                     postRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                     postRequest.ProductCodeId = sourceModel.ProductCodeId;
                     postRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
+                    postRequest.ParentId = sourceModel.ParentId;
                     postRequest.SaveInbox = sourceModel.SaveInbox;
                     postRequest.User = sicil;
                     

@@ -414,6 +414,7 @@ namespace Notification.Profile.Business
                 if (data.RetentationTime != null) source.RetentationTime = data.RetentationTime;
                 if (data.ProductCodeId != null) source.ProductCodeId = data.ProductCodeId;
                 if (data.SaveInbox != null) source.SaveInbox = data.SaveInbox;
+                if (data.ParentId != null) source.ParentId = data.ParentId;
                 db.Sources.Update(source);
                 db.SaveChanges();
                 sourceResp.Result = ResultEnum.Success;
@@ -510,7 +511,14 @@ namespace Notification.Profile.Business
             sourceModel.DisplayType = (SourceDisplayType)data.DisplayType;
             sourceModel.Title_EN = data.Title_EN;
             sourceModel.Title_TR = data.Title_TR;
-            sourceModel.ParentId = data.ParentId;
+            if (data.ParentId == 0)
+            {
+                sourceModel.ParentId = null;
+            }
+            else
+            {
+                sourceModel.ParentId = data.ParentId;
+            }
             sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
             sourceModel.RetentationTime = data.RetentationTime;
             sourceModel.ProductCodeId = data.ProductCodeId;
