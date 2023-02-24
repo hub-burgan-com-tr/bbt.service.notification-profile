@@ -185,11 +185,11 @@ namespace bbt.service.notification.ui.Pages
                     postRequest.SaveInbox = sourceModel.SaveInbox;
                     postRequest.User = sicil;
                     
-                   SourceResponseModel sourceResp= sourceService.PostProd(postRequest).Result;
+                   SourceResponseModel sourceResp= sourceService.TfsReleaseCreate(postRequest).Result;
 
                     if (sourceResp.Result == ResultEnum.Error)
                     {
-                        Notification.ShowErrorMessage("Hata", "Kaydedilirken Hata Oluştu");
+                        Notification.ShowErrorMessage("Hata", "Kaydedilirken Hata Oluştu"+ sourceResp.MessageList[0]);
                     }
                     else
                     {

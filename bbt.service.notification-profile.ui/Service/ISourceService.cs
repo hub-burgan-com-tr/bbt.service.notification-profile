@@ -23,8 +23,13 @@ namespace bbt.service.notification.ui.Service
         [Delete("/sources/{id}")]
         Task<SourceResponseModel> Delete(int id,string user);
 
-        [Post("/sources/prod")]
-        Task<SourceResponseModel> PostProd(PostSourceRequest model);
+        //[Post("/sources/prod")]
+        //Task<SourceResponseModel> PostProd(PostSourceRequest model);
+
+        [Post("/sources/tfs-release")]
+        Task<SourceResponseModel> TfsReleaseCreate(PostSourceRequest model);
+
+        
 
 
     }

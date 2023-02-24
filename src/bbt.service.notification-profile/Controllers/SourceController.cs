@@ -312,5 +312,31 @@ public class SourceController : ControllerBase
             return Ok(sourceResp);
         }
 
+    [SwaggerOperation(Summary = "Tfs release", Tags = new[] { "Source" })]
+    [HttpPost("/sources/tfs-release")]
+    [SwaggerResponse(200, "Success, tfs release create", typeof(void))]
+
+    public IActionResult TfsReleaseCreate([FromBody] PostSourceRequest data)
+    {
+        SourceResponseModel sourceResp = new SourceResponseModel();
+        var span = _tracer.CurrentTransaction?.StartSpan("TfsReleaseCreateSpan", "TfsReleaseCreate");
+        try
+        {
+            sourceResp = _Isource.TfsReleaseCreate(data);
+
+        }
+        catch (Exception e)
+        {
+            span?.CaptureException(e);
+            _logHelper.LogCreate(data, "StatusCode:500", MethodBase.GetCurrentMethod().Name, e.Message);
+            return this.StatusCode(500, e.Message);
+        }
+
+        return Ok(sourceResp);
     }
+
+
+}
+
+  
 

@@ -11,6 +11,7 @@ using Notification.Profile.Model.Database;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Notification.Profile.Business
@@ -34,7 +35,7 @@ namespace Notification.Profile.Business
             _ISourceLog = ISourceLog;
         }
 
-        public SourceResponseModel Delete(int id,string user)
+        public SourceResponseModel Delete(int id, string user)
         {
             var returnValue = new SourceResponseModel();
             using (var db = new DatabaseContext())
@@ -64,7 +65,7 @@ namespace Notification.Profile.Business
 
                 SourceLogRequest logRequest = new SourceLogRequest();
                 logRequest.sourceLog = source;
-                logRequest.User =user;
+                logRequest.User = user;
                 logRequest.MethodType = "Delete";
                 logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                 SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
@@ -178,19 +179,19 @@ namespace Notification.Profile.Business
                     postConsumerRequest.Email = customerInformationModel.customerList[0].email;
                     postConsumerRequest.DeviceKey = customerInformationModel.customerList[0].device == null ? null : customerInformationModel.customerList[0].device.ToString();
                     GetInstantDGReminderResponse getInstantDGReminderResp = _IinstandReminder.GetCustomerPermissionWithProductCode(requestModel.client, productCodeName).Result;
-                    if (getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Success && getInstantDGReminderResp.Count ==1)
+                    if (getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Success && getInstantDGReminderResp.Count == 1)
                     {
                         postConsumerRequest.IsSmsEnabled = getInstantDGReminderResp.SEND_SMS;
                         postConsumerRequest.IsEmailEnabled = getInstantDGReminderResp.SEND_EMAIL;
                         postConsumerRequest.IsPushEnabled = getInstantDGReminderResp.SEND_PUSHNOTIFICATION;
                     }
-                    if(getInstantDGReminderResp != null  && getInstantDGReminderResp.Result == ResultEnum.Success && getInstantDGReminderResp.Count==-1)
+                    if (getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Success && getInstantDGReminderResp.Count == -1)
                     {
                         postConsumerRequest.IsSmsEnabled = true;
-                        postConsumerRequest.IsEmailEnabled =true;
+                        postConsumerRequest.IsEmailEnabled = true;
                         postConsumerRequest.IsPushEnabled = true;
                     }
-                    if(getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Error)
+                    if (getInstantDGReminderResp != null && getInstantDGReminderResp.Result == ResultEnum.Error)
                     {
                         returnValue.StatusCode = EnumHelper.GetDescription<StatusCodeEnum>(StatusCodeEnum.StatusCode475);
                         returnValue.MessageList.Add(getInstantDGReminderResp.MessageList[0]);
@@ -199,7 +200,7 @@ namespace Notification.Profile.Business
                         postConsumerRequest.IsSmsEnabled = true;
                         postConsumerRequest.IsEmailEnabled = true;
                         postConsumerRequest.IsPushEnabled = true;
-                      //  return returnValue;
+                        //  return returnValue;
                     }
                     postConsumerRequest.IsStaff = customerInformationModel.customerList[0].isStaff;
                     PostConsumerResponse postConsumerResponse = _Iconsumer.PostConsumers(requestModel.client, requestModel.sourceid, postConsumerRequest);
@@ -318,7 +319,7 @@ namespace Notification.Profile.Business
                                Title = new Model.Source.TitleLabel { EN = source.Title_EN, TR = source.Title_TR },
                                Topic = source.Topic,
                                Secret = source.Secret,
-                               SaveInbox=source.SaveInbox,
+                               SaveInbox = source.SaveInbox,
                                ProductCodeName = p == null ? null : p.ProductCodeName
                            }).Skip(((model.CurrentPage) - 1) * model.RequestItemSize)
                             .Take(model.RequestItemSize);
@@ -373,7 +374,7 @@ namespace Notification.Profile.Business
                     KafkaUrl = s.KafkaUrl,
                     RetentationTime = s.RetentationTime,
                     ProductCodeId = s.ProductCodeId,
-                    SaveInbox=s.SaveInbox
+                    SaveInbox = s.SaveInbox
 
 
                 };
@@ -526,7 +527,7 @@ namespace Notification.Profile.Business
                 logRequest.User = data.User;
                 logRequest.MethodType = "Insert";
                 logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                SourceLogResponse logResponse= _ISourceLog.PostSourceLog(logRequest);
+                SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
                 if (logResponse.Result == ResultEnum.Error)
                 {
                     sourceResp.MessageList.Add("SourceLog kaydederken hata oluştu. ");
@@ -618,7 +619,7 @@ namespace Notification.Profile.Business
             sourceModel.ProductCodeId = data.ProductCodeId;
             sourceModel.SaveInbox = data.SaveInbox;
             logRequest.sourceLog = sourceModel;
-            logRequest.Environment ="Prod";
+            logRequest.Environment = "Prod";
             logRequest.User = data.User;
             logRequest.MethodType = "Release";
             SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
@@ -669,5 +670,190 @@ namespace Notification.Profile.Business
 
             return response;
         }
+        public SourceResponseModel TfsReleaseCreate(PostSourceRequest data)
+        {
+
+            var model = new SourceReleaseVariables
+            {
+                id = 258,
+                type = "Vsts",
+                name = "RestApi",
+                variables = new Variable
+                {
+                    Id = new Deger
+                    {
+                        isSecret = false,
+                        value = data.Id.ToString()
+                    },
+                    Title_TR = new Deger
+                    {
+                        isSecret = false,
+                        value = data.Title_TR
+                    },
+                    Title_EN = new Deger
+                    {
+                        isSecret = false,
+                        value = data.Title_EN
+                    },
+                    Topic = new Deger
+                    {
+                        isSecret = false,
+                        value = data.Topic
+                    },
+                    ApiKey = new Deger
+                    {
+                        isSecret = false,
+                        value = data.ApiKey
+                    },
+                    Secret = new Deger
+                    {
+                        isSecret = false,
+                        value = data.Secret
+                    },
+                    DisplayType = new Deger
+                    {
+                        isSecret = false,
+                        value = data.DisplayType.ToString()
+                    },
+                    PushServiceReference = new Deger
+                    {
+                        isSecret = false,
+                        value = data.PushServiceReference
+                    },
+                    SmsServiceReference = new Deger
+                    {
+                        isSecret = false,
+                        value = data.SmsServiceReference
+                    },
+                    EmailServiceReference = new Deger
+                    {
+                        isSecret = false,
+                        value = data.EmailServiceReference
+                    },
+                    KafkaUrl = new Deger
+                    {
+                        isSecret = false,
+                        value = data.KafkaUrl
+                    },
+                    KafkaCertificate = new Deger
+                    {
+                        isSecret = false,
+                        value = data.KafkaCertificate
+                    },
+                    ParentId = new Deger
+                    {
+                        isSecret = false,
+                        value = data.ParentId.ToString()
+                    },
+                    RetentationTime = new Deger
+                    {
+                        isSecret = false,
+                        value = data.RetentationTime.ToString()
+                    },
+                    ProductCodeId = new Deger
+                    {
+                        isSecret = false,
+                        value = data.ProductCodeId.ToString()
+                    },
+                    SaveInbox = new Deger
+                    {
+                        isSecret = false,
+                        value = data.SaveInbox.ToString()
+                    },
+                    CheckDeploy = new Deger
+                    {
+                        isSecret = false,
+                        value = data.CheckDeploy.ToString()
+                    },
+                    User = new Deger
+                    {
+                        isSecret = false,
+                        value = data.User
+                    },
+                    ClientIdJsonPath = new Deger
+                    {
+                        isSecret = false,
+                        value = data.ClientIdJsonPath
+                    }
+                }
+            };
+
+            SourceResponseModel responseModel = new SourceResponseModel();
+            string apiUrl = _configuration.GetValue<string>("TfsEndpoints:PutVariables");
+            string apiRelease = _configuration.GetValue<string>("TfsEndpoints:CreateRelease");
+            string personalAccessToken = _configuration.GetValue<string>("TfsToken");
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Accept.Add(
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(
+                        System.Text.ASCIIEncoding.ASCII.GetBytes(
+                            string.Format("{0}:{1}", "", personalAccessToken))));
+
+                var httpContent = new StringContent(System.Text.Json.JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+                using (HttpResponseMessage response = client.PutAsync(
+                        apiUrl, httpContent).Result)
+                {
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = response.Content.ReadAsStringAsync().Result;
+
+                    if (response.IsSuccessStatusCode)
+                    
+                    {
+                        var createReleaseModel = new CreateReleaseModel
+                        {
+                            definitionId = 7,
+                            isDraft = false,
+                            description = "",
+                            manualEnvironments = new object[100],
+                            artifacts = new object[100],
+                            variables = new Variables { },
+                            environmentsMetadata = new EnvironmentsMetadata[]
+                            {
+                             new EnvironmentsMetadata
+                             {
+                                definitionEnvironmentId=7,
+                                variables = new Variables { },
+                             }
+                            },
+                            properties = new Properties
+                            {
+                                ReleaseCreationSource = "ReleaseHub"
+                            }
+
+                        };
+                        var httpContentRelease = new StringContent(System.Text.Json.JsonSerializer.Serialize(createReleaseModel), Encoding.UTF8, "application/json");
+                        using (HttpResponseMessage responseRelease = client.PostAsync(
+                      apiRelease, httpContentRelease).Result)
+                        {
+                            if (responseRelease.IsSuccessStatusCode)
+                            {
+                                responseModel.Result = ResultEnum.Success;
+                            }
+                            else
+                            {
+                                responseModel.Result = ResultEnum.Error;
+                                responseModel.MessageList.Add(responseRelease.ReasonPhrase);
+
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        responseModel.Result = ResultEnum.Error;
+                        responseModel.MessageList.Add(response.ReasonPhrase);
+                    }
+                }
+
+            };
+
+
+            return responseModel;
+        }
+
     }
 }
