@@ -175,6 +175,7 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.ProductCodeId = sourceModel.ProductCodeId;
                 patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                 patchRequest.SaveInbox = sourceModel.SaveInbox;
+                patchRequest.ParentId = sourceModel.ParentId;
                 patchRequest.User = sicil;
                 sourceResp = sourceService.Patch(sourceModel.Id, patchRequest).Result;
                 if (sourceResp.Result == ResultEnum.Error)

@@ -73,7 +73,7 @@ public class DatabaseContext : DbContext
             .IsClustered(false);
 
         builder.Entity<Consumer>()
-          .HasIndex("$id")
+          .HasIndex("$id") 
           .IsUnique()
           .IsClustered(true);
 
