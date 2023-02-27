@@ -25,12 +25,16 @@ namespace bbt.service.notification.ui.Pages
 
         public Source sourceDetayModel { get; set; }
         public BaseModal ModalSource { get; set; }
+        public bool appsetting { get; set; }
 
         public GetSourcesResponse responseModel { get; set; }
         [Inject]
         public Radzen.DialogService dialogService { get; set; }
         [CascadingParameter]
         Task<AuthenticationState> AuthenticationStated { get; set; }
+
+        [Inject]
+        protected IConfiguration configuration { get; set; }
 
         private int pageCount = 10;
         private int rowsCount = 0;
@@ -41,16 +45,21 @@ namespace bbt.service.notification.ui.Pages
             ExecuteMethod(() =>
             {
                 LoadingModal.Open();
+               
                 BeforeSearch();
+              
                 responseModel = sourceService.GetSourceWithSearchModel(searchModel).Result;
+
                 if (responseModel.Result == ResultEnum.Success)
                 {
 
                     sourceList = responseModel.Sources;
+                  
 
                 }
                 rowsCount = sourceList.Count();
                 AfterSearch();
+              
                 LoadingModal.Close();
 
             });
@@ -59,19 +68,29 @@ namespace bbt.service.notification.ui.Pages
         {
             base.CustomOnAfterRenderAsync(firstRender);
 
-
+          
             if (firstRender)
             {
-                Pagination.OnPageChange += () =>
+                appsetting = Convert.ToBoolean(configuration.GetSection("ProdSave").Value);
+
+                ExecuteMethod(() =>
                 {
+                    Pagination.OnPageChange += () =>
+                {
+                   
                     Search();
+
+                    
                 };
 
 
                 if (IsFirstLoad)
                 {
+                   
                     Search();
+                   
                 }
+                });
             }
 
         }
