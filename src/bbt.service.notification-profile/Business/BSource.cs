@@ -418,7 +418,7 @@ namespace Notification.Profile.Business
                 {
 
                     var sourcePatch = db.Sources.FirstOrDefault(s => s.Id == data.ParentId);
-                    if (sourcePatch == null)
+                    if (sourcePatch == null || data.ParentId == 1)
                     {
                         source.ParentId = null;
 
@@ -428,10 +428,7 @@ namespace Notification.Profile.Business
                         source.ParentId = data.ParentId;
                     }
                 };
-                if (data.ParentId == 1)
-                {
-                    source.ParentId = null;
-                }
+               
 
             db.Sources.Update(source);
             db.SaveChanges();
@@ -534,7 +531,7 @@ namespace Notification.Profile.Business
             using (var db = new DatabaseContext())
             {
                 var source = db.Sources.FirstOrDefault(s => s.Id == data.ParentId);
-                if (source == null)
+                if (source == null || data.ParentId == 1)
                 {
                     sourceModel.ParentId = null;
 
@@ -544,12 +541,6 @@ namespace Notification.Profile.Business
                     sourceModel.ParentId = data.ParentId;
                 }
             };
-            if (data.ParentId == 1)
-            {
-                sourceModel.ParentId = null;
-            }
-
-
         }
         sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
         sourceModel.RetentationTime = data.RetentationTime;
