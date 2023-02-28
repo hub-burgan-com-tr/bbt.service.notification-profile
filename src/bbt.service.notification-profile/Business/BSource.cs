@@ -414,23 +414,38 @@ namespace Notification.Profile.Business
                 if (data.RetentationTime != null) source.RetentationTime = data.RetentationTime;
                 if (data.ProductCodeId != null) source.ProductCodeId = data.ProductCodeId;
                 if (data.SaveInbox != null) source.SaveInbox = data.SaveInbox;
-                if (data.ParentId != null) source.ParentId = data.ParentId;
-                db.Sources.Update(source);
-                db.SaveChanges();
-                sourceResp.Result = ResultEnum.Success;
-
-
-                SourceLogRequest logRequest = new SourceLogRequest();
-                logRequest.sourceLog = source;
-                logRequest.User = data.User;
-                logRequest.MethodType = "Update";
-                logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
-                if (logResponse.Result == ResultEnum.Error)
+                if (data.ParentId != null)
                 {
-                    sourceResp.MessageList.Add("SourceLog update ederken hata oluştu. ");
-                }
+
+                    var sourcePatch = db.Sources.FirstOrDefault(s => s.Id == data.ParentId);
+                    if (sourcePatch == null || data.ParentId == 1)
+                    {
+                        source.ParentId = null;
+
+                    }
+                    else
+                    {
+                        source.ParentId = data.ParentId;
+                    }
+                };
+               
+
+            db.Sources.Update(source);
+            db.SaveChanges();
+            sourceResp.Result = ResultEnum.Success;
+
+
+            SourceLogRequest logRequest = new SourceLogRequest();
+            logRequest.sourceLog = source;
+            logRequest.User = data.User;
+            logRequest.MethodType = "Update";
+            logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
+            if (logResponse.Result == ResultEnum.Error)
+            {
+                sourceResp.MessageList.Add("SourceLog update ederken hata oluştu. ");
             }
+        }
             //if (data.CheckDeploy == true)
             //{
 
@@ -495,373 +510,381 @@ namespace Notification.Profile.Business
             return sourceResp;
         }
 
-        public SourceResponseModel Post(PostSourceRequest data)
+    public SourceResponseModel Post(PostSourceRequest data)
+    {
+
+        SourceResponseModel sourceResp = new SourceResponseModel();
+        Model.Database.Source sourceModel = new Model.Database.Source();
+        sourceModel.Topic = data.Topic;
+        sourceModel.ApiKey = data.ApiKey;
+        sourceModel.Secret = data.Secret;
+        sourceModel.PushServiceReference = data.PushServiceReference;
+        sourceModel.SmsServiceReference = data.SmsServiceReference;
+        sourceModel.EmailServiceReference = data.EmailServiceReference;
+        sourceModel.KafkaUrl = data.KafkaUrl;
+        sourceModel.KafkaCertificate = data.KafkaCertificate;
+        sourceModel.DisplayType = (SourceDisplayType)data.DisplayType;
+        sourceModel.Title_EN = data.Title_EN;
+        sourceModel.Title_TR = data.Title_TR;
+        if (data.ParentId != null)
         {
-
-            SourceResponseModel sourceResp = new SourceResponseModel();
-            Model.Database.Source sourceModel = new Model.Database.Source();
-            sourceModel.Topic = data.Topic;
-            sourceModel.ApiKey = data.ApiKey;
-            sourceModel.Secret = data.Secret;
-            sourceModel.PushServiceReference = data.PushServiceReference;
-            sourceModel.SmsServiceReference = data.SmsServiceReference;
-            sourceModel.EmailServiceReference = data.EmailServiceReference;
-            sourceModel.KafkaUrl = data.KafkaUrl;
-            sourceModel.KafkaCertificate = data.KafkaCertificate;
-            sourceModel.DisplayType = (SourceDisplayType)data.DisplayType;
-            sourceModel.Title_EN = data.Title_EN;
-            sourceModel.Title_TR = data.Title_TR;
-            if (data.ParentId == 0)
-            {
-                sourceModel.ParentId = null;
-            }
-            else
-            {
-                sourceModel.ParentId = data.ParentId;
-            }
-            sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
-            sourceModel.RetentationTime = data.RetentationTime;
-            sourceModel.ProductCodeId = data.ProductCodeId;
-            sourceModel.SaveInbox = data.SaveInbox;
-
             using (var db = new DatabaseContext())
             {
-                db.Add(sourceModel);
-
-                db.SaveChanges();
-                sourceResp.Result = ResultEnum.Success;
-                SourceLogRequest logRequest = new SourceLogRequest();
-                logRequest.sourceLog = sourceModel;
-                logRequest.User = data.User;
-                logRequest.MethodType = "Insert";
-                logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
-                if (logResponse.Result == ResultEnum.Error)
+                var source = db.Sources.FirstOrDefault(s => s.Id == data.ParentId);
+                if (source == null || data.ParentId == 1)
                 {
-                    sourceResp.MessageList.Add("SourceLog kaydederken hata oluştu. ");
-                }
+                    sourceModel.ParentId = null;
 
-                return sourceResp;
-            }
+                }
+                else
+                {
+                    sourceModel.ParentId = data.ParentId;
+                }
+            };
         }
-        public SourceResponseModel PostProd(PostSourceRequest data)
+        sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
+        sourceModel.RetentationTime = data.RetentationTime;
+        sourceModel.ProductCodeId = data.ProductCodeId;
+        sourceModel.SaveInbox = data.SaveInbox;
+
+        using (var db = new DatabaseContext())
         {
+            db.Add(sourceModel);
 
-            SourceResponseModel sourceResp = new SourceResponseModel();
-
-            string path = _configuration.GetSection("NotificationProdSearchEndPoint").Value.ToString();
-            var uri = new Uri(path);
-            GetSourcesResponse result = new GetSourcesResponse();
-            using (var httpClient = new HttpClient())
-            {
-                SearchSourceModel searchSourceModel = new SearchSourceModel();
-                searchSourceModel.Topic = data.Topic;
-                data.CheckDeploy = false;
-                var json = JsonConvert.SerializeObject(searchSourceModel);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                HttpResponseMessage response = httpClient.PostAsync(uri, content).Result;
-                result = response.Content.ReadAsAsync<GetSourcesResponse>().Result;
-            }
-            if (result != null && result.Sources.Count > 0)
-            {
-                string pathEnd = _configuration.GetSection("NotificationProdPatchEndPoint").Value.ToString().Replace("{id}", result.Sources.FirstOrDefault().Id.ToString());
-                var uriEnd = new Uri(pathEnd);
-                using (var httpClient = new HttpClient())
-                {
-                    data.CheckDeploy = false;
-                    var json = JsonConvert.SerializeObject(data);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = httpClient.PatchAsync(uriEnd, content).Result;
-                    if (response.IsSuccessStatusCode == true)
-                    {
-                        string resultEnd = response.Content.ReadAsStringAsync().Result;
-                    }
-                    else
-                    {
-                        sourceResp.Result = ResultEnum.Error;
-                        sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
-                    }
-                }
-            }
-
-            else
-            {
-                string paths = _configuration.GetSection("NotificationProdEndPoint").Value.ToString();
-                var uris = new Uri(paths);
-                using (var httpClient = new HttpClient())
-                {
-                    data.CheckDeploy = false;
-                    var json = JsonConvert.SerializeObject(data);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
-                    if (response.IsSuccessStatusCode == true)
-                    {
-                        string resultres = response.Content.ReadAsStringAsync().Result;
-                    }
-                    else
-                    {
-                        sourceResp.Result = ResultEnum.Error;
-                        sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
-                    }
-                }
-
-            }
-
+            db.SaveChanges();
+            sourceResp.Result = ResultEnum.Success;
             SourceLogRequest logRequest = new SourceLogRequest();
-            Model.Database.Source sourceModel = new Model.Database.Source();
-            sourceModel.Id = sourceResp.Id;
-            sourceModel.Topic = data.Topic;
-            sourceModel.ApiKey = data.ApiKey;
-            sourceModel.Secret = data.Secret;
-            sourceModel.PushServiceReference = data.PushServiceReference;
-            sourceModel.SmsServiceReference = data.SmsServiceReference;
-            sourceModel.EmailServiceReference = data.EmailServiceReference;
-            sourceModel.KafkaUrl = data.KafkaUrl;
-            sourceModel.KafkaCertificate = data.KafkaCertificate;
-            sourceModel.DisplayType = (SourceDisplayType)data.DisplayType;
-            sourceModel.Title_EN = data.Title_EN;
-            sourceModel.Title_TR = data.Title_TR;
-            sourceModel.ParentId = data.ParentId;
-            sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
-            sourceModel.RetentationTime = data.RetentationTime;
-            sourceModel.ProductCodeId = data.ProductCodeId;
-            sourceModel.SaveInbox = data.SaveInbox;
             logRequest.sourceLog = sourceModel;
-            logRequest.Environment = "Prod";
             logRequest.User = data.User;
-            logRequest.MethodType = "Release";
+            logRequest.MethodType = "Insert";
+            logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
             if (logResponse.Result == ResultEnum.Error)
             {
                 sourceResp.MessageList.Add("SourceLog kaydederken hata oluştu. ");
             }
 
-
             return sourceResp;
         }
-        public SourceListResponse GetSourceByProductCodeId(string productCodeName)
+    }
+    public SourceResponseModel PostProd(PostSourceRequest data)
+    {
+
+        SourceResponseModel sourceResp = new SourceResponseModel();
+
+        string path = _configuration.GetSection("NotificationProdSearchEndPoint").Value.ToString();
+        var uri = new Uri(path);
+        GetSourcesResponse result = new GetSourcesResponse();
+        using (var httpClient = new HttpClient())
         {
-            SourceListResponse response = new SourceListResponse();
-            GetProductCodeResponse productCodeResponse = new GetProductCodeResponse();
-            productCodeResponse = _IproductCode.ProductCodeListRedis().Result;
-            List<ProductCode> productCodeList = new List<ProductCode>();
-            if (productCodeResponse != null && productCodeResponse.Result == ResultEnum.Success)
+            SearchSourceModel searchSourceModel = new SearchSourceModel();
+            searchSourceModel.Topic = data.Topic;
+            data.CheckDeploy = false;
+            var json = JsonConvert.SerializeObject(searchSourceModel);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = httpClient.PostAsync(uri, content).Result;
+            result = response.Content.ReadAsAsync<GetSourcesResponse>().Result;
+        }
+        if (result != null && result.Sources.Count > 0)
+        {
+            string pathEnd = _configuration.GetSection("NotificationProdPatchEndPoint").Value.ToString().Replace("{id}", result.Sources.FirstOrDefault().Id.ToString());
+            var uriEnd = new Uri(pathEnd);
+            using (var httpClient = new HttpClient())
             {
-                productCodeList = productCodeResponse.ProductCodes;
-                if (productCodeList.Count > 0)
+                data.CheckDeploy = false;
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = httpClient.PatchAsync(uriEnd, content).Result;
+                if (response.IsSuccessStatusCode == true)
                 {
-                    ProductCode product = productCodeList.FirstOrDefault(x => x.ProductCodeName == productCodeName);
-                    List<Notification.Profile.Model.Database.Source> sourceList = new List<Notification.Profile.Model.Database.Source>();
-                    using (var db = new DatabaseContext())
-                    {
-                        if (product != null)
-                        {
-                            sourceList = db.Sources.Where(x => x.ProductCodeId == product.Id).ToList();
-                            response.sources = sourceList;
-                        }
-                    }
+                    string resultEnd = response.Content.ReadAsStringAsync().Result;
                 }
                 else
                 {
-                    response.Result = ResultEnum.Error;
-                    response.MessageList.Add("Product Code list is null!");
-                    return response;
+                    sourceResp.Result = ResultEnum.Error;
+                    sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
+                }
+            }
+        }
+
+        else
+        {
+            string paths = _configuration.GetSection("NotificationProdEndPoint").Value.ToString();
+            var uris = new Uri(paths);
+            using (var httpClient = new HttpClient())
+            {
+                data.CheckDeploy = false;
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = httpClient.PostAsync(uris, content).Result;
+                if (response.IsSuccessStatusCode == true)
+                {
+                    string resultres = response.Content.ReadAsStringAsync().Result;
+                }
+                else
+                {
+                    sourceResp.Result = ResultEnum.Error;
+                    sourceResp.MessageList.Add("Prod ortamına kaydederken hata oluştu. " + response.ReasonPhrase);
+                }
+            }
+
+        }
+
+        SourceLogRequest logRequest = new SourceLogRequest();
+        Model.Database.Source sourceModel = new Model.Database.Source();
+        sourceModel.Id = sourceResp.Id;
+        sourceModel.Topic = data.Topic;
+        sourceModel.ApiKey = data.ApiKey;
+        sourceModel.Secret = data.Secret;
+        sourceModel.PushServiceReference = data.PushServiceReference;
+        sourceModel.SmsServiceReference = data.SmsServiceReference;
+        sourceModel.EmailServiceReference = data.EmailServiceReference;
+        sourceModel.KafkaUrl = data.KafkaUrl;
+        sourceModel.KafkaCertificate = data.KafkaCertificate;
+        sourceModel.DisplayType = (SourceDisplayType)data.DisplayType;
+        sourceModel.Title_EN = data.Title_EN;
+        sourceModel.Title_TR = data.Title_TR;
+        sourceModel.ParentId = data.ParentId;
+        sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
+        sourceModel.RetentationTime = data.RetentationTime;
+        sourceModel.ProductCodeId = data.ProductCodeId;
+        sourceModel.SaveInbox = data.SaveInbox;
+        logRequest.sourceLog = sourceModel;
+        logRequest.Environment = "Prod";
+        logRequest.User = data.User;
+        logRequest.MethodType = "Release";
+        SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
+        if (logResponse.Result == ResultEnum.Error)
+        {
+            sourceResp.MessageList.Add("SourceLog kaydederken hata oluştu. ");
+        }
+
+
+        return sourceResp;
+    }
+    public SourceListResponse GetSourceByProductCodeId(string productCodeName)
+    {
+        SourceListResponse response = new SourceListResponse();
+        GetProductCodeResponse productCodeResponse = new GetProductCodeResponse();
+        productCodeResponse = _IproductCode.ProductCodeListRedis().Result;
+        List<ProductCode> productCodeList = new List<ProductCode>();
+        if (productCodeResponse != null && productCodeResponse.Result == ResultEnum.Success)
+        {
+            productCodeList = productCodeResponse.ProductCodes;
+            if (productCodeList.Count > 0)
+            {
+                ProductCode product = productCodeList.FirstOrDefault(x => x.ProductCodeName == productCodeName);
+                List<Notification.Profile.Model.Database.Source> sourceList = new List<Notification.Profile.Model.Database.Source>();
+                using (var db = new DatabaseContext())
+                {
+                    if (product != null)
+                    {
+                        sourceList = db.Sources.Where(x => x.ProductCodeId == product.Id).ToList();
+                        response.sources = sourceList;
+                    }
                 }
             }
             else
             {
                 response.Result = ResultEnum.Error;
-                response.MessageList.Add("Product Code list is error!.");
+                response.MessageList.Add("Product Code list is null!");
                 return response;
             }
-
-
+        }
+        else
+        {
+            response.Result = ResultEnum.Error;
+            response.MessageList.Add("Product Code list is error!.");
             return response;
         }
-        public SourceResponseModel TfsReleaseCreate(PostSourceRequest data)
+
+
+        return response;
+    }
+    public SourceResponseModel TfsReleaseCreate(PostSourceRequest data)
+    {
+
+        var model = new SourceReleaseVariables
         {
-
-            var model = new SourceReleaseVariables
+            id = 258,
+            type = "Vsts",
+            name = "RestApi",
+            variables = new Variable
             {
-                id = 258,
-                type = "Vsts",
-                name = "RestApi",
-                variables = new Variable
+                Id = new Deger
                 {
-                    Id = new Deger
-                    {
-                        isSecret = false,
-                        value = data.Id.ToString()
-                    },
-                    Title_TR = new Deger
-                    {
-                        isSecret = false,
-                        value = data.Title_TR
-                    },
-                    Title_EN = new Deger
-                    {
-                        isSecret = false,
-                        value = data.Title_EN
-                    },
-                    Topic = new Deger
-                    {
-                        isSecret = false,
-                        value = data.Topic
-                    },
-                    ApiKey = new Deger
-                    {
-                        isSecret = false,
-                        value = data.ApiKey
-                    },
-                    Secret = new Deger
-                    {
-                        isSecret = false,
-                        value = data.Secret
-                    },
-                    DisplayType = new Deger
-                    {
-                        isSecret = false,
-                        value = data.DisplayType.ToString()
-                    },
-                    PushServiceReference = new Deger
-                    {
-                        isSecret = false,
-                        value = data.PushServiceReference
-                    },
-                    SmsServiceReference = new Deger
-                    {
-                        isSecret = false,
-                        value = data.SmsServiceReference
-                    },
-                    EmailServiceReference = new Deger
-                    {
-                        isSecret = false,
-                        value = data.EmailServiceReference
-                    },
-                    KafkaUrl = new Deger
-                    {
-                        isSecret = false,
-                        value = data.KafkaUrl
-                    },
-                    KafkaCertificate = new Deger
-                    {
-                        isSecret = false,
-                        value = data.KafkaCertificate
-                    },
-                    ParentId = new Deger
-                    {
-                        isSecret = false,
-                        value = data.ParentId.ToString()
-                    },
-                    RetentationTime = new Deger
-                    {
-                        isSecret = false,
-                        value = data.RetentationTime.ToString()
-                    },
-                    ProductCodeId = new Deger
-                    {
-                        isSecret = false,
-                        value = data.ProductCodeId.ToString()
-                    },
-                    SaveInbox = new Deger
-                    {
-                        isSecret = false,
-                        value = data.SaveInbox.ToString()
-                    },
-                    CheckDeploy = new Deger
-                    {
-                        isSecret = false,
-                        value = data.CheckDeploy.ToString()
-                    },
-                    User = new Deger
-                    {
-                        isSecret = false,
-                        value = data.User
-                    },
-                    ClientIdJsonPath = new Deger
-                    {
-                        isSecret = false,
-                        value = data.ClientIdJsonPath
-                    }
+                    isSecret = false,
+                    value = data.Id.ToString()
+                },
+                Title_TR = new Deger
+                {
+                    isSecret = false,
+                    value = data.Title_TR
+                },
+                Title_EN = new Deger
+                {
+                    isSecret = false,
+                    value = data.Title_EN
+                },
+                Topic = new Deger
+                {
+                    isSecret = false,
+                    value = data.Topic
+                },
+                ApiKey = new Deger
+                {
+                    isSecret = false,
+                    value = data.ApiKey
+                },
+                Secret = new Deger
+                {
+                    isSecret = false,
+                    value = data.Secret
+                },
+                DisplayType = new Deger
+                {
+                    isSecret = false,
+                    value = data.DisplayType.ToString()
+                },
+                PushServiceReference = new Deger
+                {
+                    isSecret = false,
+                    value = data.PushServiceReference
+                },
+                SmsServiceReference = new Deger
+                {
+                    isSecret = false,
+                    value = data.SmsServiceReference
+                },
+                EmailServiceReference = new Deger
+                {
+                    isSecret = false,
+                    value = data.EmailServiceReference
+                },
+                KafkaUrl = new Deger
+                {
+                    isSecret = false,
+                    value = data.KafkaUrl
+                },
+                KafkaCertificate = new Deger
+                {
+                    isSecret = false,
+                    value = data.KafkaCertificate
+                },
+                ParentId = new Deger
+                {
+                    isSecret = false,
+                    value = data.ParentId.ToString()
+                },
+                RetentationTime = new Deger
+                {
+                    isSecret = false,
+                    value = data.RetentationTime.ToString()
+                },
+                ProductCodeId = new Deger
+                {
+                    isSecret = false,
+                    value = data.ProductCodeId.ToString()
+                },
+                SaveInbox = new Deger
+                {
+                    isSecret = false,
+                    value = data.SaveInbox.ToString()
+                },
+                CheckDeploy = new Deger
+                {
+                    isSecret = false,
+                    value = data.CheckDeploy.ToString()
+                },
+                User = new Deger
+                {
+                    isSecret = false,
+                    value = data.User
+                },
+                ClientIdJsonPath = new Deger
+                {
+                    isSecret = false,
+                    value = data.ClientIdJsonPath
                 }
-            };
+            }
+        };
 
-            SourceResponseModel responseModel = new SourceResponseModel();
-            string apiUrl = _configuration.GetValue<string>("TfsEndpoints:PutVariables");
-            string apiRelease = _configuration.GetValue<string>("TfsEndpoints:CreateRelease");
-            string personalAccessToken = _configuration.GetValue<string>("TfsToken");
+        SourceResponseModel responseModel = new SourceResponseModel();
+        string apiUrl = _configuration.GetValue<string>("TfsEndpoints:PutVariables");
+        string apiRelease = _configuration.GetValue<string>("TfsEndpoints:CreateRelease");
+        string personalAccessToken = _configuration.GetValue<string>("TfsToken");
 
-            using (HttpClient client = new HttpClient())
+        using (HttpClient client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                Convert.ToBase64String(
+                    System.Text.ASCIIEncoding.ASCII.GetBytes(
+                        string.Format("{0}:{1}", "", personalAccessToken))));
+
+            var httpContent = new StringContent(System.Text.Json.JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
+            using (HttpResponseMessage response = client.PutAsync(
+                    apiUrl, httpContent).Result)
             {
-                client.DefaultRequestHeaders.Accept.Add(
-                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                response.EnsureSuccessStatusCode();
+                string responseBody = response.Content.ReadAsStringAsync().Result;
 
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(
-                        System.Text.ASCIIEncoding.ASCII.GetBytes(
-                            string.Format("{0}:{1}", "", personalAccessToken))));
+                if (response.IsSuccessStatusCode)
 
-                var httpContent = new StringContent(System.Text.Json.JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
-                using (HttpResponseMessage response = client.PutAsync(
-                        apiUrl, httpContent).Result)
                 {
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = response.Content.ReadAsStringAsync().Result;
-
-                    if (response.IsSuccessStatusCode)
-                    
+                    var createReleaseModel = new CreateReleaseModel
                     {
-                        var createReleaseModel = new CreateReleaseModel
+                        definitionId = 7,
+                        isDraft = false,
+                        description = "",
+                        manualEnvironments = new object[100],
+                        artifacts = new object[100],
+                        variables = new Variables { },
+                        environmentsMetadata = new EnvironmentsMetadata[]
                         {
-                            definitionId = 7,
-                            isDraft = false,
-                            description = "",
-                            manualEnvironments = new object[100],
-                            artifacts = new object[100],
-                            variables = new Variables { },
-                            environmentsMetadata = new EnvironmentsMetadata[]
-                            {
                              new EnvironmentsMetadata
                              {
                                 definitionEnvironmentId=7,
                                 variables = new Variables { },
                              }
-                            },
-                            properties = new Properties
-                            {
-                                ReleaseCreationSource = "ReleaseHub"
-                            }
-
-                        };
-                        var httpContentRelease = new StringContent(System.Text.Json.JsonSerializer.Serialize(createReleaseModel), Encoding.UTF8, "application/json");
-                        using (HttpResponseMessage responseRelease = client.PostAsync(
-                      apiRelease, httpContentRelease).Result)
+                        },
+                        properties = new Properties
                         {
-                            if (responseRelease.IsSuccessStatusCode)
-                            {
-                                responseModel.Result = ResultEnum.Success;
-                            }
-                            else
-                            {
-                                responseModel.Result = ResultEnum.Error;
-                                responseModel.MessageList.Add(responseRelease.ReasonPhrase);
-
-                            }
+                            ReleaseCreationSource = "ReleaseHub"
                         }
 
-                    }
-                    else
+                    };
+                    var httpContentRelease = new StringContent(System.Text.Json.JsonSerializer.Serialize(createReleaseModel), Encoding.UTF8, "application/json");
+                    using (HttpResponseMessage responseRelease = client.PostAsync(
+                  apiRelease, httpContentRelease).Result)
                     {
-                        responseModel.Result = ResultEnum.Error;
-                        responseModel.MessageList.Add(response.ReasonPhrase);
+                        if (responseRelease.IsSuccessStatusCode)
+                        {
+                            responseModel.Result = ResultEnum.Success;
+                        }
+                        else
+                        {
+                            responseModel.Result = ResultEnum.Error;
+                            responseModel.MessageList.Add(responseRelease.ReasonPhrase);
+
+                        }
                     }
+
                 }
+                else
+                {
+                    responseModel.Result = ResultEnum.Error;
+                    responseModel.MessageList.Add(response.ReasonPhrase);
+                }
+            }
 
-            };
+        };
 
 
-            return responseModel;
-        }
-
+        return responseModel;
     }
+
+}
 }
