@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Notification.Profile.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230302062400_AddSourceEdit")]
+    partial class AddSourceEdit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,6 +259,9 @@ namespace Notification.Profile.Migrations
                     b.Property<string>("SmsServiceReference")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("SourceLogId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title_EN")
                         .HasColumnType("nvarchar(max)");
 
@@ -269,6 +274,8 @@ namespace Notification.Profile.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("SourceLogId");
 
                     b.ToTable("Sources");
 
@@ -374,6 +381,8 @@ namespace Notification.Profile.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("SourceLogs", (string)null);
 
@@ -493,6 +502,9 @@ namespace Notification.Profile.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<int?>("SourceLogId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title_EN")
                         .HasColumnType("nvarchar(max)");
 
@@ -500,6 +512,8 @@ namespace Notification.Profile.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SourceId", "JsonPath", "Type");
+
+                    b.HasIndex("SourceLogId");
 
                     b.ToTable("SourceParameter");
                 });
@@ -588,6 +602,19 @@ namespace Notification.Profile.Migrations
                         .WithMany("Children")
                         .HasForeignKey("ParentId");
 
+                    b.HasOne("Notification.Profile.Model.Database.SourceLog", null)
+                        .WithMany("Children")
+                        .HasForeignKey("SourceLogId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Notification.Profile.Model.Database.SourceLog", b =>
+                {
+                    b.HasOne("Notification.Profile.Model.Database.Source", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
+
                     b.Navigation("Parent");
                 });
 
@@ -599,10 +626,21 @@ namespace Notification.Profile.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Notification.Profile.Model.Database.SourceLog", null)
+                        .WithMany("Parameters")
+                        .HasForeignKey("SourceLogId");
+
                     b.Navigation("Source");
                 });
 
             modelBuilder.Entity("Notification.Profile.Model.Database.Source", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Parameters");
+                });
+
+            modelBuilder.Entity("Notification.Profile.Model.Database.SourceLog", b =>
                 {
                     b.Navigation("Children");
 
