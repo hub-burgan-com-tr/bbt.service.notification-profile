@@ -266,6 +266,7 @@ public class SourceController : ControllerBase
         var span = _tracer.CurrentTransaction?.StartSpan("GetSourceConsumersSpan", "GetSourceConsumers");
         try
         {
+
             returnValue = _Isource.GetSourceConsumers(requestModel);
             if (returnValue != null && returnValue.Result == ResultEnum.Error)
             {
