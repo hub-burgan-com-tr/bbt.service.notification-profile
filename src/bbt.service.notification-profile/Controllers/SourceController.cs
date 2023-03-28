@@ -266,14 +266,10 @@ public class SourceController : ControllerBase
         var span = _tracer.CurrentTransaction?.StartSpan("GetSourceConsumersSpan", "GetSourceConsumers");
         try
         {
+
             returnValue = _Isource.GetSourceConsumers(requestModel);
             if (returnValue != null && returnValue.Result == ResultEnum.Error)
             {
-                span.CaptureErrorLog(new ErrorLog("Error Message( StatusCode:" + returnValue.StatusCode + " - Message:" + returnValue.MessageList[0].ToString() + ")")
-                {
-                    Level = "error",
-                    ParamMessage = returnValue.StatusCode + " - " + returnValue.MessageList[0].ToString()
-                });
                 _logHelper.LogCreate("ClientId:" + requestModel.client +"SourceID:"+ requestModel.sourceid, returnValue.Consumers.Count, "GetSourceConsumers", returnValue.MessageList[0]);
                 return this.StatusCode(Convert.ToInt32(returnValue.StatusCode), returnValue.MessageList);
             }
