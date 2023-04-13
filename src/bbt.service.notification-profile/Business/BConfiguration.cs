@@ -113,7 +113,7 @@ namespace Notification.Profile.Business
             int result = 0;
             using (var db = new DatabaseContext())
             {
-                result = db.Database.ExecuteSqlInterpolated($"UPDATE [Consumers] SET Email = {data.NewEmail} WHERE Email = {data.OldEmail} AND [User] = {user}");
+                result = db.Database.ExecuteSqlInterpolated($"UPDATE [Consumers] SET Email = {data.NewEmail} WHERE Email = {data.OldEmail} AND [Client] = {user}");
                 return new PostUpdateResponse { UpdatedRecordCount = result };
             }
 
@@ -131,7 +131,7 @@ namespace Notification.Profile.Business
                         WHERE Phone_CountryCode = {data.OldPhone.CountryCode} AND
                               Phone_Prefix = {data.OldPhone.Prefix} AND 
                               Phone_Number = {data.OldPhone.Number} AND 
-                              [User] = {user}");
+                              [Client] = {user}");
 
                 return new PostUpdateResponse { UpdatedRecordCount = result };
             }
