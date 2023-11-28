@@ -31,8 +31,11 @@ public class DatabaseContext : DbContext
             .Build();
 
 
-        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("bbt.service.notification-profile"));
+
         options.EnableSensitiveDataLogging();
+
+        
     }
 
 

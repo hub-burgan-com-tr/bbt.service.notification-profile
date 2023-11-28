@@ -7,7 +7,7 @@ using Notification.Profile.Enum;
 using Notification.Profile.Model;
 using Radzen;
 using Radzen.Blazor;
-
+using Refit;
 
 namespace bbt.service.notification.ui.Pages
 {
@@ -200,10 +200,11 @@ namespace bbt.service.notification.ui.Pages
                     postRequest.DisplayType = sourceModel.DisplayType;
                     postRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                     postRequest.ProductCodeId = sourceModel.ProductCodeId;
-                    postRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                     postRequest.ParentId = sourceModel.ParentId;
                     postRequest.SaveInbox = sourceModel.SaveInbox;
                     postRequest.User = sicil;
+                    postRequest.ProcessName = sourceModel.ProcessName;
+                    postRequest.ProcessItemId = sourceModel.ProcessItemId;
                     
                    SourceResponseModel sourceResp= sourceService.TfsReleaseCreate(postRequest).Result;
 

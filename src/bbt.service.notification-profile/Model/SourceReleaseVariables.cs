@@ -35,5 +35,7 @@
         public Deger CheckDeploy { get; set; }
         public Deger User { get; set; }
         public Deger ClientIdJsonPath { get; set; }
+        public Deger ProcessName { get; set; }
+        public Deger ProcessItemId { get; set; }
     }
 }

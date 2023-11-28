@@ -20,6 +20,8 @@ public class PatchSourceRequest
     public string KafkaCertificate { get; set; }
     public int  DisplayType { get; set; }
     public string ClientIdJsonPath { get; set; }
+    public string ProcessName { get; set; }
+    public string ProcessItemId { get; set; }
     public int RetentationTime { get; set; }
     public int? ProductCodeId { get; set; }
     public int? ParentId { get; set; }

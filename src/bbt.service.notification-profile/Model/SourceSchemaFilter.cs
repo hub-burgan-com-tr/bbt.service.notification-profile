@@ -32,14 +32,15 @@ public class SourceSchemaFilter : ISchemaFilter
 
             ["ClientIdJsonPath"] = new OpenApiString(String.Empty),
 
+            ["ProcessName"] = new OpenApiString(String.Empty),
+
+            ["ProcessItemId"] = new OpenApiString(String.Empty),
+
             ["RetentationTime"] = new OpenApiInteger(0),
 
             ["ProductCodeId"] = new OpenApiInteger(0),
 
             ["SaveInbox"] = new OpenApiBoolean(false),
-
-            
-
         };
     }
 }

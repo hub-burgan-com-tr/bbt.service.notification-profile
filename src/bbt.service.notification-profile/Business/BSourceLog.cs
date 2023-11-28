@@ -59,6 +59,8 @@ namespace Notification.Profile.Business
                 sourceLogModel.ParentId = data.sourceLog.ParentId;
                 sourceLogModel.ClientIdJsonPath = data.sourceLog.ClientIdJsonPath;
                 sourceLogModel.RetentationTime = data.sourceLog.RetentationTime;
+                sourceLogModel.ProcessName= data.sourceLog.ProcessName;
+                sourceLogModel.ProcessItemId= data.sourceLog.ProcessItemId;
                 sourceLogModel.ProductCodeId = data.sourceLog.ProductCodeId;
                 sourceLogModel.SaveInbox = data.sourceLog.SaveInbox;
                 sourceLogModel.CreateDate = DateTime.Now;

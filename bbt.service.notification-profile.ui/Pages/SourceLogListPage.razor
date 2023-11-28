@@ -62,10 +62,10 @@
         </div>
         <div class="row" style="margin-top:10px;">
             <div class="col-md-2">
-              Method Type
+                Method Type
             </div>
             <div class="col-md-4">
-                  <RadzenDropDown AllowClear="true"
+                <RadzenDropDown AllowClear="true"
                                 AllowFiltering="true"
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 @bind-Value=@searchModel.MethodType
@@ -102,6 +102,8 @@
                 <RadzenDataGridColumn TItem="SourceLog" Property="EmailServiceReference" Title="EmailServiceReference" Width="160px" />
                 <RadzenDataGridColumn TItem="SourceLog" Property="KafkaCertificate" Title="KafkaCertificate" Width="160px" />
                 <RadzenDataGridColumn TItem="SourceLog" Property="RetentationTime" Title="RetentationTime" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="ProcessName" Title="ProcessName" Width="160px" />
+                <RadzenDataGridColumn TItem="SourceLog" Property="ProcessItemId" Title="ProcessItemId" Width="160px" />
                 <RadzenDataGridColumn TItem="SourceLog" Property="ProductCodeId" Title="ProductCodeId" Width="160px" />
                 <RadzenDataGridColumn TItem="SourceLog" Property="SaveInbox" Title="SaveInbox" Width="160px" />
                 <RadzenDataGridColumn TItem="SourceLog" Property="MethodType" Title="MethodType" Width="160px" />

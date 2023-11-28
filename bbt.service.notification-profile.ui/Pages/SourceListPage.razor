@@ -47,16 +47,16 @@
 
 <div>
 
-    <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true"  Style="margin-top:5px;"
-                    Data="@sourceList" TItem="Source" ColumnWidth="300px"  PagerHorizontalAlign="HorizontalAlign.Center" >
+    <RadzenDataGrid @ref=@grid AllowColumnResize="true" AllowSorting="true" Style="margin-top:5px;"
+                    Data="@sourceList" TItem="Source" ColumnWidth="300px" PagerHorizontalAlign="HorizontalAlign.Center">
         <Columns>
-             
-              <RadzenDataGridColumn TItem="Source" Width="90px" Title="Release" Visible="@appsetting">
+
+            <RadzenDataGridColumn TItem="Source" Width="90px" Title="Release" Visible="@appsetting">
                 <Template Context="item">
-                    <RadzenButton title="Release" Icon="add_task" Style="font-size:11pt;background-color:green"  Click="@((args) =>ProdSave(item))"></RadzenButton>
+                    <RadzenButton title="Release" Icon="add_task" Style="font-size:11pt;background-color:green" Click="@((args) =>ProdSave(item))"></RadzenButton>
                 </Template>
             </RadzenDataGridColumn>
-            
+
             <RadzenDataGridColumn TItem="Source" Width="90px" Title="Düzenle">
                 <Template Context="item">
                     <RadzenButton title="Düzenle" Icon="mode_edit_outline" Style="font-size:11pt" Click="()=>SourceEdit(item)"></RadzenButton>
@@ -79,7 +79,7 @@
             <RadzenDataGridColumn TItem="Source" Property="KafkaUrl" Title="KafkaUrl" Width="160px" />
             <RadzenDataGridColumn TItem="Source" Property="KafkaCertificate" Title="KafkaCertificate" Width="160px" />
             <RadzenDataGridColumn TItem="Source" Property="ProductCodeId" Title="ProductCodeId" Visible="false" Width="160px" />
-                 <RadzenDataGridColumn TItem="Source" Property="SaveInbox" Title="SaveInbox"  Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="SaveInbox" Title="SaveInbox" Width="160px" />
             <RadzenDataGridColumn TItem="Source" Property="ProductCodeName" Title="ProductCode" Width="160px" />
             <RadzenDataGridColumn TItem="Source" Property="DisplayType" Title="DisplayType" Width="160px">
 
@@ -93,6 +93,8 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Source" Property="RetentationTime" Title="RetentationTime" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="ProcessName" Title="ProcessName" Width="160px" />
+            <RadzenDataGridColumn TItem="Source" Property="ProcessItemId" Title="ProcessItemId" Width="160px" />
 
         </Columns>
     </RadzenDataGrid>

@@ -82,6 +82,8 @@ namespace bbt.service.notification.ui.Pages
                         sourceModel.ClientIdJsonPath = sourceDetayModel.ClientIdJsonPath;
                         sourceModel.ProductCodeId = sourceDetayModel.ProductCodeId;
                         sourceModel.SaveInbox = sourceDetayModel.SaveInbox;
+                        sourceModel.ProcessName = sourceDetayModel.ProcessName;
+                        sourceModel.ProcessItemId = sourceDetayModel.ProcessItemId;
                     }
                     GetProductCodeResponse getProductCodeResponse = new GetProductCodeResponse();
                     getProductCodeResponse = productCodeService.GetProductCode().Result;
@@ -174,6 +176,8 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
                 patchRequest.ProductCodeId = sourceModel.ProductCodeId;
                 patchRequest.ClientIdJsonPath = sourceModel.ClientIdJsonPath;
+                patchRequest.ProcessName = sourceModel.ProcessName;
+                patchRequest.ProcessItemId = sourceModel.ProcessItemId;
                 patchRequest.SaveInbox = sourceModel.SaveInbox;
                 patchRequest.ParentId = sourceModel.ParentId;
                 patchRequest.User = sicil;
@@ -187,11 +191,9 @@ namespace bbt.service.notification.ui.Pages
                 {
                     Notification.ShowSuccessMessage("Başarılı", "Bilgiler Başarıyla Kaydedildi");
                     dialogService.Close();
-
-                    // string returnPage = baseConfiguration.Get<GeneralSettings>().PathBase + "Pages/SourceListPage";
+                   
                     NavigationManager.NavigateTo("Pages/SourceListPage");
                     ListUpdate.InvokeAsync();
-
                 }
             }
             else
