@@ -23,6 +23,8 @@ namespace Notification.Profile.Model.Database
         public int RetentationTime { get; set; }
         public int? ProductCodeId { get; set; }
         public bool SaveInbox { get; set; }
+        public string ProcessName { get; set; }
+        public string ProcessItemId { get; set; }
 
     }
 }

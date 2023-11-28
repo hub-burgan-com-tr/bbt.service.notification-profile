@@ -33,6 +33,8 @@ namespace Notification.Profile.Model
        
         public string ProductCodeName { get; set; }
         public bool SaveInbox { get; set; }
+        public string ProcessName { get; set; }
+        public string ProcessItemId { get; set; }
 
         public class SourceParameter
         {
