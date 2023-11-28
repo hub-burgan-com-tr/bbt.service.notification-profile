@@ -45,21 +45,21 @@ namespace bbt.service.notification.ui.Pages
             ExecuteMethod(() =>
             {
                 LoadingModal.Open();
-               
+
                 BeforeSearch();
-              
+
                 responseModel = sourceService.GetSourceWithSearchModel(searchModel).Result;
 
                 if (responseModel.Result == ResultEnum.Success)
                 {
 
                     sourceList = responseModel.Sources;
-                  
+
 
                 }
                 rowsCount = sourceList.Count();
                 AfterSearch();
-              
+
                 LoadingModal.Close();
 
             });
@@ -68,7 +68,7 @@ namespace bbt.service.notification.ui.Pages
         {
             base.CustomOnAfterRenderAsync(firstRender);
 
-          
+
             if (firstRender)
             {
                 appsetting = Convert.ToBoolean(configuration.GetSection("ProdSave").Value);
@@ -77,19 +77,19 @@ namespace bbt.service.notification.ui.Pages
                 {
                     Pagination.OnPageChange += () =>
                 {
-                   
+
                     Search();
 
-                    
+
                 };
 
 
-                if (IsFirstLoad)
-                {
-                   
-                    Search();
-                   
-                }
+                    if (IsFirstLoad)
+                    {
+
+                        Search();
+
+                    }
                 });
             }
 
@@ -130,7 +130,7 @@ namespace bbt.service.notification.ui.Pages
         }
         public void SourceDelete(Source item)
         {
-            
+
             sourceDetayModel = item;
             DeleteConfirm();
         }
@@ -147,7 +147,7 @@ namespace bbt.service.notification.ui.Pages
                     var user = (AuthenticationStated).Result.User;
                     sicil = user.Claims.Where(c => c.Type == "sicil")
                              .Select(c => c.Value).SingleOrDefault();
-                    sourceResp = sourceService.Delete(sourceDetayModel.Id,sicil).Result;
+                    sourceResp = sourceService.Delete(sourceDetayModel.Id, sicil).Result;
                     if (sourceResp.Result == ResultEnum.Success)
                     {
 
@@ -205,18 +205,19 @@ namespace bbt.service.notification.ui.Pages
                     postRequest.User = sicil;
                     postRequest.ProcessName = sourceModel.ProcessName;
                     postRequest.ProcessItemId = sourceModel.ProcessItemId;
-                    
-                   SourceResponseModel sourceResp= sourceService.TfsReleaseCreate(postRequest).Result;
+                    postRequest.Id = sourceModel.Id;
+
+                    SourceResponseModel sourceResp = sourceService.TfsReleaseCreate(postRequest).Result;
 
                     if (sourceResp.Result == ResultEnum.Error)
                     {
-                        Notification.ShowErrorMessage("Hata", "Kaydedilirken Hata Oluştu"+ sourceResp.MessageList[0]);
+                        Notification.ShowErrorMessage("Hata", "Kaydedilirken Hata Oluştu" + sourceResp.MessageList[0]);
                     }
                     else
                     {
                         Notification.ShowSuccessMessage("Başarılı", "Bilgiler Başarıyla Kaydedildi");
                         dialogService.Close();
-                    
+
 
 
                     }
