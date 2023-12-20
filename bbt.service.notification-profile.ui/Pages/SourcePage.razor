@@ -112,12 +112,16 @@
         <div class="row">
             <div class="col-md-2">
                 <RadzenLabel Text="ProcessName"></RadzenLabel>
+                <RadzenLabel Text="*" Style="color:red;font-weight:bold" />
             </div>
             <div class="col-md-3">
-                <RadzenTextBox Style="width:245px" @bind-Value=@sourceModel.ProcessName></RadzenTextBox>
-            </div>
+                <div class="row">
+                    <RadzenTextBox Style="width:245px" @bind-Value=@sourceModel.ProcessName></RadzenTextBox>
+                </div>
+                <ValidationMessage For="() =>sourceModel.ProcessName"></ValidationMessage>
+            </div>           
             <div class="col-md-2">
-                <RadzenLabel Text="ProcessItemId" Style="margin-left:80px;"></RadzenLabel>
+                <RadzenLabel Text="ProcessItemIdPath" Style="margin-left:80px;"></RadzenLabel>
             </div>
             <div class="col-md-3">
                 <RadzenTextBox Style="width:245px;margin-left:80px;" @bind-Value=@sourceModel.ProcessItemId></RadzenTextBox>
@@ -195,29 +199,29 @@
                                 TextProperty="ProductCodeName"
                                 ValueProperty="Id" Style="width:245px;" />
             </div>
-             <div class="col-md-2">
+            <div class="col-md-2">
                 <RadzenLabel Text="Inbox Kaydet" Style="margin-left:80px;width:245px;"></RadzenLabel>
             </div>
             <div class="col-md-3">
-                   <RadzenCheckBox @bind-Value=@sourceModel.SaveInbox Style="margin-left:80px;"></RadzenCheckBox>
+                <RadzenCheckBox @bind-Value=@sourceModel.SaveInbox Style="margin-left:80px;"></RadzenCheckBox>
             </div>
         </div>
-    @*    @if (appsetting == true)
+        @*    @if (appsetting == true)
         {
-            <div class="row" style="margin-top:10px;">
-                <div class="col-md-2">
-                    <RadzenLabel Text="Prod Kaydet"></RadzenLabel>
-                </div>
-                <div class="col-md-3">
-                    <RadzenCheckBox @bind-Value=@sourceModel.CheckDeploy></RadzenCheckBox>
-                </div>
-            </div>
+        <div class="row" style="margin-top:10px;">
+        <div class="col-md-2">
+        <RadzenLabel Text="Prod Kaydet"></RadzenLabel>
+        </div>
+        <div class="col-md-3">
+        <RadzenCheckBox @bind-Value=@sourceModel.CheckDeploy></RadzenCheckBox>
+        </div>
+        </div>
         }*@
     </div>
     <hr />
     <div class="row" style="margin-left:2px;margin-top:20px;">
         <button class="btn btn-primary" style="font-size:15px;background-color:green;margin-left:10px;width:120px;color: white;" type="submit">Kaydet</button>
-     
+
         <button type="reset" class="btn btn-secondary" style="font-size:15px;background-color:dimgray;margin-left:10px;width:120px;" data-dismiss="modal" @onclick="() => ModalClose()">İptal</button>
 
     </div>

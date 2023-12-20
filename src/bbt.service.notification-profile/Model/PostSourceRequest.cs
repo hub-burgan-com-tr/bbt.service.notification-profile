@@ -29,6 +29,8 @@ public class PostSourceRequest
     public string KafkaCertificate { get; set; }
 
     public string ClientIdJsonPath { get; set; }
+
+    [Required(ErrorMessage = "ProcessName boþ olamaz!")]
     public string ProcessName { get; set; }
     public string ProcessItemId { get; set; }
 
