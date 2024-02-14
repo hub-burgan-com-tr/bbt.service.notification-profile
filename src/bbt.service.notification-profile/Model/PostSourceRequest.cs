@@ -1,4 +1,5 @@
 
+using Notification.Profile.Enum;
 using Notification.Profile.Model;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +9,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class PostSourceRequest
 {
     public int Id { get; set; }
-    // public string Title { get; set; }
     public string Title_TR { get; set; }
     public string Title_EN { get; set; }
 
@@ -17,7 +17,7 @@ public class PostSourceRequest
     public string ApiKey { get; set; }
     public string Secret { get; set; }
     public int DisplayType { get; set; }
-    //public SourceDisplayType DisplayType { get; set; }
+
     public string PushServiceReference { get; set; }
     public string SmsServiceReference { get; set; }
     public string EmailServiceReference { get; set; }
@@ -48,4 +48,6 @@ public class PostSourceRequest
     [NotMapped]
     public string User { get; set; }
 
+    public int InheritanceType { get; set; }
+    public IEnumerable<int> AlwaysSendTypes { get; set; }
 }

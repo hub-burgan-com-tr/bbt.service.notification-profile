@@ -15,9 +15,9 @@ namespace Notification.Profile.Helper
             if (fi != null)
             {
                 var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-                if(attributes.Length > 0)
+                if (attributes.Length > 0)
                 {
-                    return attributes[0].Description;   
+                    return attributes[0].Description;
                 }
 
             }
@@ -29,6 +29,46 @@ namespace Notification.Profile.Helper
                        .Cast<System.Enum>()
                        .Select(e => new TextValueItem { Value = e.GetHashCode(), Text = e.GetDescription() })
                        .ToList();
+        }
+
+        public static int[] ToIntArray(this System.Enum o)
+        {
+            return o.ToString()
+                .Split(new string[] { ", " }, StringSplitOptions.None)
+                .Select(i => (int)System.Enum.Parse(o.GetType(), i))
+                .ToArray();
+        }
+
+        public static object[] ToEnumArray(this System.Enum o)
+        {
+            return o.ToString()
+                .Split(new string[] { ", " }, StringSplitOptions.None)
+                .Select(i => System.Enum.Parse(o.GetType(), i))
+                .ToArray();
+        }
+
+        public static int EnumListToInt(IEnumerable<System.Enum> list)
+        {
+            var retVal = 0;
+
+            foreach (var item in list)
+            {
+                retVal += (int)System.Enum.ToObject(item.GetType(), item);
+            }
+
+            return retVal;
+        }
+
+        public static int IntListToInt(IEnumerable<int> list)
+        {
+            var retVal = 0;
+
+            foreach (var item in list)
+            {
+                retVal += item;
+            }
+
+            return retVal;
         }
     }
 }

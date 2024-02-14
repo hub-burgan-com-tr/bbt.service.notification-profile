@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Notification.Profile.Enum;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Notification.Profile.Model.Database
@@ -27,6 +28,8 @@ namespace Notification.Profile.Model.Database
         public bool SaveInbox { get; set; }
         public string ProcessName { get; set; }
         public string ProcessItemId { get; set; }
+        public int InheritanceType { get; set; }
+        public int AlwaysSendType { get; set; }
 
         public string MethodType { get; set; }
         public DateTime CreateDate { get; set; }

@@ -19,7 +19,6 @@ namespace Notification.Profile.Business
 
             using (var db = new DatabaseContext())
             {
-
                 notificationLogs = (from logs in db.SourceLogs
                                     where (String.IsNullOrEmpty(logModel.Topic) || logs.Topic.Contains(logModel.Topic)) && (String.IsNullOrEmpty(logModel.PushServiceReference) || logs.PushServiceReference.Contains(logModel.PushServiceReference)) &&
                                     (String.IsNullOrEmpty(logModel.MethodType) || logs.MethodType.Contains(logModel.MethodType)) &&
@@ -53,22 +52,22 @@ namespace Notification.Profile.Business
                 sourceLogModel.EmailServiceReference = data.sourceLog.EmailServiceReference;
                 sourceLogModel.KafkaUrl = data.sourceLog.KafkaUrl;
                 sourceLogModel.KafkaCertificate = data.sourceLog.KafkaCertificate;
-                sourceLogModel.DisplayType = (SourceDisplayType)data.sourceLog.DisplayType;
+                sourceLogModel.DisplayType = data.sourceLog.DisplayType;
                 sourceLogModel.Title_EN = data.sourceLog.Title_EN;
                 sourceLogModel.Title_TR = data.sourceLog.Title_TR;
                 sourceLogModel.ParentId = data.sourceLog.ParentId;
                 sourceLogModel.ClientIdJsonPath = data.sourceLog.ClientIdJsonPath;
                 sourceLogModel.RetentationTime = data.sourceLog.RetentationTime;
-                sourceLogModel.ProcessName= data.sourceLog.ProcessName;
-                sourceLogModel.ProcessItemId= data.sourceLog.ProcessItemId;
+                sourceLogModel.ProcessName = data.sourceLog.ProcessName;
+                sourceLogModel.ProcessItemId = data.sourceLog.ProcessItemId;
                 sourceLogModel.ProductCodeId = data.sourceLog.ProductCodeId;
                 sourceLogModel.SaveInbox = data.sourceLog.SaveInbox;
                 sourceLogModel.CreateDate = DateTime.Now;
                 sourceLogModel.Environment = data.Environment;
                 sourceLogModel.CreateUser = data.User;
                 sourceLogModel.MethodType = data.MethodType;
-
-
+                sourceLogModel.InheritanceType = data.sourceLog.InheritanceType;
+                sourceLogModel.AlwaysSendType = data.sourceLog.AlwaysSendType;
 
                 db.Add(sourceLogModel);
                 db.SaveChanges();
