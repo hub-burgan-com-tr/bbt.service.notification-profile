@@ -1,4 +1,6 @@
 
+using Notification.Profile.Enum;
+
 namespace Notification.Profile.Model.Database
 {
     public class Source
@@ -25,7 +27,7 @@ namespace Notification.Profile.Model.Database
         public bool SaveInbox { get; set; }
         public string ProcessName { get; set; }
         public string ProcessItemId { get; set; }
-
+        public int InheritanceType { get; set; }
+        public int AlwaysSendType { get; set; }
     }
 }
-//TODO: Diger modellere ClientIdJsonPath eklenmeli

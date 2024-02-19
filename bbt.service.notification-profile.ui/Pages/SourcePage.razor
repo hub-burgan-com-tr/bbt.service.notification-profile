@@ -119,9 +119,9 @@
                     <RadzenTextBox Style="width:245px" @bind-Value=@sourceModel.ProcessName></RadzenTextBox>
                 </div>
                 <ValidationMessage For="() =>sourceModel.ProcessName"></ValidationMessage>
-            </div>           
+            </div>
             <div class="col-md-2">
-                <RadzenLabel Text="ProcessItemIdPath" Style="margin-left:80px;"></RadzenLabel>
+                <RadzenLabel Text="ProcessItemIdJsonPath" Style="margin-left:80px;"></RadzenLabel>
             </div>
             <div class="col-md-3">
                 <RadzenTextBox Style="width:245px;margin-left:80px;" @bind-Value=@sourceModel.ProcessItemId></RadzenTextBox>
@@ -204,6 +204,26 @@
             </div>
             <div class="col-md-3">
                 <RadzenCheckBox @bind-Value=@sourceModel.SaveInbox Style="margin-left:80px;"></RadzenCheckBox>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <div class="col-md-2">
+                <RadzenLabel Text="AlwaysSend"></RadzenLabel>
+            </div>
+            <div class="col-md-4">
+
+                <RadzenCheckBoxList @bind-Value=@sourceModel.AlwaysSendTypes>
+                    <Items>
+                        <RadzenCheckBoxListItem Text="Sms" Value="1" />
+                        <RadzenCheckBoxListItem Text="E-Mail" Value="2" />
+                        <RadzenCheckBoxListItem Text="Push" Value="4" />
+                    </Items>
+                </RadzenCheckBoxList>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;">            
+            <div class="col-md-5">
+                <RadzenLabel Text="AlwaysSend özelliği kullanıldığında müşteri izinleri kontrol edilmeden gönderim yapılır." Style="color:red;font-weight:bold;font-size:x-small" />
             </div>
         </div>
         @*    @if (appsetting == true)

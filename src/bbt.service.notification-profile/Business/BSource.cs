@@ -43,7 +43,6 @@ namespace Notification.Profile.Business
                     returnValue.MessageList.Add(StructStatusCode.StatusCode460.ToString());
                     returnValue.Result = ResultEnum.Error;
                     return returnValue;
-                    //  return new ObjectResult(id) { StatusCode = 460 };
                 }
 
                 var references = db.Consumers.FirstOrDefault(c => c.SourceId == id);
@@ -65,11 +64,13 @@ namespace Notification.Profile.Business
                 logRequest.MethodType = "Delete";
                 logRequest.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                 SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
+
                 if (logResponse.Result == ResultEnum.Error)
                 {
                     returnValue.MessageList.Add("SourceLog kaydederken hata oluştu. ");
                 }
             }
+
             return returnValue;
         }
 
@@ -78,6 +79,7 @@ namespace Notification.Profile.Business
             GetSourceTopicByIdResponse returnValue = new GetSourceTopicByIdResponse();
             Model.Database.Source source = null;
             List<SourceServicesUrl> servicesUrls = null;
+
             using (var db = new DatabaseContext())
             {
                 source = db.Sources.Where(s => s.Id == id).FirstOrDefault();
@@ -119,6 +121,8 @@ namespace Notification.Profile.Business
             returnValue.SaveInbox = source.SaveInbox;
             returnValue.ProcessName = source.ProcessName;
             returnValue.ProcessItemId = source.ProcessItemId;
+            returnValue.InheritanceType = source.InheritanceType;
+            returnValue.AlwaysSendType = source.AlwaysSendType;
 
             return returnValue;
         }
@@ -228,7 +232,6 @@ namespace Notification.Profile.Business
                 }
             }
 
-
             // Eger filtre yoksa bosu bosuna deserialize etme             
             if (consumers.Count > 1 && consumers.FirstOrDefault(c => c.Client == 0) != null)
             {
@@ -290,9 +293,9 @@ namespace Notification.Profile.Business
             GetSourcesResponse getSourcesResponse = new GetSourcesResponse();
             IQueryable<Model.Source> sources;
             getSourcesResponse.Sources = new List<Model.Source>();
+
             using (var db = new DatabaseContext())
             {
-
                 sources = (from source in db.Sources
                            join productCode in db.ProductCodes on source.ProductCodeId equals productCode.Id
                             into pc
@@ -320,7 +323,9 @@ namespace Notification.Profile.Business
                                SaveInbox = source.SaveInbox,
                                ProductCodeName = p == null ? null : p.ProductCodeName,
                                ProcessName = source.ProcessName,
-                               ProcessItemId = source.ProcessItemId
+                               ProcessItemId = source.ProcessItemId,
+                               InheritanceType = (int)source.InheritanceType,
+                               AlwaysSendType = (int)source.AlwaysSendType
                            }).Skip(((model.CurrentPage) - 1) * model.RequestItemSize)
                             .Take(model.RequestItemSize);
 
@@ -329,7 +334,6 @@ namespace Notification.Profile.Business
                 getSourcesResponse.Count = db.Sources.Count();
             }
             return getSourcesResponse;
-
         }
         public GetSourcesResponse GetSources()
         {
@@ -347,7 +351,6 @@ namespace Notification.Profile.Business
             {
                 Sources = sources.Where(s => s.ParentId == null).Select(s => BuildSource(s)).ToList()
             };
-
 
             Model.Source BuildSource(Model.Database.Source s)
             {
@@ -376,11 +379,11 @@ namespace Notification.Profile.Business
                     ProductCodeId = s.ProductCodeId,
                     SaveInbox = s.SaveInbox,
                     ProcessName = s.ProcessName,
-                    ProcessItemId = s.ProcessItemId
+                    ProcessItemId = s.ProcessItemId,
+                    InheritanceType = (int)s.InheritanceType,
+                    AlwaysSendType = s.AlwaysSendType
                 };
-
             }
-
         }
 
         public SourceResponseModel Patch(int id, PatchSourceRequest data)
@@ -389,17 +392,15 @@ namespace Notification.Profile.Business
             using (var db = new DatabaseContext())
             {
                 var source = db.Sources.FirstOrDefault(s => s.Id == id);
+
                 if (source == null)
                 {
-
                     sourceResp.StatusCode = EnumHelper.GetDescription<StatusCodeEnum>(StatusCodeEnum.StatusCode470);
                     sourceResp.MessageList.Add(StructStatusCode.StatusCode470.ToString());
                     sourceResp.Result = ResultEnum.Error;
                     return sourceResp;
-
                 }
 
-                //if (data.Title != null) source.Title = data.Title;
                 if (data.Title_TR != null) source.Title_TR = data.Title_TR;
                 if (data.Title_EN != null) source.Title_EN = data.Title_EN;
                 if (data.Topic != null) source.Topic = data.Topic;
@@ -416,21 +417,22 @@ namespace Notification.Profile.Business
                 if (data.RetentationTime != null) source.RetentationTime = data.RetentationTime;
                 if (data.ProductCodeId != null) source.ProductCodeId = data.ProductCodeId;
                 if (data.SaveInbox != null) source.SaveInbox = data.SaveInbox;
+                if (data.InheritanceType != null) source.InheritanceType = data.InheritanceType;
+                if (data.AlwaysSendType != null) source.AlwaysSendType = data.AlwaysSendType;
+
                 if (data.ParentId != null)
                 {
-
                     var sourcePatch = db.Sources.FirstOrDefault(s => s.Id == data.ParentId);
+
                     if (sourcePatch == null || data.ParentId == 1)
                     {
                         source.ParentId = null;
-
                     }
                     else
                     {
                         source.ParentId = data.ParentId;
                     }
                 };
-
 
                 db.Sources.Update(source);
                 db.SaveChanges();
@@ -447,13 +449,12 @@ namespace Notification.Profile.Business
                     sourceResp.MessageList.Add("SourceLog update ederken hata oluştu. ");
                 }
             }
-            
+
             return sourceResp;
         }
 
         public SourceResponseModel Post(PostSourceRequest data)
         {
-
             SourceResponseModel sourceResp = new SourceResponseModel();
             Model.Database.Source sourceModel = new Model.Database.Source();
             sourceModel.Topic = data.Topic;
@@ -467,6 +468,7 @@ namespace Notification.Profile.Business
             sourceModel.DisplayType = (SourceDisplayType)data.DisplayType;
             sourceModel.Title_EN = data.Title_EN;
             sourceModel.Title_TR = data.Title_TR;
+
             if (data.ParentId != null)
             {
                 using (var db = new DatabaseContext())
@@ -483,12 +485,15 @@ namespace Notification.Profile.Business
                     }
                 };
             }
+
             sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
             sourceModel.ProcessName = data.ProcessName;
-            sourceModel.ProcessItemId= data.ProcessItemId;
+            sourceModel.ProcessItemId = data.ProcessItemId;
             sourceModel.RetentationTime = data.RetentationTime;
             sourceModel.ProductCodeId = data.ProductCodeId;
             sourceModel.SaveInbox = data.SaveInbox;
+            sourceModel.InheritanceType = data.InheritanceType;
+            sourceModel.AlwaysSendType = EnumHelper.IntListToInt(data.AlwaysSendTypes);
 
             using (var db = new DatabaseContext())
             {
@@ -589,21 +594,25 @@ namespace Notification.Profile.Business
             sourceModel.Title_TR = data.Title_TR;
             sourceModel.ParentId = data.ParentId;
             sourceModel.ClientIdJsonPath = data.ClientIdJsonPath;
-            sourceModel.ProcessName= data.ProcessName;
-            sourceModel.ProcessItemId= data.ProcessItemId;
+            sourceModel.ProcessName = data.ProcessName;
+            sourceModel.ProcessItemId = data.ProcessItemId;
             sourceModel.RetentationTime = data.RetentationTime;
             sourceModel.ProductCodeId = data.ProductCodeId;
             sourceModel.SaveInbox = data.SaveInbox;
+            sourceModel.InheritanceType = data.InheritanceType;
+            sourceModel.AlwaysSendType = EnumHelper.IntListToInt(data.AlwaysSendTypes);
+
             logRequest.sourceLog = sourceModel;
             logRequest.Environment = "Prod";
             logRequest.User = data.User;
             logRequest.MethodType = "Release";
+
             SourceLogResponse logResponse = _ISourceLog.PostSourceLog(logRequest);
+
             if (logResponse.Result == ResultEnum.Error)
             {
                 sourceResp.MessageList.Add("SourceLog kaydederken hata oluştu. ");
             }
-
 
             return sourceResp;
         }
@@ -643,12 +652,10 @@ namespace Notification.Profile.Business
                 return response;
             }
 
-
             return response;
         }
         public SourceResponseModel TfsReleaseCreate(PostSourceRequest data)
         {
-
             var model = new SourceReleaseVariables
             {
                 id = 258,
@@ -760,6 +767,16 @@ namespace Notification.Profile.Business
                     {
                         isSecret = false,
                         value = data.ProcessItemId
+                    },
+                    InheritanceType = new Deger
+                    {
+                        isSecret = false,
+                        value = data.InheritanceType.ToString()
+                    },
+                    AlwaysSendType = new Deger
+                    {
+                        isSecret = false,
+                        value = EnumHelper.IntListToInt(data.AlwaysSendTypes).ToString()
                     }
                 }
             };
@@ -809,7 +826,6 @@ namespace Notification.Profile.Business
                             {
                                 ReleaseCreationSource = "ReleaseHub"
                             }
-
                         };
                         var httpContentRelease = new StringContent(System.Text.Json.JsonSerializer.Serialize(createReleaseModel), Encoding.UTF8, "application/json");
                         using (HttpResponseMessage responseRelease = client.PostAsync(
@@ -823,10 +839,8 @@ namespace Notification.Profile.Business
                             {
                                 responseModel.Result = ResultEnum.Error;
                                 responseModel.MessageList.Add(responseRelease.ReasonPhrase);
-
                             }
                         }
-
                     }
                     else
                     {
@@ -834,12 +848,9 @@ namespace Notification.Profile.Business
                         responseModel.MessageList.Add(response.ReasonPhrase);
                     }
                 }
-
             };
-
 
             return responseModel;
         }
-
     }
 }

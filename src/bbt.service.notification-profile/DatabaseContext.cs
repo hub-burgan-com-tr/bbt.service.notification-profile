@@ -12,7 +12,6 @@ public class DatabaseContext : DbContext
     public DbSet<NotificationLog> NotificationLogs { get; set; }
     public DbSet<ProductCode> ProductCodes { get; set; }
     public DbSet<UserRegistry> UserRegistry { get; set; }
-
     public DbSet<SourceLog> SourceLogs { get; set; }
     public string DbPath { get; private set; }
     public DatabaseContext()
@@ -30,14 +29,10 @@ public class DatabaseContext : DbContext
             .AddEnvironmentVariables()
             .Build();
 
-
         options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("bbt.service.notification-profile"));
 
         options.EnableSensitiveDataLogging();
-
-        
     }
-
 
     string? GetEnviroment()
     {
@@ -46,26 +41,12 @@ public class DatabaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-
         builder.Entity<Consumer>().OwnsOne(e => e.Phone);
-
-       // builder.Entity<NotificationLog>().OwnsOne(e => e.Phone);
-
-
-        /* TODO: SQL Edge not supporting memory optimized tables
-        builder.Entity<Consumer>(c =>
-        {
-            c.OwnsOne(e => e.Phone).IsMemoryOptimized();
-            c.IsMemoryOptimized();
-        });
-        */
 
         builder.Entity<Source>()
             .HasOne(s => s.Parent)
             .WithMany(s => s.Children)
             .HasForeignKey(s => s.ParentId);
-
-
 
         builder.Entity<Consumer>()
            .Property<long>("$id")
@@ -76,7 +57,7 @@ public class DatabaseContext : DbContext
             .IsClustered(false);
 
         builder.Entity<Consumer>()
-          .HasIndex("$id") 
+          .HasIndex("$id")
           .IsUnique()
           .IsClustered(true);
 
@@ -111,7 +92,7 @@ public class DatabaseContext : DbContext
                 IsPushEnabled = false,
                 IsSmsEnabled = true,
                 IsEmailEnabled = false,
-                IsStaff=false
+                IsStaff = false
             });
             c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("2e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
         });
@@ -129,7 +110,7 @@ public class DatabaseContext : DbContext
                 IsPushEnabled = false,
                 IsSmsEnabled = true,
                 IsEmailEnabled = false,
-                IsStaff=false
+                IsStaff = false
             });
             c.OwnsOne(e => e.Phone).HasData(new { ConsumerId = new Guid("3e15d57c-26e3-4e78-94f9-8649b3302555"), CountryCode = 90, Prefix = 530, Number = 3855206 });
         });
@@ -153,11 +134,9 @@ public class DatabaseContext : DbContext
                  .Property(f => f.Id)
                  .ValueGeneratedOnAdd();
 
-
         builder.Entity<NotificationLog>()
            .Property(f => f.Id)
            .ValueGeneratedOnAdd();
-
 
         builder.Entity<NotificationLog>()
                  .ToTable("NotificationLogs", b => b.IsTemporal());
@@ -173,7 +152,6 @@ public class DatabaseContext : DbContext
         builder.Entity<SourceLog>()
           .Property(f => f.Id)
           .ValueGeneratedOnAdd();
-
 
         builder.Entity<SourceLog>()
                  .ToTable("SourceLogs", b => b.IsTemporal());

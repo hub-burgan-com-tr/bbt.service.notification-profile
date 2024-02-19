@@ -1,4 +1,5 @@
 
+using Notification.Profile.Enum;
 using Notification.Profile.Model.BaseResponse;
 
 namespace Notification.Profile.Model
@@ -15,7 +16,6 @@ namespace Notification.Profile.Model
         public TitleLabel Title { get; set; }
         public List<SourceParameter> Parameters { get; set; }
         public int DisplayType { get; set; }
-      //  public SourceDisplayType DisplayType { get; set; }
         public string Topic { get; set; }
         public string ClientIdJsonPath { get; set; }
         public string ApiKey { get; set; }
@@ -26,15 +26,14 @@ namespace Notification.Profile.Model
         public string KafkaUrl { get; set; }
         public string KafkaCertificate { get; set; }
         public int? ParentId { get; set; }
-
         public int RetentationTime { get; set; }
-
-        public int? ProductCodeId { get; set; }
-       
+        public int? ProductCodeId { get; set; }       
         public string ProductCodeName { get; set; }
         public bool SaveInbox { get; set; }
         public string ProcessName { get; set; }
         public string ProcessItemId { get; set; }
+        public int InheritanceType { get; set; }
+        public int AlwaysSendType { get; set; }
 
         public class SourceParameter
         {
@@ -44,7 +43,6 @@ namespace Notification.Profile.Model
             public TitleLabel Title { get; set; }
         }
 
-
         public class TitleLabel
         {
             public string EN { get; set; }
@@ -53,4 +51,3 @@ namespace Notification.Profile.Model
         }
     }
 }
-//TODO: Display diger modellerede yansimali

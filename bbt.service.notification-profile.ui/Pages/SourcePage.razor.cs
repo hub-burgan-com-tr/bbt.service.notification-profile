@@ -84,6 +84,11 @@ namespace bbt.service.notification.ui.Pages
                         sourceModel.SaveInbox = sourceDetayModel.SaveInbox;
                         sourceModel.ProcessName = sourceDetayModel.ProcessName;
                         sourceModel.ProcessItemId = sourceDetayModel.ProcessItemId;
+                        sourceModel.InheritanceType = sourceDetayModel.InheritanceType;
+
+                        var alwaysSendTypeList = ((AlwaysSendType)sourceDetayModel.AlwaysSendType).ToIntArray();
+
+                        sourceModel.AlwaysSendTypes = alwaysSendTypeList;
                     }
                     GetProductCodeResponse getProductCodeResponse = new GetProductCodeResponse();
                     getProductCodeResponse = productCodeService.GetProductCode().Result;
@@ -154,7 +159,7 @@ namespace bbt.service.notification.ui.Pages
         public void SourceSave()
         {
             string sicil = string.Empty;
-            var user = ( AuthenticationStated).Result.User;
+            var user = (AuthenticationStated).Result.User;
             sicil = user.Claims.Where(c => c.Type == "sicil")
                      .Select(c => c.Value).SingleOrDefault();
             SourceResponseModel sourceResp = new SourceResponseModel();
@@ -181,7 +186,11 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.SaveInbox = sourceModel.SaveInbox;
                 patchRequest.ParentId = sourceModel.ParentId;
                 patchRequest.User = sicil;
+                patchRequest.InheritanceType = sourceModel.InheritanceType;
+                patchRequest.AlwaysSendType = EnumHelper.IntListToInt(sourceModel.AlwaysSendTypes);
+
                 sourceResp = sourceService.Patch(sourceModel.Id, patchRequest).Result;
+
                 if (sourceResp.Result == ResultEnum.Error)
                 {
 
@@ -191,7 +200,7 @@ namespace bbt.service.notification.ui.Pages
                 {
                     Notification.ShowSuccessMessage("Başarılı", "Bilgiler Başarıyla Kaydedildi");
                     dialogService.Close();
-                   
+
                     NavigationManager.NavigateTo("Pages/SourceListPage");
                     ListUpdate.InvokeAsync();
                 }

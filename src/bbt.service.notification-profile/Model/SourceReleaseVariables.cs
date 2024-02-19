@@ -1,4 +1,6 @@
-﻿namespace Notification.Profile.Model
+﻿using Notification.Profile.Enum;
+
+namespace Notification.Profile.Model
 {
 
     public class SourceReleaseVariables
@@ -37,5 +39,7 @@
         public Deger ClientIdJsonPath { get; set; }
         public Deger ProcessName { get; set; }
         public Deger ProcessItemId { get; set; }
+        public Deger InheritanceType { get; set; }
+        public Deger AlwaysSendType { get; set; }
     }
 }

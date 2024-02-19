@@ -1,14 +1,11 @@
-
-
+using Notification.Profile.Enum;
 using Notification.Profile.Model;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations.Schema;
 [SwaggerSchemaFilter(typeof(SourceSchemaFilter))]
 public class PatchSourceRequest
 {
-    //public string Title { get; set; }
     public string Title_TR { get; set; }
-
     public string Title_EN { get; set; }
     public string Topic { get; set; }
     public string ApiKey { get; set; }
@@ -26,9 +23,13 @@ public class PatchSourceRequest
     public int? ProductCodeId { get; set; }
     public int? ParentId { get; set; }
     public bool SaveInbox { get; set; }
+
     [NotMapped]
     public bool CheckDeploy { get; set; } = false;
 
     [NotMapped]
-    public string User { get; set; } 
+    public string User { get; set; }
+
+    public int InheritanceType { get; set; }
+    public int AlwaysSendType { get; set; }
 }

@@ -1,12 +1,10 @@
-
-
+using Notification.Profile.Enum;
 using Notification.Profile.Model.BaseResponse;
 
 namespace Notification.Profile.Model
 {
     public class GetSourceTopicByIdResponse : BaseResponseModel
     {
-
         public int Id { get; set; }
         public string Topic { get; set; }
         public string PushServiceReference { get; set; }
@@ -24,11 +22,10 @@ namespace Notification.Profile.Model
         public List<SourceServicesUrl> ServiceUrlList { get; set; }
         public int RetentationTime { get; set; }
         public int? ProductCodeId { get; set; }
-
         public bool SaveInbox { get; set; }
         public string ProcessName { get; set; }
         public string ProcessItemId { get; set; }
+        public int InheritanceType { get; set; }
+        public int AlwaysSendType { get; set; }
     }
-
 }
-//TODO: Display diger modellerede yansimali
