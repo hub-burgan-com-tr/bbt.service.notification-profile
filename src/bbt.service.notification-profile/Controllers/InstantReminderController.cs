@@ -35,7 +35,7 @@ namespace bbt.service.notification_profile.Controllers
           Summary = "Returns CustomerPermission data sources",
           Tags = new[] { "InstantReminder" }
       )]
-        [HttpGet("/CustomerPermission")]
+        [HttpGet("/CustomerPermission/{customerId}")]
         [SwaggerResponse(200, "Success, Customerpermission are returned successfully", typeof(GetInstantCustomerPermissionResponse))]
         public IActionResult CustomerPermission(string customerId)
         {
@@ -77,7 +77,7 @@ namespace bbt.service.notification_profile.Controllers
         [SwaggerOperation(Summary = "Insert CustomerPermission DataSource",
            Tags = new[] { "InstantReminder" }
        )]
-        [HttpPost("/CustomerPermission")]
+        [HttpPost("/CustomerPermission/{customerId}")]
         [SwaggerResponse(200, "Success, Customerpermission are insert", typeof(PostInstantCustomerPermissionRequest))]
 
         public IActionResult PostCustomerPermission(string customerId,[FromBody] PostInstantCustomerPermissionRequest request)
