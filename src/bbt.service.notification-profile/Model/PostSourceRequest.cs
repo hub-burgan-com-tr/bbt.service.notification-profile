@@ -1,5 +1,3 @@
-
-using Notification.Profile.Enum;
 using Notification.Profile.Model;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
@@ -50,4 +48,5 @@ public class PostSourceRequest
 
     public int InheritanceType { get; set; }
     public IEnumerable<int> AlwaysSendTypes { get; set; }
+    public int AlwaysSendType { get; set; }
 }

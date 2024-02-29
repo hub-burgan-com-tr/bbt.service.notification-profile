@@ -4,6 +4,7 @@ using bbt.service.notification.ui.Service;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Notification.Profile.Enum;
+using Notification.Profile.Helper;
 using Notification.Profile.Model;
 using Radzen;
 using Radzen.Blazor;
@@ -206,6 +207,8 @@ namespace bbt.service.notification.ui.Pages
                     postRequest.ProcessName = sourceModel.ProcessName;
                     postRequest.ProcessItemId = sourceModel.ProcessItemId;
                     postRequest.Id = sourceModel.Id;
+                    postRequest.AlwaysSendType = sourceModel.AlwaysSendType;
+                    postRequest.AlwaysSendTypes = EnumHelper.ToIntArray((AlwaysSendType)sourceModel.AlwaysSendType);                    
 
                     SourceResponseModel sourceResp = sourceService.TfsReleaseCreate(postRequest).Result;
 
@@ -217,14 +220,9 @@ namespace bbt.service.notification.ui.Pages
                     {
                         Notification.ShowSuccessMessage("Başarılı", "Bilgiler Başarıyla Kaydedildi");
                         dialogService.Close();
-
-
-
                     }
                 });
             }
-
         }
-
     }
 }
