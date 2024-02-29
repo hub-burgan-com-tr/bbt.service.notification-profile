@@ -517,6 +517,10 @@ namespace Notification.Profile.Business
         }
         public SourceResponseModel PostProd(PostSourceRequest data)
         {
+            if (data.AlwaysSendTypes == null)
+            {
+                data.AlwaysSendTypes = EnumHelper.ToIntArray((AlwaysSendType)data.AlwaysSendType);
+            }
 
             SourceResponseModel sourceResp = new SourceResponseModel();
 
