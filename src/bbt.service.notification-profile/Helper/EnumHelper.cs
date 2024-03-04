@@ -1,13 +1,10 @@
-﻿
-
-using Notification.Profile.Model;
+﻿using Notification.Profile.Model;
 using System.ComponentModel;
 
 namespace Notification.Profile.Helper
 {
     public static class EnumHelper
     {
-
         public static string GetDescription<TEnum>(this TEnum enumValue)
         {
             var fi = enumValue.GetType().GetField(enumValue.ToString());
@@ -50,26 +47,28 @@ namespace Notification.Profile.Helper
         public static int EnumListToInt(IEnumerable<System.Enum> list)
         {
             var retVal = 0;
-
-            foreach (var item in list)
+            if (list != null)
             {
-                retVal += (int)System.Enum.ToObject(item.GetType(), item);
-            }
+                foreach (var item in list)
+                {
+                    retVal += (int)System.Enum.ToObject(item.GetType(), item);
+                }
 
+            }
             return retVal;
         }
 
         public static int IntListToInt(IEnumerable<int> list)
         {
             var retVal = 0;
-
-            foreach (var item in list)
+            if (list !=null)
             {
-                retVal += item;
+                foreach (var item in list)
+                {
+                    retVal += item;
+                }            
             }
-
             return retVal;
         }
     }
 }
-
