@@ -1,24 +1,18 @@
-
-using Microsoft.AspNetCore.Mvc;
-using System.Data.SqlClient;
-using Swashbuckle.AspNetCore.Annotations;
-using Notification.Profile.Business;
 using Elastic.Apm.Api;
-using Notification.Profile.Helper;
-using System.Reflection;
-using Notification.Profile.Enum;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
-using Notification.Profile.Model;
+using Notification.Profile.Business;
+using Notification.Profile.Enum;
+using Notification.Profile.Helper;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Reflection;
 
 namespace bbt.service.notification_profile.Controllers
 {
-
-
     [ApiController]
     [Route("[controller]")]
     public class InstantReminderController : ControllerBase
     {
-
         private readonly IinstandReminder _IinstandReminder;
         private readonly ITracer _tracer;
         private readonly ILogHelper _logHelper;
@@ -45,7 +39,6 @@ namespace bbt.service.notification_profile.Controllers
                 lang = EnumHelper.GetDescription<LanguageEnum>(LanguageEnum.TR);
             }
 
-
             GetInstantCustomerPermissionResponse getInstantCustomerPermissionResponse = new GetInstantCustomerPermissionResponse();
             try
             {
@@ -59,7 +52,6 @@ namespace bbt.service.notification_profile.Controllers
                     return Ok(getInstantCustomerPermissionResponse);
                 }
             }
-
             catch (Exception e)
             {
                 span?.CaptureException(e);
@@ -71,45 +63,40 @@ namespace bbt.service.notification_profile.Controllers
             return Ok(getInstantCustomerPermissionResponse);
         }
 
-
-
-
         [SwaggerOperation(Summary = "Insert CustomerPermission DataSource",
            Tags = new[] { "InstantReminder" }
        )]
         [HttpPost("/CustomerPermission/{customerId}")]
         [SwaggerResponse(200, "Success, Customerpermission are insert", typeof(PostInstantCustomerPermissionRequest))]
-
-        public IActionResult PostCustomerPermission(string customerId,[FromBody] PostInstantCustomerPermissionRequest request)
-
+        public IActionResult PostCustomerPermission(string customerId, [FromBody] PostInstantCustomerPermissionRequest request)
         {
             var span = _tracer.CurrentTransaction?.StartSpan("PostInstantReminderSpan", "PostInstantReminder");
-            PostInstantCustomerPermissionResponse postConsumerResponse = new PostInstantCustomerPermissionResponse();
+            var postConsumerResponse = new PostInstantCustomerPermissionResponse();
+            string methodName = "";
+
             try
             {
+                methodName = MethodBase.GetCurrentMethod().Name;
                 postConsumerResponse = _IinstandReminder.PostCustomerPermission(customerId, request).Result;
+
                 if (postConsumerResponse != null && postConsumerResponse.Result == ResultEnum.Error)
                 {
-                    _logHelper.LogCreate(request.reminders[0], postConsumerResponse, MethodBase.GetCurrentMethod().Name, postConsumerResponse.MessageList[0]);
-                    return this.StatusCode(500, postConsumerResponse.MessageList[0]);
+                    _logHelper.LogCreate(request, postConsumerResponse, methodName, "ErrorIdentityNo:" + customerId + " Error:" + postConsumerResponse.ErrorText);
+                    return this.StatusCode(500, postConsumerResponse.ErrorText);
                 }
                 else
                 {
+                    _logHelper.LogCreate(request, postConsumerResponse, methodName, "SuccessIdentityNo:" + customerId);
                     return Ok(postConsumerResponse);
                 }
             }
             catch (Exception e)
             {
                 span?.CaptureException(e);
-                _logHelper.LogCreate(customerId, postConsumerResponse, MethodBase.GetCurrentMethod().Name, e.Message);
+                _logHelper.LogCreate(request, postConsumerResponse, methodName, "ErrorIdentityNo:" + customerId + " Ex:" + e.Message);
                 return this.StatusCode(500, e.Message);
             }
-            return Ok(postConsumerResponse);
 
         }
-
-
     }
-
-
 }
