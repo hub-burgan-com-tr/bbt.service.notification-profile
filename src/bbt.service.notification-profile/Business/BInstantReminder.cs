@@ -132,6 +132,7 @@ namespace Notification.Profile.Business
         public async Task<PostInstantCustomerPermissionResponse> PostCustomerPermission(string customerId, PostInstantCustomerPermissionRequest request)
         {
             var connectionString = _configuration.GetConnectionString("ReminderConnectionString");
+            var dbResult = new DataTableResponseModel();
 
             PostInstantCustomerPermissionResponse response = new PostInstantCustomerPermissionResponse();
             try
@@ -140,7 +141,6 @@ namespace Notification.Profile.Business
                 {
                     ReminderPost r = new ReminderPost();
                     r = request.reminders[i];
-
 
                     List<DbDataEntity> dbParams = new List<DbDataEntity>();
                     DbDataEntity dbData = new DbDataEntity();
@@ -192,18 +192,23 @@ namespace Notification.Profile.Business
                     dbData.value = request.showWithoutLogin ? 1 : 0;
                     dbParams.Add(dbData);
 
-                    DbCalls.ExecuteNonQuery("REM.DG_REMINDER_INSERT", dbParams, connectionString);
+                    dbResult = DbCalls.ExecuteNonQuery("REM.DG_REMINDER_INSERT", dbParams, connectionString);
+
+                    if (dbResult.Result == ResultEnum.Error)
+                    {
+                        response.MessageList.Add(dbResult.ErrorText);
+                    }
                 }
+
                 response.Result = Enum.ResultEnum.Success;
-                return response;
             }
             catch (Exception ex)
             {
                 response.Result = Enum.ResultEnum.Error;
                 response.MessageList.Add(ex.Message);
-
-                return response;
             }
+
+            return response;
         }
 
         public async Task<GetInstantDGReminderResponse> GetCustomerPermissionWithProductCode(long customerNumber, string productCode)
@@ -234,8 +239,8 @@ namespace Notification.Profile.Business
                         response.CUSTOMER_NUMBER = (long)reader["CUSTOMER_NUMBER"];
                         response.PRODUCT_CODE = reader["PRODUCT_CODE"].ToString();
                     }
-                   
-                    if (response.CUSTOMER_NUMBER != null && response.CUSTOMER_NUMBER >0)
+
+                    if (response.CUSTOMER_NUMBER != null && response.CUSTOMER_NUMBER > 0)
                     {
                         response.Count = 1;
                     }
