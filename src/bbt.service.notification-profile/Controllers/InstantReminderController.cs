@@ -72,31 +72,36 @@ namespace bbt.service.notification_profile.Controllers
         {
             var span = _tracer.CurrentTransaction?.StartSpan("PostInstantReminderSpan", "PostInstantReminder");
             var postConsumerResponse = new PostInstantCustomerPermissionResponse();
+            var requestForLog = new PostInstantCustomerPermissionRequestForLog();
             string methodName = "";
 
             try
             {
+                requestForLog.identityNo = customerId;
+                requestForLog.reminders = request.reminders;
+                requestForLog.showWithoutLogin = request.showWithoutLogin;
+                requestForLog.modifiedBy = "";
+
                 methodName = MethodBase.GetCurrentMethod().Name;
                 postConsumerResponse = _IinstandReminder.PostCustomerPermission(customerId, request).Result;
 
                 if (postConsumerResponse != null && postConsumerResponse.Result == ResultEnum.Error)
                 {
-                    _logHelper.LogCreate(request, postConsumerResponse, methodName, "ErrorIdentityNo:" + customerId + " Error:" + postConsumerResponse.ErrorText);
+                    _logHelper.LogCreate(requestForLog, postConsumerResponse, methodName, "ErrorIdentityNo:" + customerId + " Error:" + postConsumerResponse.ErrorText);
                     return this.StatusCode(500, postConsumerResponse.ErrorText);
                 }
                 else
                 {
-                    _logHelper.LogCreate(request, postConsumerResponse, methodName, "SuccessIdentityNo:" + customerId);
+                    _logHelper.LogCreate(requestForLog, postConsumerResponse, methodName, "SuccessIdentityNo:" + customerId);
                     return Ok(postConsumerResponse);
                 }
             }
             catch (Exception e)
             {
                 span?.CaptureException(e);
-                _logHelper.LogCreate(request, postConsumerResponse, methodName, "ErrorIdentityNo:" + customerId + " Ex:" + e.Message);
+                _logHelper.LogCreate(requestForLog, postConsumerResponse, methodName, "ErrorIdentityNo:" + customerId + " Ex:" + e.Message);
                 return this.StatusCode(500, e.Message);
             }
-
         }
     }
 }
