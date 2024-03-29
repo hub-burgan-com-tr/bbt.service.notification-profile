@@ -1,4 +1,3 @@
-using Notification.Profile.Enum;
 using Notification.Profile.Model.BaseResponse;
 
 namespace Notification.Profile.Model
@@ -22,6 +21,7 @@ namespace Notification.Profile.Model
         public List<SourceServicesUrl> ServiceUrlList { get; set; }
         public int RetentationTime { get; set; }
         public int? ProductCodeId { get; set; }
+        public string ProductCodeName { get; set; }
         public bool SaveInbox { get; set; }
         public string ProcessName { get; set; }
         public string ProcessItemId { get; set; }

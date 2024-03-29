@@ -76,55 +76,83 @@ namespace Notification.Profile.Business
 
         public GetSourceTopicByIdResponse GetSourceById(int id)
         {
-            GetSourceTopicByIdResponse returnValue = new GetSourceTopicByIdResponse();
-            Model.Database.Source source = null;
-            List<SourceServicesUrl> servicesUrls = null;
-
             using (var db = new DatabaseContext())
             {
-                source = db.Sources.Where(s => s.Id == id).FirstOrDefault();
-                servicesUrls = db.SourceServices.Where(s => id == s.SourceId).Select(x => new SourceServicesUrl
+                var res = (from src in db.Sources.AsNoTracking()
+                           join prd in db.ProductCodes.AsNoTracking() on src.ProductCodeId
+                                        equals prd.Id into grp1
+                           from gPrd in grp1.DefaultIfEmpty()
+                           where (src.Id == id)
+                           select new
+                           {
+                               src.Topic,
+                               src.SmsServiceReference,
+                               src.EmailServiceReference,
+                               src.PushServiceReference,
+                               src.Title_TR,
+                               src.Title_EN,
+                               src.ParentId,
+                               src.DisplayType,
+                               src.ApiKey,
+                               src.Secret,
+                               src.ClientIdJsonPath,
+                               src.KafkaUrl,
+                               src.KafkaCertificate,
+                               src.RetentationTime,
+                               src.ProductCodeId,
+                               gPrd.ProductCodeName,
+                               src.SaveInbox,
+                               src.ProcessName,
+                               src.ProcessItemId,
+                               src.InheritanceType,
+                               src.AlwaysSendType
+
+                           }).AsNoTracking().FirstOrDefault();
+
+                var returnValue = new GetSourceTopicByIdResponse();
+
+                if (res == null)
+                {
+                    returnValue.StatusCode = EnumHelper.GetDescription(StatusCodeEnum.StatusCode460);
+                    returnValue.MessageList.Add(StructStatusCode.StatusCode460.ToString());
+                    returnValue.Result = ResultEnum.Error;
+                    return returnValue;
+                }
+
+                var servicesUrls = db.SourceServices.Where(s => id == s.SourceId).Select(x => new SourceServicesUrl
                 {
                     Id = x.Id,
                     ServiceUrl = x.ServiceUrl
 
                 }).ToList();
-            }
 
-            if (source == null)
-            {
-                returnValue.StatusCode = EnumHelper.GetDescription<StatusCodeEnum>(StatusCodeEnum.StatusCode460);
-                returnValue.MessageList.Add(StructStatusCode.StatusCode460.ToString());
-                returnValue.Result = ResultEnum.Error;
+                returnValue.StatusCode = EnumHelper.GetDescription(StatusCodeEnum.StatusCode200);
+                returnValue.Id = id;
+                returnValue.Topic = res.Topic;
+                returnValue.SmsServiceReference = res.SmsServiceReference;
+                returnValue.EmailServiceReference = res.EmailServiceReference;
+                returnValue.PushServiceReference = res.PushServiceReference;
+                returnValue.Title_TR = res.Title_TR;
+                returnValue.Title_EN = res.Title_EN;
+                returnValue.ParentId = res.ParentId;
+                returnValue.DisplayType = res.DisplayType;
+                returnValue.ApiKey = res.ApiKey;
+                returnValue.Secret = res.Secret;
+                returnValue.ClientIdJsonPath = res.ClientIdJsonPath;
+                returnValue.KafkaUrl = res.KafkaUrl;
+                returnValue.KafkaCertificate = res.KafkaCertificate;
+                returnValue.RetentationTime = res.RetentationTime;
+                returnValue.ServiceUrlList = servicesUrls;
+                returnValue.ProductCodeId = res.ProductCodeId;
+                returnValue.ProductCodeName = res.ProductCodeName;
+                returnValue.SaveInbox = res.SaveInbox;
+                returnValue.ProcessName = res.ProcessName;
+                returnValue.ProcessItemId = res.ProcessItemId;
+                returnValue.InheritanceType = res.InheritanceType;
+                returnValue.AlwaysSendType = res.AlwaysSendType;
+
                 return returnValue;
             }
-
-            SourceServicesUrl sourceServicesUrl = new SourceServicesUrl();
-
-            returnValue.Id = source.Id;
-            returnValue.Topic = source.Topic;
-            returnValue.SmsServiceReference = source.SmsServiceReference;
-            returnValue.EmailServiceReference = source.EmailServiceReference;
-            returnValue.PushServiceReference = source.PushServiceReference;
-            returnValue.Title_TR = source.Title_TR;
-            returnValue.Title_EN = source.Title_EN;
-            returnValue.ParentId = source.ParentId;
-            returnValue.DisplayType = source.DisplayType;
-            returnValue.ApiKey = source.ApiKey;
-            returnValue.Secret = source.Secret;
-            returnValue.ClientIdJsonPath = source.ClientIdJsonPath;
-            returnValue.KafkaUrl = source.KafkaUrl;
-            returnValue.KafkaCertificate = source.KafkaCertificate;
-            returnValue.RetentationTime = source.RetentationTime;
-            returnValue.ServiceUrlList = servicesUrls;
-            returnValue.ProductCodeId = source.ProductCodeId;
-            returnValue.SaveInbox = source.SaveInbox;
-            returnValue.ProcessName = source.ProcessName;
-            returnValue.ProcessItemId = source.ProcessItemId;
-            returnValue.InheritanceType = source.InheritanceType;
-            returnValue.AlwaysSendType = source.AlwaysSendType;
-
-            return returnValue;
         }
 
         public GetSourceConsumersResponse GetSourceConsumers(GetSourceConsumersRequestBody requestModel)
