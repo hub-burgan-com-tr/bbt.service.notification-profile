@@ -78,36 +78,11 @@ namespace Notification.Profile.Business
         {
             using (var db = new DatabaseContext())
             {
-                var res = (from src in db.Sources.AsNoTracking()
-                           join prd in db.ProductCodes.AsNoTracking() on src.ProductCodeId
-                                        equals prd.Id into grp1
-                           from gPrd in grp1.DefaultIfEmpty()
-                           where (src.Id == id)
-                           select new
-                           {
-                               src.Topic,
-                               src.SmsServiceReference,
-                               src.EmailServiceReference,
-                               src.PushServiceReference,
-                               src.Title_TR,
-                               src.Title_EN,
-                               src.ParentId,
-                               src.DisplayType,
-                               src.ApiKey,
-                               src.Secret,
-                               src.ClientIdJsonPath,
-                               src.KafkaUrl,
-                               src.KafkaCertificate,
-                               src.RetentationTime,
-                               src.ProductCodeId,
-                               gPrd.ProductCodeName,
-                               src.SaveInbox,
-                               src.ProcessName,
-                               src.ProcessItemId,
-                               src.InheritanceType,
-                               src.AlwaysSendType
-
-                           }).AsNoTracking().FirstOrDefault();
+                var res = db.Sources.AsNoTracking()
+                    .Where(t => t.Id == id)
+                    .Include(t => t.SourceServices)
+                    .Include(t => t.ProductCode)
+                    .FirstOrDefault();
 
                 var returnValue = new GetSourceTopicByIdResponse();
 
@@ -119,7 +94,7 @@ namespace Notification.Profile.Business
                     return returnValue;
                 }
 
-                var servicesUrls = db.SourceServices.Where(s => id == s.SourceId).Select(x => new SourceServicesUrl
+                var servicesUrls = res.SourceServices.Select(x => new SourceServicesUrl
                 {
                     Id = x.Id,
                     ServiceUrl = x.ServiceUrl
@@ -144,7 +119,7 @@ namespace Notification.Profile.Business
                 returnValue.RetentationTime = res.RetentationTime;
                 returnValue.ServiceUrlList = servicesUrls;
                 returnValue.ProductCodeId = res.ProductCodeId;
-                returnValue.ProductCodeName = res.ProductCodeName;
+                returnValue.ProductCodeName = res.ProductCode.ProductCodeName;
                 returnValue.SaveInbox = res.SaveInbox;
                 returnValue.ProcessName = res.ProcessName;
                 returnValue.ProcessItemId = res.ProcessItemId;
