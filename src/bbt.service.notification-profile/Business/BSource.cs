@@ -119,7 +119,7 @@ namespace Notification.Profile.Business
                 returnValue.RetentationTime = res.RetentationTime;
                 returnValue.ServiceUrlList = servicesUrls;
                 returnValue.ProductCodeId = res.ProductCodeId;
-                returnValue.ProductCodeName = res.ProductCode.ProductCodeName;
+                returnValue.ProductCodeName = res.ProductCode == null ? null : res.ProductCode.ProductCodeName;
                 returnValue.SaveInbox = res.SaveInbox;
                 returnValue.ProcessName = res.ProcessName;
                 returnValue.ProcessItemId = res.ProcessItemId;
