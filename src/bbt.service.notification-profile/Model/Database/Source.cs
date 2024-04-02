@@ -29,5 +29,7 @@ namespace Notification.Profile.Model.Database
         public string ProcessItemId { get; set; }
         public int InheritanceType { get; set; }
         public int AlwaysSendType { get; set; }
+        public List<SourceService> SourceServices { get; set; }
+        public ProductCode ProductCode { get; set; }
     }
 }
