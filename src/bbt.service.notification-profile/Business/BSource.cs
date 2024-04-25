@@ -531,6 +531,7 @@ namespace Notification.Profile.Business
             {
                 SearchSourceModel searchSourceModel = new SearchSourceModel();
                 searchSourceModel.Topic = data.Topic;
+                searchSourceModel.Title = data.Title_TR;
                 data.CheckDeploy = false;
                 var json = JsonConvert.SerializeObject(searchSourceModel);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
