@@ -9,4 +9,10 @@ namespace Notification.Profile.Model
         public string EmailServiceReference { get; set; }
         public string Title { get; set; }
     }
+
+    public class GetSourceModel 
+    {
+        public string Topic { get; set; }
+        public string Title { get; set; }
+    }
 }

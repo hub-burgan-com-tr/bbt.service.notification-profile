@@ -291,6 +291,50 @@ namespace Notification.Profile.Business
             });
             return returnValue;
         }
+        public GetSourcesResponse GetSourceWithGetModel(GetSourceModel model)
+        {
+            var getSourcesResponse = new GetSourcesResponse();
+            IQueryable<Model.Source> sources;
+            getSourcesResponse.Sources = new List<Model.Source>();
+
+            using (var db = new DatabaseContext())
+            {
+                sources = (from source in db.Sources
+                           join productCode in db.ProductCodes on source.ProductCodeId equals productCode.Id
+                            into pc
+                           from p in pc.DefaultIfEmpty()
+                           where source.Topic == model.Topic && source.Title_TR == model.Title
+                           select new Model.Source
+                           {
+                               Id = source.Id,
+                               ApiKey = source.ApiKey,
+                               ClientIdJsonPath = source.ClientIdJsonPath,
+                               ParentId = source.ParentId,
+                               KafkaUrl = source.KafkaUrl,
+                               KafkaCertificate = source.KafkaCertificate,
+                               ProductCodeId = source.ProductCodeId,
+                               DisplayType = (int)source.DisplayType,
+                               EmailServiceReference = source.EmailServiceReference,
+                               PushServiceReference = source.PushServiceReference,
+                               RetentationTime = source.RetentationTime,
+                               SmsServiceReference = source.SmsServiceReference,
+                               Title = new Model.Source.TitleLabel { EN = source.Title_EN, TR = source.Title_TR },
+                               Topic = source.Topic,
+                               Secret = source.Secret,
+                               SaveInbox = source.SaveInbox,
+                               ProductCodeName = p == null ? null : p.ProductCodeName,
+                               ProcessName = source.ProcessName,
+                               ProcessItemId = source.ProcessItemId,
+                               InheritanceType = (int)source.InheritanceType,
+                               AlwaysSendType = (int)source.AlwaysSendType
+                           });
+
+                getSourcesResponse.Result = ResultEnum.Success;
+                getSourcesResponse.Sources = sources.ToList();
+                getSourcesResponse.Count = sources.Count();
+            }
+            return getSourcesResponse;
+        }
         public GetSourcesResponse GetSourceWithSearchModel(SearchSourceModel model)
         {
             GetSourcesResponse getSourcesResponse = new GetSourcesResponse();
@@ -527,16 +571,17 @@ namespace Notification.Profile.Business
 
             SourceResponseModel sourceResp = new SourceResponseModel();
 
-            string path = _configuration.GetSection("NotificationProdSearchEndPoint").Value.ToString();
+            string path = _configuration.GetSection("NotificationProdGetEndPoint").Value.ToString();
             var uri = new Uri(path);
             GetSourcesResponse result = new GetSourcesResponse();
             using (var httpClient = new HttpClient())
             {
-                SearchSourceModel searchSourceModel = new SearchSourceModel();
-                searchSourceModel.Topic = data.Topic;
-                searchSourceModel.Title = data.Title_TR;
+                var getSourceModel = new GetSourceModel();
+                getSourceModel.Topic = data.Topic;
+                getSourceModel.Title = data.Title_TR;
+
                 data.CheckDeploy = false;
-                var json = JsonConvert.SerializeObject(searchSourceModel);
+                var json = JsonConvert.SerializeObject(getSourceModel);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = httpClient.PostAsync(uri, content).Result;
                 result = response.Content.ReadAsAsync<GetSourcesResponse>().Result;

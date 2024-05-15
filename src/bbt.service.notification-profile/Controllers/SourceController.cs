@@ -44,7 +44,7 @@ public class SourceController : ControllerBase
 
     public IActionResult GetSources()
     {
-       
+
         GetSourcesResponse getSourcesResponse = new GetSourcesResponse();
         var span = _tracer.CurrentTransaction?.StartSpan("GetSourcesSpan", "GetSources");
         try
@@ -101,17 +101,17 @@ public class SourceController : ControllerBase
 
     }
 
-    [SwaggerOperation(Summary = "Adds new data sources",Tags = new[] { "Source" })]
+    [SwaggerOperation(Summary = "Adds new data sources", Tags = new[] { "Source" })]
     [HttpPost("/sources")]
     [SwaggerResponse(200, "Success, sources is created successfully", typeof(void))]
- 
+
     public IActionResult Post([FromBody] PostSourceRequest data)
     {
         SourceResponseModel sourceResp = new SourceResponseModel();
         var span = _tracer.CurrentTransaction?.StartSpan("PostSpan", "Post");
         try
         {
-            sourceResp= _Isource.Post(data);
+            sourceResp = _Isource.Post(data);
 
         }
         catch (Exception e)
@@ -123,7 +123,27 @@ public class SourceController : ControllerBase
 
         return Ok(sourceResp);
     }
-   
+    [HttpPost("/sources/getWithGetModel")]
+    public IActionResult GetSourceWithGetModel([FromBody] GetSourceModel model)
+    {
+        var returnValue = new GetSourcesResponse();
+        var span = _tracer.CurrentTransaction?.StartSpan("GetSourceWithGetModelSpan", "GetSourceWithGetModel");
+
+        try
+        {
+            returnValue = _Isource.GetSourceWithGetModel(model);
+        }
+        catch (Exception e)
+        {
+            span?.CaptureException(e);
+            _logHelper.LogCreate(model, "StatusCode:500", MethodBase.GetCurrentMethod().Name, e.Message);
+
+            return this.StatusCode(500, e.Message);
+        }
+
+        return Ok(returnValue);
+    }
+
     [HttpPost("/sources/searchSourceModel")]
     public IActionResult GetSourceWithSearchModel([FromBody] SearchSourceModel model)
     {
@@ -131,7 +151,7 @@ public class SourceController : ControllerBase
         var span = _tracer.CurrentTransaction?.StartSpan("GetSourceWithSearcModelSpan", "GetSourceWithSearcModel");
         try
         {
-            returnValue =_Isource.GetSourceWithSearchModel(model);
+            returnValue = _Isource.GetSourceWithSearchModel(model);
         }
         catch (Exception e)
         {
@@ -233,7 +253,7 @@ public class SourceController : ControllerBase
         SourceResponseModel respModel = new SourceResponseModel();
         try
         {
-            respModel = _Isource.Delete(id,user);
+            respModel = _Isource.Delete(id, user);
             if (respModel != null && respModel.Result == Notification.Profile.Enum.ResultEnum.Error)
             {
                 span.CaptureErrorLog(new ErrorLog("Error Message( StatusCode:" + respModel.StatusCode + " - Message:" + respModel.MessageList[0].ToString() + ")")
@@ -256,7 +276,7 @@ public class SourceController : ControllerBase
     }
 
 
-    [SwaggerOperation(Summary = "Returns all consumers with filtering (if available)",Tags = new[] { "Source" })]
+    [SwaggerOperation(Summary = "Returns all consumers with filtering (if available)", Tags = new[] { "Source" })]
     [HttpPost("/sources/consumers-by-client")]
     [SwaggerResponse(200, "Success, consumers is returned successfully", typeof(GetSourceConsumersResponse))]
     [SwaggerResponse(470, "No results were found for the given parameters", typeof(Guid))]
@@ -270,14 +290,14 @@ public class SourceController : ControllerBase
             returnValue = _Isource.GetSourceConsumers(requestModel);
             if (returnValue != null && returnValue.Result == ResultEnum.Error)
             {
-                _logHelper.LogCreate("ClientId:" + requestModel.client +"SourceID:"+ requestModel.sourceid, returnValue.Consumers.Count, "GetSourceConsumers", returnValue.MessageList[0]);
+                _logHelper.LogCreate("ClientId:" + requestModel.client + "SourceID:" + requestModel.sourceid, returnValue.Consumers.Count, "GetSourceConsumers", returnValue.MessageList[0]);
                 return this.StatusCode(Convert.ToInt32(returnValue.StatusCode), returnValue.MessageList);
             }
         }
         catch (Exception e)
         {
             span?.CaptureException(e);
-            _logHelper.LogCreate("ClientId:" + requestModel.client + "SourceID:" + requestModel.sourceid +"jsonDat:"+requestModel.jsonData, returnValue, "GetSourceConsumersError", e.Message);
+            _logHelper.LogCreate("ClientId:" + requestModel.client + "SourceID:" + requestModel.sourceid + "jsonDat:" + requestModel.jsonData, returnValue, "GetSourceConsumersError", e.Message);
             Console.WriteLine("CATCH " + e.Message);
             return this.StatusCode(Convert.ToInt32(returnValue.StatusCode), e.Message);
         }
@@ -288,25 +308,25 @@ public class SourceController : ControllerBase
     [SwaggerOperation(Summary = "Adds new data prod sources", Tags = new[] { "Source" })]
     [HttpPost("/sources/prod")]
     [SwaggerResponse(200, "Success, sources is created successfully", typeof(void))]
-  
-        public IActionResult PostProd([FromBody] PostSourceRequest data)
+
+    public IActionResult PostProd([FromBody] PostSourceRequest data)
+    {
+        SourceResponseModel sourceResp = new SourceResponseModel();
+        var span = _tracer.CurrentTransaction?.StartSpan("PostSpan", "Post");
+        try
         {
-            SourceResponseModel sourceResp = new SourceResponseModel();
-            var span = _tracer.CurrentTransaction?.StartSpan("PostSpan", "Post");
-            try
-            {
-                sourceResp = _Isource.PostProd(data);
+            sourceResp = _Isource.PostProd(data);
 
-            }
-            catch (Exception e)
-            {
-                span?.CaptureException(e);
-                _logHelper.LogCreate(data, "StatusCode:500", MethodBase.GetCurrentMethod().Name, e.Message);
-                return this.StatusCode(500, e.Message);
-            }
-
-            return Ok(sourceResp);
         }
+        catch (Exception e)
+        {
+            span?.CaptureException(e);
+            _logHelper.LogCreate(data, "StatusCode:500", MethodBase.GetCurrentMethod().Name, e.Message);
+            return this.StatusCode(500, e.Message);
+        }
+
+        return Ok(sourceResp);
+    }
 
     [SwaggerOperation(Summary = "Tfs release", Tags = new[] { "Source" })]
     [HttpPost("/sources/tfs-release")]
@@ -334,5 +354,5 @@ public class SourceController : ControllerBase
 
 }
 
-  
+
 
