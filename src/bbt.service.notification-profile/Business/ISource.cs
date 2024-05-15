@@ -16,6 +16,7 @@ namespace Notification.Profile.Business
         GetSourceConsumersResponse GetSourceConsumers(GetSourceConsumersRequestBody requestModel);
 
         GetSourcesResponse GetSourceWithSearchModel(SearchSourceModel model);
+        GetSourcesResponse GetSourceWithGetModel(GetSourceModel model);
         SourceListResponse GetSourceByProductCodeId(string productCodeName);
         SourceResponseModel PostProd(PostSourceRequest data);
         SourceResponseModel TfsReleaseCreate(PostSourceRequest data);
