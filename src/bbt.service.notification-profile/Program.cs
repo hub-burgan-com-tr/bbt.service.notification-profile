@@ -1,16 +1,12 @@
-using System.Reflection;
-using bbt.framework.dengage.Business;
 using Elastic.Apm;
 using Elastic.Apm.NetCoreAll;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.OpenApi.Models;
 using Notification.Profile.Business;
-using Notification.Profile.Business.Dengage.Content;
-using Notification.Profile.Business.Dengage.Login;
 using Notification.Profile.Helper;
-using Notification.Profile.Model;
-using StackExchange.Redis;
+using System.Reflection;
+
+ThreadPool.SetMinThreads(50, 50);
 
 IConfigurationRoot configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
