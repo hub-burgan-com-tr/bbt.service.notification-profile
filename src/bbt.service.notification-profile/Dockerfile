@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
@@ -6,7 +6,7 @@ WORKDIR /app
 RUN adduser -u 5679 --disabled-password --gecos "" notificationuser && chown -R notificationuser:notificationuser /app
 USER notificationuser
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-focal AS build
 
 WORKDIR /src
 COPY ["bbt.service.notification-profile.csproj", "./"]
