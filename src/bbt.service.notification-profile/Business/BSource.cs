@@ -132,27 +132,29 @@ namespace Notification.Profile.Business
 
         public GetSourceConsumersResponse GetSourceConsumers(GetSourceConsumersRequestBody requestModel)
         {
-            GetSourceConsumersResponse returnValue = new GetSourceConsumersResponse { Consumers = new List<GetSourceConsumersResponse.Consumer>() };
+            var returnValue = new GetSourceConsumersResponse { Consumers = new List<GetSourceConsumersResponse.Consumer>() };
             dynamic message = null;
             List<Consumer> consumers = null;
+
             using (var db = new DatabaseContext())
             {
                 // 0 nolu musteri generic musteri olarak kabul ediliyor. Banka kullanicilarin ozel durumlarda subscription olusturmalari icin kullanilacak.
                 consumers = db.Consumers.Where(s => (s.Client == requestModel.client || s.Client == 0) && s.SourceId == requestModel.sourceid).ToList();
             }
+
             if (consumers == null || consumers.Count() < 1)
             {
-                BGetCustomerInfo bGetCustomerInfo = new BGetCustomerInfo(null);
-                ConfigurationHelper configurationHelper = new ConfigurationHelper();
-                Console.WriteLine("GetTelephoneNumber" + "SourceId :" + requestModel.sourceid + " ClientId: " + requestModel.client);
-                CustomerInformationModel customerInformationModel = bGetCustomerInfo.GetTelephoneNumber(new GetTelephoneNumberRequestModel() { name = requestModel.client.ToString() }).Result;
-                _logHelper.LogCreate(requestModel, JsonConvert.SerializeObject(customerInformationModel), "GetTelephoneNumber", "");
-                Console.WriteLine("customerInformationModel" + JsonConvert.SerializeObject(customerInformationModel));
+                var bGetCustomerInfo = new BGetCustomerInfo(null);
+                var configurationHelper = new ConfigurationHelper();
+
+                var customerInformationModel = bGetCustomerInfo.GetTelephoneNumber(
+                                                                new GetTelephoneNumberRequestModel() { name = requestModel.client.ToString() }
+                                                                ).Result;
+
                 if (customerInformationModel != null && customerInformationModel.customerList != null && customerInformationModel.customerList.Count > 0 && customerInformationModel.customerList[0].gsmPhone != null)
                 {
                     string productCodeName;
-                    GetSourceTopicByIdResponse source = GetSourceById(requestModel.sourceid);
-
+                    var source = GetSourceById(requestModel.sourceid);
 
                     if (source != null && source.ProductCodeId != null)
                     {
@@ -178,9 +180,9 @@ namespace Notification.Profile.Business
                     }
                     PostConsumerRequest postConsumerRequest = new PostConsumerRequest();
                     postConsumerRequest.Phone = new Phone();
-                    postConsumerRequest.Phone.Number = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.number);
-                    postConsumerRequest.Phone.CountryCode = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.country);
-                    postConsumerRequest.Phone.Prefix = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.prefix);
+                    postConsumerRequest.Phone.Number = ConvertHelper.ToInt(customerInformationModel.customerList[0].gsmPhone.number);
+                    postConsumerRequest.Phone.CountryCode = ConvertHelper.ToInt(customerInformationModel.customerList[0].gsmPhone.country);
+                    postConsumerRequest.Phone.Prefix = ConvertHelper.ToInt(customerInformationModel.customerList[0].gsmPhone.prefix);
                     postConsumerRequest.Email = customerInformationModel.customerList[0].email;
                     postConsumerRequest.DeviceKey = customerInformationModel.customerList[0].device == null ? null : customerInformationModel.customerList[0].device.ToString();
                     GetInstantDGReminderResponse getInstantDGReminderResp = _IinstandReminder.GetCustomerPermissionWithProductCode(requestModel.client, productCodeName).Result;
@@ -260,16 +262,17 @@ namespace Notification.Profile.Business
                     if (c.Client == 0)
                     {
                         BGetCustomerInfo bGetCustomerInfo = new BGetCustomerInfo(null);
-                        Console.WriteLine("GetTelephoneNumberClient0" + "SourceId :" + requestModel.sourceid + " ClientId: " + requestModel.client);
                         ConfigurationHelper configurationHelper = new ConfigurationHelper();
+
                         CustomerInformationModel customerInformationModel = await bGetCustomerInfo.GetTelephoneNumber(new GetTelephoneNumberRequestModel() { name = requestModel.client.ToString() });
                         _logHelper.LogCreate(requestModel, JsonConvert.SerializeObject(customerInformationModel), "GetTelephoneNumberCustomerInformationModel0", "");
+
                         if (customerInformationModel != null && customerInformationModel.customerList != null && customerInformationModel.customerList.Count > 0)
                         {
                             c.Phone = new Phone();
-                            c.Phone.Number = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.number);
-                            c.Phone.CountryCode = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.country);
-                            c.Phone.Prefix = Convert.ToInt32(customerInformationModel.customerList[0].gsmPhone.prefix);
+                            c.Phone.Number = ConvertHelper.ToInt(customerInformationModel.customerList[0].gsmPhone.number);
+                            c.Phone.CountryCode = ConvertHelper.ToInt(customerInformationModel.customerList[0].gsmPhone.country);
+                            c.Phone.Prefix = ConvertHelper.ToInt(customerInformationModel.customerList[0].gsmPhone.prefix);
                         }
 
                     }
