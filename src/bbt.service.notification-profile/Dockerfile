@@ -6,7 +6,7 @@ WORKDIR /app
 RUN adduser -u 5679 --disabled-password --gecos "" notificationuser && chown -R notificationuser:notificationuser /app
 USER notificationuser
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-focal AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /src
 COPY ["bbt.service.notification-profile.csproj", "./"]
