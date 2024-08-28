@@ -9,6 +9,9 @@ USER notificationuser
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /src
+
+ENV DOTNET_NUGET_SIGNATURE_VERIFICATION=false
+
 COPY ["bbt.service.notification-profile.csproj", "./"]
 RUN dotnet restore "bbt.service.notification-profile.csproj"
 COPY . .
