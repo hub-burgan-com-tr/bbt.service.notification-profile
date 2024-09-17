@@ -176,14 +176,12 @@ namespace bbt.service.notification.ui.Pages
         }
         public async void ProdSave(Source sourceModel)
         {
-            string sicil = string.Empty;
             var user = (AuthenticationStated).Result.User;
-            sicil = user.Claims.Where(c => c.Type == "sicil")
-                     .Select(c => c.Value).SingleOrDefault();
+            var sicil = user.Claims.Where(c => c.Type == "sicil").Select(c => c.Value).SingleOrDefault();
+
             var result = await dialogService.Confirm("Release oluşmasını onaylıyor musunuz?", "Onay", new ConfirmOptions() { OkButtonText = "Evet", CancelButtonText = "Hayır" });
             if (result.HasValue && result.Value)
             {
-
                 ExecuteMethod(() =>
                 {
 
@@ -208,7 +206,9 @@ namespace bbt.service.notification.ui.Pages
                     postRequest.ProcessItemId = sourceModel.ProcessItemId;
                     postRequest.Id = sourceModel.Id;
                     postRequest.AlwaysSendType = sourceModel.AlwaysSendType;
-                    postRequest.AlwaysSendTypes = EnumHelper.ToIntArray((AlwaysSendType)sourceModel.AlwaysSendType);                    
+                    postRequest.AlwaysSendTypes = EnumHelper.ToIntArray((AlwaysSendType)sourceModel.AlwaysSendType);
+                    postRequest.MessageDataJsonPath = sourceModel.MessageDataJsonPath;
+                    postRequest.MessageDataFieldType = sourceModel.MessageDataFieldType;
 
                     SourceResponseModel sourceResp = sourceService.TfsReleaseCreate(postRequest).Result;
 

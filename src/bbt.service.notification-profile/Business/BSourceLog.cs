@@ -68,6 +68,8 @@ namespace Notification.Profile.Business
                 sourceLogModel.MethodType = data.MethodType;
                 sourceLogModel.InheritanceType = data.sourceLog.InheritanceType;
                 sourceLogModel.AlwaysSendType = data.sourceLog.AlwaysSendType;
+                sourceLogModel.MessageDataJsonPath = data.sourceLog.MessageDataJsonPath;
+                sourceLogModel.MessageDataFieldType = data.sourceLog.MessageDataFieldType;
 
                 db.Add(sourceLogModel);
                 db.SaveChanges();

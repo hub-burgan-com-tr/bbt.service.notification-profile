@@ -41,5 +41,7 @@ namespace Notification.Profile.Model
         public Deger ProcessItemId { get; set; }
         public Deger InheritanceType { get; set; }
         public Deger AlwaysSendType { get; set; }
+        public Deger MessageDataJsonPath { get; set; }
+        public Deger MessageDataFieldType { get; set; }
     }
 }

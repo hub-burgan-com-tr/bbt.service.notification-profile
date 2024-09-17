@@ -30,6 +30,8 @@ namespace Notification.Profile.Model.Database
         public string ProcessItemId { get; set; }
         public int InheritanceType { get; set; }
         public int AlwaysSendType { get; set; }
+        public string MessageDataJsonPath { get; set; }
+        public int MessageDataFieldType { get; set; }
 
         public string MethodType { get; set; }
         public DateTime CreateDate { get; set; }

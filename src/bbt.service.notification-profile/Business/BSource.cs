@@ -125,6 +125,8 @@ namespace Notification.Profile.Business
                 returnValue.ProcessItemId = res.ProcessItemId;
                 returnValue.InheritanceType = res.InheritanceType;
                 returnValue.AlwaysSendType = res.AlwaysSendType;
+                returnValue.MessageDataJsonPath = res.MessageDataJsonPath;
+                returnValue.MessageDataFieldType = res.MessageDataFieldType;
 
                 return returnValue;
             }
@@ -328,8 +330,10 @@ namespace Notification.Profile.Business
                                ProductCodeName = p == null ? null : p.ProductCodeName,
                                ProcessName = source.ProcessName,
                                ProcessItemId = source.ProcessItemId,
-                               InheritanceType = (int)source.InheritanceType,
-                               AlwaysSendType = (int)source.AlwaysSendType
+                               InheritanceType = source.InheritanceType,
+                               AlwaysSendType = source.AlwaysSendType,
+                               MessageDataJsonPath = source.MessageDataJsonPath,
+                               MessageDataFieldType = source.MessageDataFieldType
                            });
 
                 getSourcesResponse.Result = ResultEnum.Success;
@@ -374,8 +378,10 @@ namespace Notification.Profile.Business
                                ProductCodeName = p == null ? null : p.ProductCodeName,
                                ProcessName = source.ProcessName,
                                ProcessItemId = source.ProcessItemId,
-                               InheritanceType = (int)source.InheritanceType,
-                               AlwaysSendType = (int)source.AlwaysSendType
+                               InheritanceType = source.InheritanceType,
+                               AlwaysSendType = source.AlwaysSendType,
+                               MessageDataJsonPath = source.MessageDataJsonPath,
+                               MessageDataFieldType = source.MessageDataFieldType
                            }).Skip(((model.CurrentPage) - 1) * model.RequestItemSize)
                             .Take(model.RequestItemSize);
 
@@ -430,7 +436,9 @@ namespace Notification.Profile.Business
                     SaveInbox = s.SaveInbox,
                     ProcessName = s.ProcessName,
                     ProcessItemId = s.ProcessItemId,
-                    InheritanceType = (int)s.InheritanceType,
+                    InheritanceType = s.InheritanceType,
+                    MessageDataJsonPath = s.MessageDataJsonPath,
+                    MessageDataFieldType = s.MessageDataFieldType,
                     AlwaysSendType = s.AlwaysSendType
                 };
             }
@@ -469,6 +477,8 @@ namespace Notification.Profile.Business
                 if (data.SaveInbox != null) source.SaveInbox = data.SaveInbox;
                 if (data.InheritanceType != null) source.InheritanceType = data.InheritanceType;
                 if (data.AlwaysSendType != null) source.AlwaysSendType = data.AlwaysSendType;
+                if (data.MessageDataJsonPath != null) source.MessageDataJsonPath = data.MessageDataJsonPath;
+                if (data.MessageDataFieldType != null) source.MessageDataFieldType = data.MessageDataFieldType;
 
                 if (data.ParentId != null)
                 {
@@ -544,6 +554,8 @@ namespace Notification.Profile.Business
             sourceModel.SaveInbox = data.SaveInbox;
             sourceModel.InheritanceType = data.InheritanceType;
             sourceModel.AlwaysSendType = EnumHelper.IntListToInt(data.AlwaysSendTypes);
+            sourceModel.MessageDataJsonPath = data.MessageDataJsonPath;
+            sourceModel.MessageDataFieldType = data.MessageDataFieldType;
 
             using (var db = new DatabaseContext())
             {
@@ -657,6 +669,8 @@ namespace Notification.Profile.Business
             sourceModel.SaveInbox = data.SaveInbox;
             sourceModel.InheritanceType = data.InheritanceType;
             sourceModel.AlwaysSendType = EnumHelper.IntListToInt(data.AlwaysSendTypes);
+            sourceModel.MessageDataJsonPath = data.MessageDataJsonPath;
+            sourceModel.MessageDataFieldType = data.MessageDataFieldType;
 
             logRequest.sourceLog = sourceModel;
             logRequest.Environment = "Prod";
@@ -833,6 +847,16 @@ namespace Notification.Profile.Business
                     {
                         isSecret = false,
                         value = EnumHelper.IntListToInt(data.AlwaysSendTypes).ToString()
+                    },
+                    MessageDataJsonPath = new Deger
+                    {
+                        isSecret = false,
+                        value = data.MessageDataJsonPath
+                    },
+                    MessageDataFieldType = new Deger
+                    {
+                        isSecret = false,
+                        value = data.MessageDataFieldType.ToString()
                     }
                 }
             };

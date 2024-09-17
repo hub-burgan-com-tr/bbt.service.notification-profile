@@ -1,6 +1,5 @@
 ﻿using bbt.service.notification.ui.Component;
 using bbt.service.notification.ui.Configuration;
-using bbt.service.notification.ui.Model;
 using bbt.service.notification.ui.Service;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -8,7 +7,6 @@ using Notification.Profile.Enum;
 using Notification.Profile.Helper;
 using Notification.Profile.Model;
 using Notification.Profile.Model.Database;
-using Radzen.Blazor;
 
 
 namespace bbt.service.notification.ui.Pages
@@ -22,6 +20,7 @@ namespace bbt.service.notification.ui.Pages
         [Inject]
         public IDengageService dengageService { get; set; }
         public List<TextValueItem> displayTipList { get; set; }
+        public List<TextValueItem> messageDataFieldTypeList { get; set; }
 
         public List<Notification.Profile.Model.Source> parentList { get; set; }
 
@@ -42,9 +41,6 @@ namespace bbt.service.notification.ui.Pages
         Task<AuthenticationState> AuthenticationStated { get; set; }
         public int DisplayType { get; set; }
 
-
-
-        //List<DengageGetContents> listContentSms { get; set; }
         List<ContentInfo> listContentSms { get; set; }
         List<ContentInfo> listContentEmail { get; set; }
         List<ContentInfo> listContentPush { get; set; }
@@ -60,11 +56,11 @@ namespace bbt.service.notification.ui.Pages
         {
             if (firstRender)
             {
-
                 ExecuteMethod(() =>
                 {
                     LoadingModal.Open();
-                    if (sourceDetayModel != null && sourceDetayModel.Id != 0 && sourceDetayModel.Id != null)
+
+                    if (sourceDetayModel != null && sourceDetayModel.Id != 0)
                     {
                         sourceModel.KafkaCertificate = sourceDetayModel.KafkaCertificate;
                         sourceModel.SmsServiceReference = sourceDetayModel.SmsServiceReference;
@@ -89,62 +85,69 @@ namespace bbt.service.notification.ui.Pages
                         var alwaysSendTypeList = ((AlwaysSendType)sourceDetayModel.AlwaysSendType).ToIntArray();
 
                         sourceModel.AlwaysSendTypes = alwaysSendTypeList;
+                        sourceModel.MessageDataJsonPath = sourceDetayModel.MessageDataJsonPath;
+                        sourceModel.MessageDataFieldType = sourceDetayModel.MessageDataFieldType;
                     }
-                    GetProductCodeResponse getProductCodeResponse = new GetProductCodeResponse();
-                    getProductCodeResponse = productCodeService.GetProductCode().Result;
+
+                    var getProductCodeResponse = productCodeService.GetProductCode().Result;
+
                     if (getProductCodeResponse != null && getProductCodeResponse.Result == ResultEnum.Error)
                     {
                         Notification.ShowErrorMessage("Hata", getProductCodeResponse.MessageList[0].ToString());
+                        return;
                     }
-                    else
-                    {
-                        productCodeList = productCodeService.GetProductCode().Result.ProductCodes;
-                    }
-                    GetSourcesResponse getSourcesResponse = new GetSourcesResponse();
-                    getSourcesResponse = sourceService.GetSourceWithSearchModel(searchModel).Result;
+
+                    productCodeList = getProductCodeResponse!.ProductCodes;
+
+                    var getSourcesResponse = sourceService.GetSourceWithSearchModel(searchModel).Result;
+
                     if (getSourcesResponse != null && getSourcesResponse.Result == ResultEnum.Error)
                     {
                         Notification.ShowErrorMessage("Hata", getSourcesResponse.MessageList[0].ToString());
+                        return;
                     }
-                    parentList = sourceService.GetSourceWithSearchModel(searchModel).Result.Sources;
+
+                    parentList = getSourcesResponse!.Sources;
+
                     displayTipList = EnumHelper.BuildSelectListItems(typeof(SourceDisplayType));
+                    messageDataFieldTypeList = EnumHelper.BuildSelectListItems(typeof(MessageDataFieldType));
+
                     appsetting = Convert.ToBoolean(configuration.GetSection("ProdSave").Value);
 
+                    var respEmail = dengageService.GetMessagingGatewayEmailContent().Result;
 
-                    GetTemplateResponseModel respEmail = dengageService.GetMessagingGatewayEmailContent().Result;
-                    if (respEmail != null && respEmail.Result == ResultEnum.Success)
-                    {
-                        listContentEmail = respEmail.ContentList;
-                    }
-                    else
+                    if (respEmail == null || respEmail.Result != ResultEnum.Success)
                     {
                         Notification.ShowErrorMessage("Hata", respEmail.MessageList[0]);
-                    }
-                    GetTemplateResponseModel respPush = dengageService.GetMessagingGatewayPushContent().Result;
-                    if (respPush != null && respPush.Result == ResultEnum.Success)
-                    {
-                        listContentPush = respPush.ContentList;
-                    }
-                    else
-                    {
-                        Notification.ShowErrorMessage("Hata", respPush.MessageList[0]);
-                    }
-                    GetTemplateResponseModel respSms = dengageService.GetMessagingGatewaySmsContent().Result;
-                    if (respSms != null && respSms.Result == ResultEnum.Success)
-                    {
-                        listContentSms = respSms.ContentList;
-                    }
-                    else
-                    {
-                        Notification.ShowErrorMessage("Hata", respSms.MessageList[0]);
+                        return;
                     }
 
+                    listContentEmail = respEmail.ContentList;
+
+                    var respPush = dengageService.GetMessagingGatewayPushContent().Result;
+
+                    if (respPush == null || respPush.Result != ResultEnum.Success)
+                    {
+                        Notification.ShowErrorMessage("Hata", respPush.MessageList[0]);
+                        return;
+                    }
+
+                    listContentPush = respPush.ContentList;
+
+                    var respSms = dengageService.GetMessagingGatewaySmsContent().Result;
+
+                    if (respSms == null || respSms.Result != ResultEnum.Success)
+                    {
+                        Notification.ShowErrorMessage("Hata", respSms.MessageList[0]);
+                        return;
+                    }
+
+                    listContentSms = respSms.ContentList;
                 });
                 LoadingModal.Close();
             }
             base.CustomOnAfterRenderAsync(firstRender);
         }
-
 
         public void ModalClose()
         {
@@ -156,13 +159,14 @@ namespace bbt.service.notification.ui.Pages
 
         }
 
-        public void SourceSave()
+        public async void SourceSave()
         {
-            string sicil = string.Empty;
             var user = (AuthenticationStated).Result.User;
-            sicil = user.Claims.Where(c => c.Type == "sicil")
-                     .Select(c => c.Value).SingleOrDefault();
+
+            var sicil = user.Claims.Where(c => c.Type == "sicil").Select(c => c.Value).SingleOrDefault();
+
             SourceResponseModel sourceResp = new SourceResponseModel();
+
             if (sourceModel != null && sourceModel.Id > 0)
             {
                 PatchSourceRequest patchRequest = new PatchSourceRequest();
@@ -188,6 +192,8 @@ namespace bbt.service.notification.ui.Pages
                 patchRequest.User = sicil;
                 patchRequest.InheritanceType = sourceModel.InheritanceType;
                 patchRequest.AlwaysSendType = EnumHelper.IntListToInt(sourceModel.AlwaysSendTypes);
+                patchRequest.MessageDataJsonPath = sourceModel.MessageDataJsonPath;
+                patchRequest.MessageDataFieldType = sourceModel.MessageDataFieldType;
 
                 sourceResp = sourceService.Patch(sourceModel.Id, patchRequest).Result;
 
@@ -207,9 +213,9 @@ namespace bbt.service.notification.ui.Pages
             }
             else
             {
-
                 sourceModel.User = sicil;
                 sourceResp = sourceService.Post(sourceModel).Result;
+
                 if (sourceResp.Result == ResultEnum.Error)
                 {
                     Notification.ShowErrorMessage("Hata", "Kaydedilirken Hata Oluştu");
@@ -220,12 +226,8 @@ namespace bbt.service.notification.ui.Pages
                     dialogService.Close();
                     NavigationManager.NavigateTo("Pages/SourceListPage");
                     ListUpdate.InvokeAsync();
-
-
                 }
-
             }
         }
-
     }
 }

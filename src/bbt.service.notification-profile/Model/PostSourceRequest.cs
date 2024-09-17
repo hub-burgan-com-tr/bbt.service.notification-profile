@@ -49,4 +49,8 @@ public class PostSourceRequest
     public int InheritanceType { get; set; }
     public IEnumerable<int> AlwaysSendTypes { get; set; }
     public int AlwaysSendType { get; set; }
+
+    [Required(ErrorMessage = "MessageDataJsonPath boþ olamaz!")]
+    public string MessageDataJsonPath { get; set; }
+    public int MessageDataFieldType { get; set; }
 }
