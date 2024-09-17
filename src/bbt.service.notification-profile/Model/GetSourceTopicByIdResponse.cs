@@ -27,5 +27,7 @@ namespace Notification.Profile.Model
         public string ProcessItemId { get; set; }
         public int InheritanceType { get; set; }
         public int AlwaysSendType { get; set; }
+        public string MessageDataJsonPath { get; set; }
+        public int MessageDataFieldType { get; set; }
     }
 }

@@ -1,6 +1,3 @@
-
-using Notification.Profile.Enum;
-
 namespace Notification.Profile.Model.Database
 {
     public class Source
@@ -29,6 +26,8 @@ namespace Notification.Profile.Model.Database
         public string ProcessItemId { get; set; }
         public int InheritanceType { get; set; }
         public int AlwaysSendType { get; set; }
+        public string MessageDataJsonPath { get; set; }
+        public int MessageDataFieldType { get; set; }
         public List<SourceService> SourceServices { get; set; }
         public ProductCode ProductCode { get; set; }
     }

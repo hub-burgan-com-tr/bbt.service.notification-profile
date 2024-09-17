@@ -44,7 +44,11 @@ public class SourceSchemaFilter : ISchemaFilter
 
             ["InheritanceType"] = new OpenApiInteger(0),
 
-            ["AlwaysSendType"] = new OpenApiInteger(0)
+            ["AlwaysSendType"] = new OpenApiInteger(0),
+
+            ["MessageDataJsonPath"] = new OpenApiString(String.Empty),
+
+            ["MessageDataFieldType"] = new OpenApiInteger(0)
         };
     }
 }
